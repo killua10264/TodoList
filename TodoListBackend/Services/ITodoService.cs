@@ -1,5 +1,5 @@
 using TodoListBackend.Models;
-using TodoListBackend.DTOs;
+using TodoListBackend.DTOs.Todo;
 
 namespace TodoListBackend.Services
 {
@@ -7,7 +7,7 @@ namespace TodoListBackend.Services
     {
         Task<IEnumerable<Todo>> GetAllTodosAsync();
         Task<Todo?> CreateTodoAsync(TodoCreateDto dto);
-        Task<bool> SoftDeleteTodoAsync(int id);
+        Task<bool> DeleteTodoAsync(int id);
         Task<Todo?> UpdateTodoAsync(int id, TodoUpdateDto dto);
     }
 }

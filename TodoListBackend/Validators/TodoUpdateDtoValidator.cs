@@ -1,5 +1,5 @@
 using FluentValidation;
-using TodoListBackend.DTOs;
+using TodoListBackend.DTOs.Todo;
 
 namespace TodoListBackend.Validators
 {

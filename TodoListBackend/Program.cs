@@ -20,5 +20,20 @@ builder.Services.AddValidatorsFromAssemblyContaining<TodoCreateDtoValidator>();
 
 builder.Services.AddScoped<ITodoService, TodoService>();
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();

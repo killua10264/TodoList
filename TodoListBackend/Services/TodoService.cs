@@ -1,5 +1,5 @@
 using TodoListBackend.Models;
-using TodoListBackend.DTOs;
+using TodoListBackend.DTOs.Todo;
 using TodoListBackend.Repositories;
 
 namespace TodoListBackend.Services
@@ -45,7 +45,7 @@ namespace TodoListBackend.Services
             return newTodo;
         }
 
-        public async Task<bool> SoftDeleteTodoAsync(int id)
+        public async Task<bool> DeleteTodoAsync(int id)
         {
             var todo = await _todoRepository.GetByIdAsync(id);
             if (todo == null) return false;

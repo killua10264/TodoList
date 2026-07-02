@@ -1,4 +1,4 @@
-namespace TodoListBackend.DTOs
+namespace TodoListBackend.DTOs.Todo
 {
     public class TodoUpdateDto
     {
