@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using TodoListBackend.DTOs.Category;
 using TodoListBackend.Services;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace TodoListBackend.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/categories")]
     public class CategoryController : ControllerBase
@@ -51,6 +54,7 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);

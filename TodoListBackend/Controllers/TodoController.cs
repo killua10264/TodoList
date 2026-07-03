@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using TodoListBackend.DTOs.Todo;
 using TodoListBackend.Services;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace TodoListBackend.Controllers
 {
+    [Authorize]
     [Route("api/todos")]
     [ApiController]
     public class TodoController : ControllerBase

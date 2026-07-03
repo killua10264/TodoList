@@ -32,7 +32,7 @@ namespace TodoListBackend.Data
                 entity.Property(u => u.Email)
                     .HasMaxLength(150)
                     .IsRequired();
-                entity.Property(u => u.PasswordHash)
+                entity.Property(u => u.Password)
                     .HasMaxLength(255)
                     .IsRequired();
             });
