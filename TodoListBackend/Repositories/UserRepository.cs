@@ -13,10 +13,10 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task UpdateAsync(User user)
+        public Task UpdateAsync(User user)
         {
             _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            return Task.CompletedTask;
         }
 
         public async Task SaveChangesAsync()

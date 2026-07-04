@@ -1,5 +1,6 @@
 using TodoListBackend.Models;
 using TodoListBackend.Data;
+using TodoListBackend.DTOs.Category;
 using Microsoft.EntityFrameworkCore;
 
 namespace TodoListBackend.Repositories
@@ -13,14 +14,24 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Category>> GetAllAsync()
+        public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync(int userId)
         {
-            return await _context.Categories.ToListAsync();
+            return await _context.Categories
+                .AsNoTracking()
+                .Where(c => c.UserId == userId)
+                .Select(c => new CategoryResponseDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Color = c.Color
+                })
+                .ToListAsync();
         }
 
-        public async Task<Category?> GetByIdAsync(int id)
+        public async Task<Category?> GetByIdAsync(int id, int userId)
         {
-            return await _context.Categories.FindAsync(id);
+            return await _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == id && c.UserId == userId);
         }
 
         public async Task<Category?> GetByNameAsync(string name)
@@ -28,25 +39,25 @@ namespace TodoListBackend.Repositories
             return await _context.Categories.FirstOrDefaultAsync(c => c.Name == name);
         }
 
-        public async Task AddAsync(Category Category)
+        public async Task AddAsync(Category category)
         {
-            await _context.Categories.AddAsync(Category);
+            await _context.Categories.AddAsync(category);
         }
 
-        public Task UpdateAsync(Category Category)
+        public Task UpdateAsync(Category category)
         {
-            _context.Categories.Update(Category);
+            _context.Categories.Update(category);
+            return Task.CompletedTask;
+        }
+
+        public Task DeleteAsync(Category category)
+        {
+            _context.Categories.Remove(category);
             return Task.CompletedTask;
         }
 
         public async Task SaveChangesAsync()
         {
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task DeleteAsync(Category category)
-        {
-            _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
         }
     }

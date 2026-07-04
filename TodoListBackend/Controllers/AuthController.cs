@@ -63,6 +63,7 @@ namespace TodoListBackend.Controllers
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
 
             return Ok(new 
             { 
@@ -88,6 +89,7 @@ namespace TodoListBackend.Controllers
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _userRepository.UpdateAsync(user);
+            await _userRepository.SaveChangesAsync();
 
             return Ok(new {
                 accessToken = newJwtToken,

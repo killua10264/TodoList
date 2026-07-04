@@ -37,7 +37,6 @@ namespace TodoListBackend.Data
                     .IsRequired();
             });
 
-            // Cấu hình cho bảng Category
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.Property(c => c.Name)
@@ -45,6 +44,10 @@ namespace TodoListBackend.Data
                     .IsRequired();
                 entity.Property(c => c.Color)
                     .HasMaxLength(30);
+                entity.HasOne(c => c.User)
+                    .WithMany()
+                    .HasForeignKey(c => c.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

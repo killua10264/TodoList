@@ -13,22 +13,27 @@ namespace TodoListBackend.Services
             _userRepository = userRepository;
         }
 
-        public async Task<User?> UpdateUserAsync(int id, UserUpdateDto dto)
+        public async Task<UserResponseDto?> UpdateUserAsync(int userId, UserUpdateDto dto)
         {
-            var existingUser = await _userRepository.GetByIdAsync(id);
+            var existingUser = await _userRepository.GetByIdAsync(userId);
 
             if (existingUser == null)
             {
                 return null;
             }
 
-            existingUser.Username = dto.Username;
-            existingUser.Email = dto.Email;
+            existingUser.Username = dto.Username?.Trim() ?? existingUser.Username;
+            existingUser.Email = dto.Email?.Trim() ?? existingUser.Email;
 
             await _userRepository.UpdateAsync(existingUser);
             await _userRepository.SaveChangesAsync();
 
-            return existingUser;
+            return new UserResponseDto
+            {
+                Id = existingUser.Id,
+                Username = existingUser.Username,
+                Email = existingUser.Email
+            };
         }
     }
 }

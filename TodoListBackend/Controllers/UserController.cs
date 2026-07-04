@@ -2,14 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using TodoListBackend.DTOs.User;
 using TodoListBackend.Services;
 
-using Microsoft.AspNetCore.Authorization;
-
 namespace TodoListBackend.Controllers
 {
-    [Authorize]
-    [ApiController]
     [Route("api/users")]
-    public class UserController : ControllerBase
+    public class UserController : BaseApiController
     {
         private readonly IUserService _userService;
 
@@ -21,8 +17,7 @@ namespace TodoListBackend.Controllers
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UserUpdateDto dto)
         {
-            //Tempt
-            int userId = 1; // Replace with actual user ID from authentication context
+            int userId = GetCurrentUserId();
 
             var updatedUser = await _userService.UpdateUserAsync(userId, dto);
 
@@ -31,7 +26,7 @@ namespace TodoListBackend.Controllers
                 return NotFound(new { message = "Tài khoản không tồn tại." });
             }
 
-            return Ok(new { message = "Cập nhật thông tin tài khoản thành công."});
+            return Ok(new { message = "Cập nhật thông tin tài khoản thành công.", data = updatedUser });
         }
     }
 }

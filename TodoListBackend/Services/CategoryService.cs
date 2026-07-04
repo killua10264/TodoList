@@ -1,6 +1,7 @@
 using TodoListBackend.Models;
 using TodoListBackend.DTOs.Category;
 using TodoListBackend.Repositories;
+using TodoListBackend.Mappings;
 
 namespace TodoListBackend.Services
 {
@@ -13,28 +14,29 @@ namespace TodoListBackend.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync(int userId)
         {
-            return await _categoryRepository.GetAllAsync();
+            return await _categoryRepository.GetAllCategoriesAsync(userId);
         }
 
-        public async Task<Category?> CreateCategoryAsync(CategoryCreateDto dto)
+        public async Task<CategoryResponseDto?> CreateCategoryAsync(CategoryCreateDto dto, int userId)
         {
             var category = new Category
             {
                 Name = dto.Name,
-                Color = dto.Color
+                Color = dto.Color,
+                UserId = userId
             };
 
             await _categoryRepository.AddAsync(category);
             await _categoryRepository.SaveChangesAsync();
 
-            return category;
+            return category.ToResponseDto();
         }
 
-        public async Task<bool> DeleteCategoryAsync(int id)
+        public async Task<bool> DeleteCategoryAsync(int id, int userId)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            var category = await _categoryRepository.GetByIdAsync(id, userId);
             if (category == null) return false;
 
             await _categoryRepository.DeleteAsync(category);
@@ -43,9 +45,9 @@ namespace TodoListBackend.Services
             return true;
         }
 
-        public async Task<Category?> UpdateCategoryAsync(int id, CategoryUpdateDto dto)
+        public async Task<CategoryResponseDto?> UpdateCategoryAsync(int id, CategoryUpdateDto dto, int userId)
         {
-            var existingCategory = await _categoryRepository.GetByIdAsync(id);
+            var existingCategory = await _categoryRepository.GetByIdAsync(id, userId);
             if (existingCategory == null) return null;
 
             existingCategory.Name = dto.Name;
@@ -54,7 +56,7 @@ namespace TodoListBackend.Services
             await _categoryRepository.UpdateAsync(existingCategory);
             await _categoryRepository.SaveChangesAsync();
 
-            return existingCategory;
+            return existingCategory.ToResponseDto();
         }
     }
 }
