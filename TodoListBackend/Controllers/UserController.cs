@@ -19,12 +19,8 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
+            // FIX 4.2: Xóa null-check dead code — Service throw exception nếu không tìm thấy hoặc lỗi email
             var updatedUser = await _userService.UpdateUserAsync(userId, dto);
-
-            if (updatedUser == null)
-            {
-                return NotFound(new { message = "Tài khoản không tồn tại." });
-            }
 
             return Ok(new { message = "Cập nhật thông tin tài khoản thành công.", data = updatedUser });
         }

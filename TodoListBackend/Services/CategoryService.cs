@@ -2,24 +2,26 @@ using TodoListBackend.Models;
 using TodoListBackend.DTOs.Category;
 using TodoListBackend.Repositories;
 using TodoListBackend.Mappings;
+using TodoListBackend.Exceptions;
 
 namespace TodoListBackend.Services
 {
     public class CategoryService : ICategoryService
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CategoryService(ICategoryRepository categoryRepository)
+        public CategoryService(IUnitOfWork unitOfWork)
         {
-            _categoryRepository = categoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync(int userId)
         {
-            return await _categoryRepository.GetAllCategoriesAsync(userId);
+            var categories = await _unitOfWork.Categories.GetAllCategoriesAsync(userId);
+            return categories.Select(c => c.ToResponseDto()!);
         }
 
-        public async Task<CategoryResponseDto?> CreateCategoryAsync(CategoryCreateDto dto, int userId)
+        public async Task<CategoryResponseDto> CreateCategoryAsync(CategoryCreateDto dto, int userId)
         {
             var category = new Category
             {
@@ -28,35 +30,38 @@ namespace TodoListBackend.Services
                 UserId = userId
             };
 
-            await _categoryRepository.AddAsync(category);
-            await _categoryRepository.SaveChangesAsync();
+            await _unitOfWork.Categories.AddAsync(category);
+            await _unitOfWork.SaveChangesAsync();
 
-            return category.ToResponseDto();
+            return category.ToResponseDto()
+                ?? throw new BusinessException("Không thể tạo danh mục.");
         }
 
-        public async Task<bool> DeleteCategoryAsync(int id, int userId)
+        // FIX 3.6 + 4.2: User tự xóa category của mình, throw NotFoundException nếu không thấy
+        public async Task DeleteCategoryAsync(int id, int userId)
         {
-            var category = await _categoryRepository.GetByIdAsync(id, userId);
-            if (category == null) return false;
+            var category = await _unitOfWork.Categories.GetByIdAsync(id, userId);
+            if (category == null)
+                throw new NotFoundException($"Không tìm thấy danh mục có ID = {id}.");
 
-            await _categoryRepository.DeleteAsync(category);
-            await _categoryRepository.SaveChangesAsync();
-
-            return true;
+            await _unitOfWork.Categories.DeleteAsync(category);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task<CategoryResponseDto?> UpdateCategoryAsync(int id, CategoryUpdateDto dto, int userId)
+        // FIX 4.2: Throw NotFoundException thay vì return null
+        public async Task<CategoryResponseDto> UpdateCategoryAsync(int id, CategoryUpdateDto dto, int userId)
         {
-            var existingCategory = await _categoryRepository.GetByIdAsync(id, userId);
-            if (existingCategory == null) return null;
+            var existingCategory = await _unitOfWork.Categories.GetByIdAsync(id, userId);
+            if (existingCategory == null)
+                throw new NotFoundException($"Không tìm thấy danh mục có ID = {id}.");
 
             existingCategory.Name = dto.Name;
             existingCategory.Color = dto.Color;
 
-            await _categoryRepository.UpdateAsync(existingCategory);
-            await _categoryRepository.SaveChangesAsync();
+            // FIX 2.4: Không cần gọi UpdateAsync — Change Tracker tự detect
+            await _unitOfWork.SaveChangesAsync();
 
-            return existingCategory.ToResponseDto();
+            return existingCategory.ToResponseDto()!;
         }
     }
 }

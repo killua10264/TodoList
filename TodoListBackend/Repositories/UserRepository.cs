@@ -13,16 +13,7 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public Task UpdateAsync(User user)
-        {
-            _context.Users.Update(user);
-            return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
+        // FIX 2.4: Xóa UpdateAsync — EF Change Tracker tự detect changes
 
         public async Task<User?> GetByIdAsync(int id)
         {
@@ -39,11 +30,15 @@ namespace TodoListBackend.Repositories
             return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
-        public async Task<User> CreateUserAsync(User user)
+        // FIX 3.7: Check email tồn tại nhưng loại trừ user hiện tại (cho update profile)
+        public async Task<bool> ExistsByEmailAsync(string email, int excludeUserId)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return user;
+            return await _context.Users.AnyAsync(u => u.Email == email && u.Id != excludeUserId);
+        }
+
+        public async Task AddAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
         }
 
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken)

@@ -17,11 +17,14 @@ namespace TodoListBackend.Data
             modelBuilder.Entity<Todo>(entity => 
             {
                 entity.Property(t => t.Title)
-                    .HasMaxLength(200) // nvarchar(200)
-                    .IsRequired(); //NOT NULL
+                    .HasMaxLength(200)
+                    .IsRequired();
 
                 entity.Property(t => t.Description)
-                    .HasMaxLength(1000); // nvarchar(1000)
+                    .HasMaxLength(1000);
+
+                entity.HasIndex(t => new { t.UserId, t.IsDeleted })
+                      .HasDatabaseName("IX_Todos_UserId_IsDeleted");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -35,6 +38,14 @@ namespace TodoListBackend.Data
                 entity.Property(u => u.Password)
                     .HasMaxLength(255)
                     .IsRequired();
+                entity.Property(u => u.Role)
+                    .HasConversion<string>()
+                    .HasMaxLength(20)
+                    .HasDefaultValue(UserRole.User);
+                entity.Property(u => u.RefreshToken)
+                    .HasMaxLength(255);
+                entity.HasIndex(u => u.RefreshToken)
+                    .HasDatabaseName("IX_Users_RefreshToken");
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -48,6 +59,10 @@ namespace TodoListBackend.Data
                     .WithMany()
                     .HasForeignKey(c => c.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
+
+                // FIX 2.3: Index cho Category.UserId
+                entity.HasIndex(c => c.UserId)
+                      .HasDatabaseName("IX_Categories_UserId");
             });
         }
     }

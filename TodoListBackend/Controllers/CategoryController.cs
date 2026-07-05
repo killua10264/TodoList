@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoListBackend.DTOs.Category;
 using TodoListBackend.Services;
@@ -29,11 +28,8 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
+            // FIX 4.2: Xóa null-check dead code — Service sẽ throw exception nếu lỗi
             var newCategory = await _categoryService.CreateCategoryAsync(dto, userId);
-            if (newCategory == null)
-            {
-                return BadRequest(new { message = "Không thể tạo danh mục." });
-            }
 
             return StatusCode(201, newCategory);
         }
@@ -43,26 +39,20 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
+            // FIX 4.2: Xóa null-check dead code
             var updatedCategory = await _categoryService.UpdateCategoryAsync(id, dto, userId);
-            if (updatedCategory == null)
-            {
-                return NotFound(new { message = $"Không tìm thấy danh mục có ID = {id}." });
-            }
 
             return Ok(updatedCategory);
         }
 
+        // FIX 3.6: Xóa [Authorize(Roles = "Admin")] — cho phép user thường xóa category CỦA CHÍNH MÌNH (đã filter theo userId trong service)
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             int userId = GetCurrentUserId();
 
-            var result = await _categoryService.DeleteCategoryAsync(id, userId);
-            if (!result)
-            {
-                return NotFound(new { message = $"Không tìm thấy danh mục có ID = {id}." });
-            }
+            // FIX 4.2: Xóa false check dead code
+            await _categoryService.DeleteCategoryAsync(id, userId);
 
             return NoContent();
         }

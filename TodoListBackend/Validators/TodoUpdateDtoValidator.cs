@@ -7,15 +7,19 @@ namespace TodoListBackend.Validators
     {
         public TodoUpdateDtoValidator()
         {
+            // FIX 4.3: Dùng .When() — chỉ validate khi field được gửi (partial update)
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Tiêu đề không được để trống.")
-                .MaximumLength(100).WithMessage("Tiêu đề không được vượt quá 100 ký tự.");
+                .MaximumLength(100).WithMessage("Tiêu đề không được vượt quá 100 ký tự.")
+                .When(x => x.Title != null);
 
             RuleFor(x => x.Description)
-                .MaximumLength(500).WithMessage("Mô tả không được vượt quá 500 ký tự.");
+                .MaximumLength(500).WithMessage("Mô tả không được vượt quá 500 ký tự.")
+                .When(x => x.Description != null);
 
             RuleFor(x => x.Priority)
-                .InclusiveBetween(1, 5).WithMessage("Độ ưu tiên là các số từ 1 đến 5.");
+                .InclusiveBetween(1, 5).WithMessage("Độ ưu tiên là các số từ 1 đến 5.")
+                .When(x => x.Priority != null);
         }
     }
 }

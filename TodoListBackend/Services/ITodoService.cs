@@ -1,14 +1,14 @@
-using TodoListBackend.Models;
 using TodoListBackend.DTOs.Todo;
 
 namespace TodoListBackend.Services
 {
     public interface ITodoService
     {
-        Task<IEnumerable<TodoResponseDto>> GetAllTodosAsync(int userId);
+        // FIX 2.2: Pagination
+        Task<DTOs.PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20);
         Task<TodoResponseDto?> GetTodoByIdAsync(int id, int userId);
-        Task<TodoResponseDto?> CreateTodoAsync(TodoCreateDto dto, int userId);
-        Task<bool> DeleteTodoAsync(int id, int userId);
-        Task<TodoResponseDto?> UpdateTodoAsync(int id, TodoUpdateDto dto, int userId);
+        Task<TodoResponseDto> CreateTodoAsync(TodoCreateDto dto, int userId);
+        Task DeleteTodoAsync(int id, int userId);
+        Task<TodoResponseDto> UpdateTodoAsync(int id, TodoUpdateDto dto, int userId);
     }
 }

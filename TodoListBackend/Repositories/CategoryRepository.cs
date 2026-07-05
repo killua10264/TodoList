@@ -1,6 +1,5 @@
 using TodoListBackend.Models;
 using TodoListBackend.Data;
-using TodoListBackend.DTOs.Category;
 using Microsoft.EntityFrameworkCore;
 
 namespace TodoListBackend.Repositories
@@ -14,17 +13,11 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync(int userId)
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync(int userId)
         {
             return await _context.Categories
                 .AsNoTracking()
                 .Where(c => c.UserId == userId)
-                .Select(c => new CategoryResponseDto
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Color = c.Color
-                })
                 .ToListAsync();
         }
 
@@ -44,21 +37,12 @@ namespace TodoListBackend.Repositories
             await _context.Categories.AddAsync(category);
         }
 
-        public Task UpdateAsync(Category category)
-        {
-            _context.Categories.Update(category);
-            return Task.CompletedTask;
-        }
+        // FIX 2.4: Xóa UpdateAsync — EF Change Tracker tự detect changes
 
         public Task DeleteAsync(Category category)
         {
             _context.Categories.Remove(category);
             return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }

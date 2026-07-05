@@ -17,8 +17,9 @@ namespace TodoListBackend.Validators
             RuleFor(x => x.Priority)
                 .InclusiveBetween(1, 5).WithMessage("Độ ưu tiên là các số từ 1 đến 5.");
 
+            // FIX 4.4: Dùng DateTime.UtcNow thay vì DateTime.Now để nhất quán timezone
             RuleFor(x => x.DueDate)
-                .GreaterThan(DateTime.Now).WithMessage("Giờ hết hạn không được là thời gian trong quá khứ.");
+                .GreaterThan(DateTime.UtcNow).WithMessage("Giờ hết hạn không được là thời gian trong quá khứ.");
         }
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TodoListBackend.Data;
 using TodoListBackend.Models;
-using TodoListBackend.DTOs.Todo; // Đừng quên using DTOs
 
 namespace TodoListBackend.Repositories
 {
@@ -14,24 +13,23 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<TodoResponseDto>> GetAllTodosAsync(int userId)
+        // FIX 2.2: Pagination — chỉ load một trang kết quả
+        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20)
         {
-            return await _context.Todos
+            var query = _context.Todos
                 .AsNoTracking()
-                .Where(t => t.UserId == userId && !t.IsDeleted)
-                .Select(t => new TodoResponseDto
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = t.Description,
-                    IsCompleted = t.IsCompleted,
-                    Priority = t.Priority,
-                    DueDate = t.DueDate,
-                    CategoryId = t.CategoryId,
-                    CategoryName = t.Category != null ? t.Category.Name : string.Empty,
-                    CategoryColor = t.Category != null ? t.Category.Color : string.Empty
-                })
+                .Include(t => t.Category)
+                .Where(t => t.UserId == userId && !t.IsDeleted);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (items, totalCount);
         }
 
         public async Task<Todo?> GetByIdAsync(int id, int userId)
@@ -46,15 +44,8 @@ namespace TodoListBackend.Repositories
             await _context.Todos.AddAsync(todo);
         }
 
-        public Task UpdateAsync(Todo todo)
-        {
-            _context.Todos.Update(todo);
-            return Task.CompletedTask;
-        }
-
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
+        // FIX 2.4: Xóa UpdateAsync() — EF Core Change Tracker tự detect changes
+        // Khi entity được load bởi GetByIdAsync (có tracking), chỉ cần sửa property
+        // rồi gọi SaveChangesAsync() → EF chỉ UPDATE cột thực sự thay đổi.
     }
 }

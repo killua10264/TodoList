@@ -14,13 +14,14 @@ namespace TodoListBackend.Controllers
             _todoService = todoService;
         }
 
+        // FIX 2.2: Hỗ trợ pagination qua query string page và pageSize
         [HttpGet]
-        public async Task<IActionResult> GetAllTodos()
+        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             int userId = GetCurrentUserId();
-            var todos = await _todoService.GetAllTodosAsync(userId);
+            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize);
 
-            return Ok(todos);
+            return Ok(paginatedTodos);
         }
 
         [HttpPost]
@@ -28,8 +29,8 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
+            // FIX 4.2: Xóa null-check dead code — Service sẽ throw exception nếu lỗi
             var newTodo = await _todoService.CreateTodoAsync(dto, userId);
-            if (newTodo == null) return BadRequest(new { message = "Không thể tạo công việc." });
 
             return StatusCode(201, newTodo);
         }
@@ -39,13 +40,9 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
+            // FIX 4.2: Xóa null-check dead code
             var updatedTodo = await _todoService.UpdateTodoAsync(id, dto, userId);
             
-            if (updatedTodo == null)
-            {
-                return NotFound(new { message = $"Không tìm thấy công việc có ID = {id} hoặc công việc đã bị xóa."});
-            }
-
             return Ok(updatedTodo);
         }
 
@@ -54,12 +51,8 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
-            var result = await _todoService.DeleteTodoAsync(id, userId);
-
-            if (!result)
-            {
-                return NotFound(new { message = $"Không tìm thấy công việc có ID = {id} hoặc công việc đã bị xóa."});
-            }
+            // FIX 4.2: Xóa false check dead code
+            await _todoService.DeleteTodoAsync(id, userId);
 
             return NoContent();
         }

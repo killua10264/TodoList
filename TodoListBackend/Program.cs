@@ -10,6 +10,8 @@ using TodoListBackend.Validators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,21 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// FIX 3.4: Thêm Rate Limiting để chống Brute-force và DoS attacks trên endpoints nhạy cảm
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("AuthLimit", opt =>
+    {
+        opt.PermitLimit = 5; // Tối đa 5 request
+        opt.Window = TimeSpan.FromMinutes(1); // trong vòng 1 phút
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 0;
+    });
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -53,7 +70,11 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(
+                builder.Configuration["Jwt:Key"] 
+                    ?? throw new InvalidOperationException(
+                        "JWT signing key is not configured. Use 'dotnet user-secrets set Jwt:Key <your-secret>' or set environment variable 'Jwt__Key'.")))
     };
 });
 
@@ -70,6 +91,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFE");
+
+// FIX 3.4: Kích hoạt Rate Limiting middleware
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

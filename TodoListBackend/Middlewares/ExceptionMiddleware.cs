@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using TodoListBackend.Exceptions;
 
 namespace TodoListBackend.Middlewares
 {
@@ -33,12 +34,13 @@ namespace TodoListBackend.Middlewares
         {
             context.Response.ContentType = "application/json";
 
-            var statusCode = ex switch
+            // FIX 4.1: Chỉ trả message từ BusinessException (do dev kiểm soát).
+            // Mọi exception khác → message chung, tránh leak thông tin nội bộ.
+            var (statusCode, message) = ex switch
             {
-                UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized, // 401
-                ArgumentException => (int)HttpStatusCode.BadRequest,             // 400
-                KeyNotFoundException => (int)HttpStatusCode.NotFound,            // 404
-                _ => (int)HttpStatusCode.InternalServerError                     // 500 (Mặc định)
+                BusinessException bex => (bex.StatusCode, bex.Message),
+                UnauthorizedAccessException => (401, "Không có quyền truy cập."),
+                _ => (500, "Đã xảy ra lỗi nội bộ từ máy chủ. Vui lòng thử lại sau.")
             };
 
             context.Response.StatusCode = statusCode;
@@ -46,10 +48,8 @@ namespace TodoListBackend.Middlewares
             // Cấu trúc JSON trả về cho Client
             var response = new
             {
-                statusCode = statusCode,
-                message = statusCode == 500 
-                    ? "Đã xảy ra lỗi nội bộ từ máy chủ. Vui lòng thử lại sau." 
-                    : ex.Message // Với lỗi 400, 404, 401 thì trả về thông báo lỗi chi tiết cho FE biết
+                statusCode,
+                message
             };
 
             return context.Response.WriteAsync(JsonSerializer.Serialize(response));
