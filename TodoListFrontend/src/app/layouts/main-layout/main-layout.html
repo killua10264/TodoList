@@ -1,0 +1,27 @@
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-brand">📝 TodoList</div>
+  <div class="navbar-actions">
+    <button class="btn-logout" (click)="onLogout()">Đăng xuất</button>
+  </div>
+</nav>
+
+<div class="main-wrapper">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a routerLink="/todos" routerLinkActive="active">
+      ✅ Công việc
+    </a>
+    <a routerLink="/categories" routerLinkActive="active">
+      📁 Danh mục
+    </a>
+    <a routerLink="/profile" routerLinkActive="active">
+      👤 Hồ sơ
+    </a>
+  </aside>
+
+  <!-- NỘI DUNG CHÍNH -->
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>
