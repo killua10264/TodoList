@@ -1,0 +1,137 @@
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #faf8f4;
+    border-bottom: 1px solid #e8e4d8;
+}
+
+.header__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.header__logo img {
+    height: 40px;
+}
+
+.header__brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #4a5a3a;
+}
+
+.header__tagline {
+    display: block;
+    font-size: 0.7rem;
+    color: #8a8570;
+}
+
+.header__nav {
+    display: flex;
+    gap: 2rem;
+}
+
+.header__nav a {
+    text-decoration: none;
+    color: #5a5a4a;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+}
+
+.header__nav a:hover,
+.header__nav a.active {
+    color: #4a5a3a;
+    font-weight: 600;
+}
+
+.header__actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-outline {
+    padding: 0.5rem 1.25rem;
+    border: 1.5px solid #4a5a3a;
+    border-radius: 8px;
+    background: transparent;
+    color: #4a5a3a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-outline:hover {
+    background: #4a5a3a;
+    color: white;
+}
+
+.btn-solid {
+    padding: 0.5rem 1.25rem;
+    background: #4a5a3a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-solid:hover {
+    background: #3d4d30;
+}
+
+.footer {
+  background: #3a4a2e; 
+  color: #c8c8b8;
+  padding: 3rem 2rem 0;
+  margin-top: 4rem;
+}
+.footer__inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr; 
+  gap: 2rem;
+  padding-bottom: 2rem;
+}
+.footer__brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  color: white;
+  display: block;
+  margin: 0.5rem 0;
+}
+.footer__brand p { font-size: 0.85rem; line-height: 1.5; }
+.footer__brand img { height: 40px; filter: brightness(10); }
+
+.footer__links { display: flex; flex-direction: column; gap: 0.5rem; }
+.footer__links h4 { color: white; font-size: 0.95rem; margin-bottom: 0.5rem; }
+.footer__links a {
+  color: #a8a898;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.2s;
+}
+.footer__links a:hover { color: white; }
+
+.footer__bottom {
+  border-top: 1px solid #4a5a3e;
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 0.8rem;
+  color: #8a8a7a;
+  max-width: 1200px;
+  margin: 0 auto;
+}

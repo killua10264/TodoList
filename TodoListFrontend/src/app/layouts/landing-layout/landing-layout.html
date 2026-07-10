@@ -1,0 +1,63 @@
+<header class="header">
+    <div class="header__inner">
+        <a href="/" class="header__logo">
+            <img src="assets/images/logo.svg" alt="Zen Branch" />
+            <div class="header__logo--text">
+                <span class="header__brand">Zen Branch</span>
+                <span class="header__tagline">Khu vườn Tĩnh Lặng</span>
+            </div>
+        </a>
+
+        <nav class="header__nav">
+            <a routerLink="/" routerLinkActive="active">Trang chủ</a>
+            <a routerLink="/features">Tính năng</a>
+            <a routerLink="/samples">Mẫu</a>
+            <a routerLink="/about">Về chúng tôi</a>
+        </nav>
+
+        <div class="header__actions">
+            <a routerLink="/login" class="btn-outline">Đăng nhập</a>
+            <a routerLink="/register" class="btn-solid">Bắt đầu ngay</a>
+        </div>
+    </div>
+</header>
+
+<main>
+    <router-outlet />
+</main>
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <img src="assets/images/logo.svg" alt="Zen Branch" />
+      <span class="footer__brand-name">Zen Branch</span>
+      <p>Nơi gieo mầm năng suất, gặt hái an yên.</p>
+    </div>
+
+    <div class="footer__links">
+      <h4>Về Sản Phẩm</h4>
+      <a href="#">Tính năng</a>
+      <a href="#">Mẫu kế hoạch</a>
+      <a href="#">Cập nhật mới</a>
+    </div>
+
+    <div class="footer__links">
+      <h4>Hỗ Trợ</h4>
+      <a href="#">Hướng dẫn</a>
+      <a href="#">FAQs</a>
+      <a href="#">Liên hệ</a>
+    </div>
+
+    <div class="footer__links">
+      <h4>Mạng xã hội</h4>
+      <a href="#">Facebook</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">Cộng đồng</a>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    © 2026 Zen Branch. All rights reserved. |
+    Chính sách bảo mật | Điều khoản sử dụng
+  </div>
+</footer>

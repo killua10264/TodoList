@@ -1,17 +1,29 @@
 import { Routes } from '@angular/router';
+
+import { LandingLayoutComponent } from './layouts/landing-layout/landing-layout';
 import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout';
-import { RegisterComponent } from './features/auth/register/register';
+
+import { HomeComponent } from './features/home/home';
 import { LoginComponent } from './features/auth/login/login';
+import { RegisterComponent } from './features/auth/register/register';
 
 export const routes: Routes = [
   {
     path: '',
+    component: LandingLayoutComponent,
+    children: [
+      { path: '', component: HomeComponent }
+    ]
+  },
+
+  {
+    path: '',
     component: AuthLayoutComponent,
     children: [
-      { path: 'register', component: RegisterComponent },
-      { path: '', redirectTo: 'register', pathMatch: 'full' },
       { path: 'login', component: LoginComponent },
-      { path: '', redirectTo: 'login', pathMatch: 'full' }
+      { path: 'register', component: RegisterComponent }
     ]
-  }
+  },
+
+  { path: '**', redirectTo: '' }
 ];
