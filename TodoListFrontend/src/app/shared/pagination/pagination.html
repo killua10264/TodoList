@@ -1,0 +1,15 @@
+@if (totalPages() > 1) {
+<div class="pagination">
+    <button (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">
+        ← Trước
+    </button>
+
+    <span class="page-info">
+        Trang {{ currentPage() }} / {{ totalPages() }}
+    </span>
+
+    <button (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">
+        Sau →
+    </button>
+</div>
+}
