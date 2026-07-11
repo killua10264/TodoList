@@ -18,7 +18,27 @@ namespace TodoListBackend.Services
         public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync(int userId)
         {
             var categories = await _unitOfWork.Categories.GetAllCategoriesAsync(userId);
-            return categories.Select(c => c.ToResponseDto()!);
+            var categoryList = categories.ToList();
+
+            if (!categoryList.Any())
+            {
+                var defaultCategories = new List<Category>
+                {
+                    new Category { Name = "Học tập", Color = "#4a5a3a", UserId = userId },
+                    new Category { Name = "Công việc", Color = "#6b7a45", UserId = userId },
+                    new Category { Name = "Khác", Color = "#8a8570", UserId = userId }
+                };
+
+                foreach (var cat in defaultCategories)
+                {
+                    await _unitOfWork.Categories.AddAsync(cat);
+                }
+                await _unitOfWork.SaveChangesAsync();
+
+                categoryList = defaultCategories;
+            }
+
+            return categoryList.Select(c => c.ToResponseDto()!);
         }
 
         public async Task<CategoryResponseDto> CreateCategoryAsync(CategoryCreateDto dto, int userId)

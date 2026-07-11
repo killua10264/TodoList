@@ -16,6 +16,11 @@ export class RegisterComponent {
     private toast = inject(ToastService);
 
     isLoading = false;
+    showPassword = false;
+
+    togglePassword() {
+        this.showPassword = !this.showPassword;
+    }
 
     registerForm = new FormGroup({
         username: new FormControl('', [Validators.required, Validators.minLength(3)]),
@@ -41,7 +46,23 @@ export class RegisterComponent {
             },
             error: (err) => {
                 this.isLoading = false;
-                const message = err.error?.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+                let message = 'Đăng ký thất bại. Vui lòng thử lại.';
+                
+                if (err.status === 0) {
+                    message = 'Không thể kết nối đến máy chủ Backend (http://localhost:5205). Vui lòng đảm bảo Backend đang chạy.';
+                } else if (err.status === 429) {
+                    message = 'Bạn đã bấm đăng ký quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.';
+                } else if (err.error?.errors) {
+                    const firstErrorKey = Object.keys(err.error.errors)[0];
+                    if (firstErrorKey && err.error.errors[firstErrorKey]?.length > 0) {
+                        message = err.error.errors[firstErrorKey][0];
+                    }
+                } else if (err.error?.message) {
+                    message = err.error.message;
+                } else if (typeof err.error === 'string' && err.error.trim().length > 0) {
+                    message = err.error;
+                }
+
                 this.toast.show(message, 'error');
             }
         });

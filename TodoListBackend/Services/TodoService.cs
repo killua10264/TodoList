@@ -16,7 +16,6 @@ namespace TodoListBackend.Services
             _unitOfWork = unitOfWork;
         }
 
-        // FIX 2.2: Pagination — trả PaginatedResponse
         public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20)
         {
             var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize);
@@ -36,12 +35,33 @@ namespace TodoListBackend.Services
             return todo.ToResponseDto();
         }
 
-        // FIX 4.1 + 4.2: Throw BusinessException thay vì ArgumentException hoặc return null
         public async Task<TodoResponseDto> CreateTodoAsync(TodoCreateDto dto, int userId)
         {
             if (dto.DueDate < DateTime.UtcNow.Date)
             {
                 throw new BusinessException("Ngày hết hạn không được nằm trong quá khứ.");
+            }
+
+            // Kiểm tra xem CategoryId có tồn tại trong CSDL cho user này không
+            var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId, userId);
+            if (category == null)
+            {
+                // Nếu ID hardcode (1, 2, 3) không trùng với ID thật trong DB, tìm theo tên hoặc lấy danh mục đầu tiên
+                var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
+                string targetName = dto.CategoryId == 1 ? "Học tập" : (dto.CategoryId == 2 ? "Công việc" : "Khác");
+                var matched = userCategories.FirstOrDefault(c => c.Name == targetName) ?? userCategories.FirstOrDefault();
+
+                if (matched != null)
+                {
+                    dto.CategoryId = matched.Id;
+                }
+                else
+                {
+                    var newCat = new Category { Name = targetName, Color = "#4a5a3a", UserId = userId };
+                    await _unitOfWork.Categories.AddAsync(newCat);
+                    await _unitOfWork.SaveChangesAsync();
+                    dto.CategoryId = newCat.Id;
+                }
             }
 
             var newTodo = new Todo
@@ -86,6 +106,29 @@ namespace TodoListBackend.Services
             var existingTodo = await _unitOfWork.Todos.GetByIdAsync(id, userId);
             if (existingTodo == null)
                 throw new NotFoundException($"Không tìm thấy công việc có ID = {id} hoặc công việc đã bị xóa.");
+
+            if (dto.CategoryId.HasValue)
+            {
+                var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId.Value, userId);
+                if (category == null)
+                {
+                    var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
+                    string targetName = dto.CategoryId.Value == 1 ? "Học tập" : (dto.CategoryId.Value == 2 ? "Công việc" : "Khác");
+                    var matched = userCategories.FirstOrDefault(c => c.Name == targetName) ?? userCategories.FirstOrDefault();
+
+                    if (matched != null)
+                    {
+                        dto.CategoryId = matched.Id;
+                    }
+                    else
+                    {
+                        var newCat = new Category { Name = targetName, Color = "#4a5a3a", UserId = userId };
+                        await _unitOfWork.Categories.AddAsync(newCat);
+                        await _unitOfWork.SaveChangesAsync();
+                        dto.CategoryId = newCat.Id;
+                    }
+                }
+            }
 
             existingTodo.Title = dto.Title ?? existingTodo.Title;
             existingTodo.Description = dto.Description ?? existingTodo.Description;

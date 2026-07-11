@@ -1,27 +1,110 @@
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="navbar-brand">📝 TodoList</div>
-  <div class="navbar-actions">
-    <button class="btn-logout" (click)="onLogout()">Đăng xuất</button>
+<div class="zen-layout">
+  <!-- NAVBAR / HEADER -->
+  <header class="zen-header">
+    <a routerLink="/todos" class="zen-logo">
+      <img src="assets/images/logo.svg" alt="Zen Branch" class="logo-img" />
+      <div class="logo-text">
+        <span class="logo-brand">Zen Branch</span>
+        <span class="logo-tagline">Khu vườn Tĩnh Lặng</span>
+      </div>
+    </a>
+
+    <!-- TIÊU ĐỀ CHÍNH NẰM CHÍNH GIỮA HEADER -->
+    <div class="zen-header-center">
+      <h1 class="header-main-title">{{ pageTitle() }}</h1>
+    </div>
+
+    <div class="zen-actions">
+      <!-- Nút Cài đặt (Gear icon với chấm xanh) -->
+      <button class="btn-settings" title="Cài đặt">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2e3a22" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3.2" fill="#8a9a5b" stroke="#2e3a22" stroke-width="1.5" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+
+      <!-- Nút Avatar (AVT) tròn -->
+      <div class="avatar-wrapper">
+        <button class="btn-avatar" (click)="toggleUserMenu()" title="Tài khoản">AVT</button>
+        @if (showUserMenu) {
+        <div class="user-menu-dropdown">
+          <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
+            <span>👤 Hồ sơ cá nhân</span>
+          </a>
+          <button (click)="onLogout()" class="menu-item btn-logout-item">
+            <span>🚪 Đăng xuất</span>
+          </button>
+        </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- BODY: SIDEBAR & CONTENT -->
+  <div class="zen-body">
+    <aside class="zen-sidebar">
+      <!-- 1. Tất cả công việc -->
+      <a routerLink="/todos" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" class="nav-item">
+        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
+        <span class="nav-text">Tất cả công việc</span>
+      </a>
+
+      <!-- Đường vân nhánh cây lượn sóng -->
+      <div class="vine-separator">
+        <img src="assets/images/vine-separator.svg" alt="separator" class="vine-img" />
+      </div>
+
+      <!-- 2. Hôm nay -->
+      <a routerLink="/todos" [queryParams]="{filter: 'today'}" routerLinkActive="active" class="nav-item">
+        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
+        <span class="nav-text">Hôm nay</span>
+      </a>
+
+      <!-- 3. Sắp tới -->
+      <a routerLink="/todos" [queryParams]="{filter: 'upcoming'}" routerLinkActive="active" class="nav-item">
+        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
+        <span class="nav-text">Sắp tới</span>
+      </a>
+
+      <!-- 4. Báo cáo / Danh mục -->
+      <a routerLink="/categories" routerLinkActive="active" class="nav-item">
+        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
+        <span class="nav-text">Báo cáo</span>
+      </a>
+
+      <!-- DỰ ÁN CỦA TÔI -->
+      <div class="sidebar-projects">
+        <h3 class="projects-title">Dự án của tôi</h3>
+        <div class="project-list">
+          <div class="project-item">
+            <a [routerLink]="['/todos']" [queryParams]="{categoryId: 1}" class="project-link">
+              <span class="project-hash">#</span>
+              <span class="project-name">Học tập</span>
+            </a>
+            <button class="btn-project-more" title="Tùy chọn">···</button>
+          </div>
+          <div class="project-item">
+            <a [routerLink]="['/todos']" [queryParams]="{categoryId: 2}" class="project-link">
+              <span class="project-hash">#</span>
+              <span class="project-name">Công việc</span>
+            </a>
+            <button class="btn-project-more" title="Tùy chọn">···</button>
+          </div>
+          <div class="project-item">
+            <a [routerLink]="['/todos']" [queryParams]="{categoryId: 3}" class="project-link">
+              <span class="project-hash">#</span>
+              <span class="project-name">Khác</span>
+            </a>
+            <button class="btn-project-more" title="Tùy chọn">···</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="content">
+      <router-outlet />
+    </main>
   </div>
-</nav>
-
-<div class="main-wrapper">
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <a routerLink="/todos" routerLinkActive="active">
-      ✅ Công việc
-    </a>
-    <a routerLink="/categories" routerLinkActive="active">
-      📁 Danh mục
-    </a>
-    <a routerLink="/profile" routerLinkActive="active">
-      👤 Hồ sơ
-    </a>
-  </aside>
-
-  <!-- NỘI DUNG CHÍNH -->
-  <main class="content">
-    <router-outlet />
-  </main>
 </div>

@@ -1,0 +1,36 @@
+<div class="todo-list-page">
+  @if (isLoading()) {
+  <app-loading-spinner />
+  } @else if (todos().length === 0) {
+  <div class="empty-state">
+    <p>📭 Chưa có công việc nào. Hãy gieo hạt giống đầu tiên!</p>
+  </div>
+  } @else {
+  <div class="todo-grid">
+    @for (todo of todos(); track todo.id) {
+    <app-todo-item [todo]="todo" (toggled)="onTodoToggled($event)" (edited)="openEditForm($event)"
+      (deleted)="onDeleteRequested($event)" />
+    }
+  </div>
+
+  @if (totalCount() > pageSize) {
+  <app-pagination [currentPage]="currentPage()" [totalCount]="totalCount()" [pageSize]="pageSize"
+    (pageChanged)="onPageChanged($event)" />
+  }
+  }
+
+  <!-- PILL BUTTON THÊM MỘT HẠT GIỐNG MỚI... -->
+  <div class="quick-add-container">
+    <div class="quick-add-pill" (click)="openCreateForm()">
+      <span>Thêm một hạt giống mới...</span>
+    </div>
+  </div>
+
+  @if (showForm) {
+  <app-todo-form-dialog [todo]="editingTodo" [categories]="categories()" (saved)="onFormSaved()"
+    (cancelled)="showForm = false" />
+  }
+
+  <app-confirm-dialog [visible]="showDeleteConfirm" message="Bạn có chắc muốn xóa công việc này?"
+    (confirmed)="onDeleteConfirmed($event)" />
+</div>

@@ -39,7 +39,9 @@ namespace TodoListBackend.Middlewares
             var (statusCode, message) = ex switch
             {
                 BusinessException bex => (bex.StatusCode, bex.Message),
-                UnauthorizedAccessException => (401, "Không có quyền truy cập."),
+                ArgumentException aex => (400, aex.Message),
+                KeyNotFoundException kex => (404, kex.Message),
+                UnauthorizedAccessException uex => (401, !string.IsNullOrEmpty(uex.Message) && uex.Message != "Attempted to perform an unauthorized operation." ? uex.Message : "Không có quyền truy cập."),
                 _ => (500, "Đã xảy ra lỗi nội bộ từ máy chủ. Vui lòng thử lại sau.")
             };
 

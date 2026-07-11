@@ -1,0 +1,84 @@
+/* TODO CARD */
+.todo-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 1.6rem 1.6rem;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e8ece0; /* Màu nền kem xanh nhạt khi chưa hoàn thành */
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.todo-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(74, 90, 58, 0.1);
+}
+
+/* KHI HOÀN THÀNH */
+.todo-card.completed {
+  background: #6a7c64; /* Màu xanh đậm Zen khi hoàn thành */
+}
+
+/* HOA PLUMERIA VÀNG GÓC TRÊN PHẢI */
+.flower-badge {
+  position: absolute;
+  top: -14px;
+  right: 12px;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.card-content {
+  flex: 1;
+  padding-right: 1rem;
+}
+
+.todo-title {
+  font-family: 'Lora', serif;
+  font-size: 1.4rem;
+  color: #2e3a22;
+  font-weight: 500;
+  line-height: 1.35;
+  display: block;
+}
+
+.completed-title {
+  color: #1a2214; /* Màu chữ trên nền xanh đậm */
+}
+
+/* CHECKBOX GÓC PHẢI */
+.card-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #a8b545;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.card-checkbox:hover {
+  transform: scale(1.1);
+  border-color: #7b8832;
+}
+
+.todo-card.completed .card-checkbox {
+  background: #9dae4a;
+  border-color: #9dae4a;
+}
+
+.check-mark {
+  color: #2e3a22;
+  font-weight: 800;
+  font-size: 0.95rem;
+}

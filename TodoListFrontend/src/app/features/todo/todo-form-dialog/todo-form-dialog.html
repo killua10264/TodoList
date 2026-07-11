@@ -1,0 +1,77 @@
+<div class="overlay" (click)="cancelled.emit()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3 class="dialog-title">{{ isEditMode ? 'Chỉnh sửa hạt giống' : 'Gieo hạt giống mới' }}</h3>
+      <button type="button" class="btn-close" (click)="cancelled.emit()" title="Đóng">✕</button>
+    </div>
+
+    <form [formGroup]="todoForm" (ngSubmit)="onSubmit()" class="dialog-form">
+      <div class="form-group">
+        <label for="title">Tiêu đề hạt giống *</label>
+        <input id="title" formControlName="title" placeholder="Nhập tên công việc bạn muốn thực hiện..." class="form-input" />
+        @if (todoForm.get('title')?.touched && todoForm.get('title')?.invalid) {
+        <span class="error">
+          @if (todoForm.get('title')?.hasError('required')) {
+          ⚠️ Vui lòng nhập tiêu đề hạt giống (công việc).
+          } @else if (todoForm.get('title')?.hasError('maxlength')) {
+          ⚠️ Tiêu đề không được vượt quá 200 ký tự.
+          }
+        </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Mô tả chi tiết</label>
+        <textarea id="description" formControlName="description" rows="3" placeholder="Ghi chú thêm về công việc này..." class="form-textarea"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="priority">Độ ưu tiên</label>
+          <select id="priority" formControlName="priority" class="form-select">
+            <option [ngValue]="1">🍃 Thấp</option>
+            <option [ngValue]="2">🌿 Trung bình</option>
+            <option [ngValue]="3">🔥 Cao</option>
+          </select>
+          @if (todoForm.get('priority')?.touched && todoForm.get('priority')?.invalid) {
+          <span class="error">⚠️ Vui lòng chọn độ ưu tiên.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="dueDate">Hạn chót *</label>
+          <input id="dueDate" type="date" formControlName="dueDate" class="form-input" />
+          @if (todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid) {
+          <span class="error">⚠️ Vui lòng chọn hạn chót.</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category">Danh mục *</label>
+        <select id="category" formControlName="categoryId" class="form-select">
+          <option [ngValue]="1"># Học tập</option>
+          <option [ngValue]="2"># Công việc</option>
+          <option [ngValue]="3"># Khác</option>
+        </select>
+        @if (todoForm.get('categoryId')?.touched && todoForm.get('categoryId')?.invalid) {
+        <span class="error">⚠️ Vui lòng chọn một danh mục/dự án.</span>
+        }
+      </div>
+
+      @if (isEditMode) {
+      <div class="form-group checkbox-group">
+        <input id="isCompleted" type="checkbox" formControlName="isCompleted" class="form-checkbox" />
+        <label for="isCompleted">Đã nở hoa (Hoàn thành)</label>
+      </div>
+      }
+
+      <div class="dialog-actions">
+        <button type="button" class="btn-cancel" (click)="cancelled.emit()">Hủy bỏ</button>
+        <button type="submit" class="btn-submit" [disabled]="isLoading">
+          <span>{{ isEditMode ? 'Lưu thay đổi' : 'Gieo hạt ngay' }}</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

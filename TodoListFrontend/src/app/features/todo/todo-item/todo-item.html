@@ -1,0 +1,15 @@
+<div class="todo-card" [class.completed]="todo().isCompleted" (click)="onCardClick($event)">
+  @if (todo().isCompleted) {
+  <img src="assets/images/flower.svg" alt="completed" class="flower-badge" />
+  }
+
+  <div class="card-content">
+    <span class="todo-title" [class.completed-title]="todo().isCompleted">{{ todo().title }}</span>
+  </div>
+
+  <div class="card-checkbox" (click)="onToggle($event)">
+    @if (todo().isCompleted) {
+    <span class="check-mark">✓</span>
+    }
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<div class="filter-bar">
+    <input type="text" placeholder="🔍 Tìm kiếm..." [(ngModel)]="searchText" (input)="onFilterChange()" />
+    <select [(ngModel)]="selectedPriority" (change)="onFilterChange()">
+        <option [value]="0">Tất cả ưu tiên</option>
+        <option [value]="1">Thấp</option>
+        <option [value]="2">Trung bình</option>
+        <option [value]="3">Cao</option>
+    </select>
+    <select [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+        <option [value]="0">Tất cả danh mục</option>
+        @for (cat of categories(); track cat.id) {
+        <option [value]="cat.id">{{ cat.name }}</option>
+        }
+    </select>
+</div>

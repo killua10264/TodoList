@@ -57,6 +57,37 @@ form {
     background: #fff8f8;
 }
 
+.password-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    padding-right: 3.2rem;
+}
+
+.btn-toggle-password {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #6b7a45;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    padding: 0;
+}
+
+.btn-toggle-password:hover {
+    transform: translateY(-50%) scale(1.15);
+    opacity: 0.85;
+}
+
 
 .error {
     color: #dc3545;
