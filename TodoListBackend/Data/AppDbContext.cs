@@ -9,7 +9,7 @@ namespace TodoListBackend.Data
 
         public DbSet<Todo> Todos => Set<Todo>();
         public DbSet<User> Users => Set<User>();
-        public DbSet<Category> Categories => Set<Category>();
+        public DbSet<Project> Projects => Set<Project>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -48,21 +48,20 @@ namespace TodoListBackend.Data
                     .HasDatabaseName("IX_Users_RefreshToken");
             });
 
-            modelBuilder.Entity<Category>(entity =>
+            modelBuilder.Entity<Project>(entity =>
             {
-                entity.Property(c => c.Name)
+                entity.Property(p => p.Name)
                     .HasMaxLength(100) 
                     .IsRequired();
-                entity.Property(c => c.Color)
+                entity.Property(p => p.Color)
                     .HasMaxLength(30);
-                entity.HasOne(c => c.User)
+                entity.HasOne(p => p.User)
                     .WithMany()
-                    .HasForeignKey(c => c.UserId)
+                    .HasForeignKey(p => p.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // FIX 2.3: Index cho Category.UserId
-                entity.HasIndex(c => c.UserId)
-                      .HasDatabaseName("IX_Categories_UserId");
+                entity.HasIndex(p => p.UserId)
+                      .HasDatabaseName("IX_Projects_UserId");
             });
         }
     }

@@ -10,6 +10,7 @@ import { HomeComponent } from './features/home/home';
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { TodoListComponent } from './features/todo/todo-list/todo-list';
+import { ProjectDetailComponent } from './features/project/project-detail/project-detail';
 
 export const routes: Routes = [
   {
@@ -34,7 +35,8 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
-      { path: 'todos', component: TodoListComponent }
+      { path: 'todos', component: TodoListComponent },
+      { path: 'projects/:id', redirectTo: 'todos' }
     ]
   },
 

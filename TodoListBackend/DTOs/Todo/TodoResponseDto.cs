@@ -8,8 +8,8 @@ namespace TodoListBackend.DTOs.Todo
         public bool IsCompleted { get; set; }
         public int Priority { get; set; }
         public DateTime DueDate { get; set; }
-        public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public string CategoryColor { get; set; } = string.Empty;
+        public int ProjectId { get; set; }
+        public string ProjectName { get; set; } = string.Empty;
+        public string ProjectColor { get; set; } = string.Empty;
     }
 }

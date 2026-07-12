@@ -16,9 +16,14 @@ namespace TodoListBackend.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20)
+        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? projectId = null, string? status = null, string? sortBy = null)
         {
-            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize);
+            if (projectId.HasValue && projectId.Value > 0)
+            {
+                projectId = await ResolveProjectIdAsync(projectId.Value, userId);
+            }
+
+            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, projectId, status, sortBy);
             return new PaginatedResponse<TodoResponseDto>
             {
                 Items = todos.Select(t => t.ToResponseDto()!),
@@ -42,27 +47,7 @@ namespace TodoListBackend.Services
                 throw new BusinessException("Ngày hết hạn không được nằm trong quá khứ.");
             }
 
-            // Kiểm tra xem CategoryId có tồn tại trong CSDL cho user này không
-            var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId, userId);
-            if (category == null)
-            {
-                // Nếu ID hardcode (1, 2, 3) không trùng với ID thật trong DB, tìm theo tên hoặc lấy danh mục đầu tiên
-                var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
-                string targetName = dto.CategoryId == 1 ? "Học tập" : (dto.CategoryId == 2 ? "Công việc" : "Khác");
-                var matched = userCategories.FirstOrDefault(c => c.Name == targetName) ?? userCategories.FirstOrDefault();
-
-                if (matched != null)
-                {
-                    dto.CategoryId = matched.Id;
-                }
-                else
-                {
-                    var newCat = new Category { Name = targetName, Color = "#4a5a3a", UserId = userId };
-                    await _unitOfWork.Categories.AddAsync(newCat);
-                    await _unitOfWork.SaveChangesAsync();
-                    dto.CategoryId = newCat.Id;
-                }
-            }
+            dto.ProjectId = await ResolveProjectIdAsync(dto.ProjectId, userId);
 
             var newTodo = new Todo
             {
@@ -73,7 +58,7 @@ namespace TodoListBackend.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 UserId = userId,
-                CategoryId = dto.CategoryId,
+                ProjectId = dto.ProjectId,
                 IsCompleted = false,
                 IsDeleted = false
             };
@@ -86,7 +71,6 @@ namespace TodoListBackend.Services
                 ?? throw new BusinessException("Không thể tạo công việc.");
         }
 
-        // FIX 4.2: Throw NotFoundException thay vì return false
         public async Task DeleteTodoAsync(int id, int userId)
         {
             var todo = await _unitOfWork.Todos.GetByIdAsync(id, userId);
@@ -96,52 +80,64 @@ namespace TodoListBackend.Services
             todo.IsDeleted = true;
             todo.UpdatedAt = DateTime.UtcNow;
 
-            // FIX 2.4: Không cần gọi UpdateAsync — Change Tracker tự detect
             await _unitOfWork.SaveChangesAsync();
         }
 
-        // FIX 4.2: Throw NotFoundException thay vì return null
         public async Task<TodoResponseDto> UpdateTodoAsync(int id, TodoUpdateDto dto, int userId)
         {
             var existingTodo = await _unitOfWork.Todos.GetByIdAsync(id, userId);
             if (existingTodo == null)
                 throw new NotFoundException($"Không tìm thấy công việc có ID = {id} hoặc công việc đã bị xóa.");
 
-            if (dto.CategoryId.HasValue)
-            {
-                var category = await _unitOfWork.Categories.GetByIdAsync(dto.CategoryId.Value, userId);
-                if (category == null)
-                {
-                    var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
-                    string targetName = dto.CategoryId.Value == 1 ? "Học tập" : (dto.CategoryId.Value == 2 ? "Công việc" : "Khác");
-                    var matched = userCategories.FirstOrDefault(c => c.Name == targetName) ?? userCategories.FirstOrDefault();
-
-                    if (matched != null)
-                    {
-                        dto.CategoryId = matched.Id;
-                    }
-                    else
-                    {
-                        var newCat = new Category { Name = targetName, Color = "#4a5a3a", UserId = userId };
-                        await _unitOfWork.Categories.AddAsync(newCat);
-                        await _unitOfWork.SaveChangesAsync();
-                        dto.CategoryId = newCat.Id;
-                    }
-                }
-            }
-
             existingTodo.Title = dto.Title ?? existingTodo.Title;
             existingTodo.Description = dto.Description ?? existingTodo.Description;
             existingTodo.Priority = dto.Priority ?? existingTodo.Priority;
             existingTodo.DueDate = dto.DueDate ?? existingTodo.DueDate;
             existingTodo.IsCompleted = dto.IsCompleted ?? existingTodo.IsCompleted;
-            existingTodo.CategoryId = dto.CategoryId ?? existingTodo.CategoryId;
+            
+            if (dto.ProjectId.HasValue)
+            {
+                existingTodo.ProjectId = await ResolveProjectIdAsync(dto.ProjectId.Value, userId);
+            }
+
             existingTodo.UpdatedAt = DateTime.UtcNow;
 
-            // FIX 2.4: Không cần gọi UpdateAsync — Change Tracker tự detect
             await _unitOfWork.SaveChangesAsync();
 
-            return existingTodo.ToResponseDto()!;
+            var updatedTodo = await _unitOfWork.Todos.GetByIdAsync(existingTodo.Id, userId);
+            return (updatedTodo ?? existingTodo).ToResponseDto()!;
+        }
+
+        private async Task<int> ResolveProjectIdAsync(int inputProjectId, int userId)
+        {
+            var userProjects = (await _unitOfWork.Projects.GetAllProjectsAsync(userId)).ToList();
+
+            if (inputProjectId == 1 || inputProjectId == 2 || inputProjectId == 3)
+            {
+                string targetName = inputProjectId == 1 ? "Học tập" : (inputProjectId == 2 ? "Công việc" : "Khác");
+                var matchedByName = userProjects.FirstOrDefault(p =>
+                    string.Equals(p.Name, targetName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(p.Name, $"# {targetName}", StringComparison.OrdinalIgnoreCase) ||
+                    p.Name.EndsWith(targetName, StringComparison.OrdinalIgnoreCase));
+
+                if (matchedByName != null)
+                {
+                    return matchedByName.Id;
+                }
+
+                var newProject = new Project { Name = targetName, Color = "#4a5a3a", UserId = userId };
+                await _unitOfWork.Projects.AddAsync(newProject);
+                await _unitOfWork.SaveChangesAsync();
+                return newProject.Id;
+            }
+
+            var project = await _unitOfWork.Projects.GetByIdAsync(inputProjectId, userId);
+            if (project != null)
+            {
+                return project.Id;
+            }
+
+            return userProjects.FirstOrDefault()?.Id ?? inputProjectId;
         }
     }
 }

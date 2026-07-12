@@ -1,0 +1,89 @@
+<div class="todo-list-page">
+  <!-- THANH LỌC CỦA DỰ ÁN - GIỮ NGUYÊN GIAO DIỆN NHƯ CŨ -->
+  <div class="filter-toolbar">
+    <div class="filter-group">
+      <!-- Tên dự án hiện tại -->
+      <div class="project-header-badge" [style.borderLeftColor]="project()?.color || '#4a5a3a'">
+        <span class="proj-title">📁 {{ project()?.name }}</span>
+      </div>
+
+      <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onFilterChanged()"
+        class="zen-select">
+        <option value="all">Tất cả lá & hạt giống</option>
+        <option value="pending">Đang ươm mầm (Chưa xong)</option>
+        <option value="completed">Đã nở hoa (Hoàn thành)</option>
+      </select>
+    </div>
+
+    <div class="sort-group">
+      <select [ngModel]="selectedSort()" (ngModelChange)="selectedSort.set($event); onFilterChanged()"
+        class="zen-select sort-select">
+        <option value="dueDate">Hạn chót gần nhất</option>
+        <option value="priorityDesc">Ưu tiên cao nhất</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading() && !project()) {
+  <app-loading-spinner />
+  } @else if (todos().length === 0 && !isLoading()) {
+  <div class="empty-state">
+    <p>🌱 Chưa có lá (công việc) nào trên cây. Hãy nhấn nút "+" góc phải bên dưới để gieo hạt giống đầu tiên!</p>
+  </div>
+  } @else {
+  <!-- CÂY MỌC TỪ DƯỚI ĐÁY WEB LÊN (TREE GROWING FROM BOTTOM UP) -->
+  <div class="upward-tree-container">
+    <!-- Thân cây mọc từ dưới đáy lên -->
+    <div class="upward-stem" [style.borderColor]="project()?.color || '#4a5a3a'"></div>
+
+    <div class="upward-leaves-list">
+      @for (todo of todos(); track todo.id; let i = $index) {
+      <div class="upward-leaf-node">
+        <!-- Nhánh rẽ nối từ thân cây vào thẻ todo -->
+        <div class="upward-branch-line" [style.borderColor]="project()?.color || '#4a5a3a'">
+          <span class="leaf-bud" [style.backgroundColor]="project()?.color || '#4a5a3a'"></span>
+        </div>
+
+        <!-- THẺ TODO GIỮ NGUYÊN GIAO DIỆN NHƯ CŨ -->
+        <div class="leaf-card-wrapper">
+          <app-todo-item [todo]="todo" (toggled)="onTodoToggled($event)" (edited)="openEditTodoForm($event)"
+            (deleted)="openDeleteConfirm('todo', $event)" />
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Gốc cây ở dưới cùng -->
+    <div class="tree-base-root" [style.color]="project()?.color || '#4a5a3a'">
+      <span>🌱 Gốc rễ: {{ project()?.name }}</span>
+    </div>
+  </div>
+
+  @if (totalCount() > pageSize) {
+  <app-pagination [currentPage]="currentPage()" [totalCount]="totalCount()" [pageSize]="pageSize"
+    (pageChanged)="onPageChanged($event)" />
+  }
+  }
+
+  <!-- NÚT THÊM HẠT GIỐNG GIỮ NGUYÊN GIAO DIỆN NHƯ CŨ -->
+  <button class="btn-fab-add" (click)="openCreateTodoForm()" title="Thêm một hạt giống (công việc) mới">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  </button>
+
+  @if (showTodoForm) {
+  <app-todo-form-dialog [todo]="editingTodo" [projects]="allProjects()" (saved)="onTodoFormSaved()"
+    (cancelled)="showTodoForm = false" (deleted)="onTodoDeleteFromForm($event)" />
+  }
+
+  @if (showProjectForm) {
+  <app-project-form-dialog [project]="project()" (saved)="onProjectFormSaved()" (cancelled)="showProjectForm = false"
+    (deleted)="openDeleteConfirm('project', $event)" />
+  }
+
+  <app-confirm-dialog [visible]="showDeleteConfirm"
+    [message]="deleteTargetType === 'project' ? 'Bạn có chắc chắn muốn xóa dự án này không?' : 'Bạn có chắc chắn muốn xóa công việc này không?'"
+    (confirmed)="onDeleteConfirmed($event)" />
+</div>

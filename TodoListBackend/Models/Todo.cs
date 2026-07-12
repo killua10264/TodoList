@@ -16,8 +16,8 @@ namespace TodoListBackend.Models
         public int UserId { get; set; }
         public User User { get; set; } = null!;
 
-        // 1 - N voi Category
-        public int CategoryId { get; set; }
-        public Category Category { get; set; } = null!;
+        // 1 - N voi Project
+        public int ProjectId { get; set; }
+        public Project Project { get; set; } = null!;
     }
 }

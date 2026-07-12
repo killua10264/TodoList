@@ -5,9 +5,9 @@ export interface TodoResponse {
   isCompleted: boolean;
   priority: number;
   dueDate: string;
-  categoryId: number;
-  categoryName: string;
-  categoryColor: string;
+  projectId: number;
+  projectName: string;
+  projectColor: string;
 }
 
 export interface TodoCreateRequest {
@@ -15,7 +15,7 @@ export interface TodoCreateRequest {
   description: string;
   priority: number;
   dueDate: string;
-  categoryId: number;
+  projectId: number;
 }
 
 export interface TodoUpdateRequest {
@@ -23,7 +23,7 @@ export interface TodoUpdateRequest {
   description: string;
   priority: number;
   dueDate: string;
-  categoryId: number;
+  projectId: number;
   isCompleted: boolean;
 }
 

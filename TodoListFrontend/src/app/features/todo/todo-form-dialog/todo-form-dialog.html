@@ -47,18 +47,6 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="category">Danh mục *</label>
-        <select id="category" formControlName="categoryId" class="form-select">
-          <option [ngValue]="1"># Học tập</option>
-          <option [ngValue]="2"># Công việc</option>
-          <option [ngValue]="3"># Khác</option>
-        </select>
-        @if (todoForm.get('categoryId')?.touched && todoForm.get('categoryId')?.invalid) {
-        <span class="error">⚠️ Vui lòng chọn một danh mục/dự án.</span>
-        }
-      </div>
-
       @if (isEditMode) {
       <div class="form-group checkbox-group">
         <input id="isCompleted" type="checkbox" formControlName="isCompleted" class="form-checkbox" />
@@ -67,10 +55,17 @@
       }
 
       <div class="dialog-actions">
-        <button type="button" class="btn-cancel" (click)="cancelled.emit()">Hủy bỏ</button>
-        <button type="submit" class="btn-submit" [disabled]="isLoading">
-          <span>{{ isEditMode ? 'Lưu thay đổi' : 'Gieo hạt ngay' }}</span>
+        @if (isEditMode) {
+        <button type="button" class="btn-delete" (click)="onDelete()" title="Xóa công việc này">
+          🗑️ Nhổ bỏ hạt giống
         </button>
+        }
+        <div class="right-actions">
+          <button type="button" class="btn-cancel" (click)="cancelled.emit()">Hủy bỏ</button>
+          <button type="submit" class="btn-submit" [disabled]="isLoading">
+            <span>{{ isEditMode ? 'Lưu thay đổi' : 'Gieo hạt ngay' }}</span>
+          </button>
+        </div>
       </div>
     </form>
   </div>

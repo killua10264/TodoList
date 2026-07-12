@@ -1,0 +1,54 @@
+<div class="modal-overlay" (click)="cancelled.emit()">
+  <div class="modal-content zen-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ isEditMode ? 'Chỉnh sửa dự án' : 'Gieo mầm dự án mới' }}</h3>
+      <button class="btn-close" (click)="cancelled.emit()" title="Đóng">×</button>
+    </div>
+
+    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="form-group">
+        <label for="name">Tên dự án *</label>
+        <input id="name" type="text" formControlName="name" placeholder="Ví dụ: Đọc sách, Dự án website..."
+          class="form-input" autofocus />
+        @if (projectForm.get('name')?.touched && projectForm.get('name')?.invalid) {
+        <span class="error">
+          @if (projectForm.get('name')?.hasError('required')) {
+          ⚠️ Vui lòng nhập tên dự án.
+          } @else if (projectForm.get('name')?.hasError('maxlength')) {
+          ⚠️ Tên dự án không được vượt quá 100 ký tự.
+          }
+        </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label>Màu sắc chủ đạo (Zen Color)</label>
+        <div class="color-presets">
+          @for (c of presetColors; track c.value) {
+          <button type="button" class="color-dot" [style.backgroundColor]="c.value"
+            [class.active]="projectForm.value.color === c.value" (click)="selectColor(c.value)" [title]="c.label">
+            @if (projectForm.value.color === c.value) {
+            <span class="check-icon">✓</span>
+            }
+          </button>
+          }
+        </div>
+      </div>
+
+      <div class="dialog-actions">
+        @if (isEditMode) {
+        <button type="button" class="btn-delete-proj" (click)="onDelete()" title="Xóa dự án này">
+          🗑️ Xóa dự án
+        </button>
+        }
+
+        <div class="right-actions">
+          <button type="button" class="btn-cancel" (click)="cancelled.emit()">Hủy</button>
+          <button type="submit" class="btn-save" [disabled]="isLoading">
+            {{ isLoading ? 'Đang lưu...' : (isEditMode ? 'Cập nhật' : 'Tạo mới') }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

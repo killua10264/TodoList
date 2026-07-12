@@ -1,5 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
     TodoResponse, TodoCreateRequest, TodoUpdateRequest, PaginatedResponse
@@ -10,23 +12,40 @@ export class TodoService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/api/todos`;
 
-    getAll(page: number = 1, pageSize: number = 20) {
-        const params = new HttpParams()
+    refresh$ = new Subject<void>();
+
+    notifyChanged() {
+        this.refresh$.next();
+    }
+
+    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, projectId?: number | null, status?: string | null, sortBy?: string | null) {
+        let params = new HttpParams()
             .set('page', page.toString())
             .set('pageSize', pageSize.toString());
+
+        if (filter) params = params.set('filter', filter);
+        if (projectId && projectId > 0) params = params.set('projectId', projectId.toString());
+        if (status && status !== 'all') params = params.set('status', status);
+        if (sortBy) params = params.set('sortBy', sortBy);
 
         return this.http.get<PaginatedResponse<TodoResponse>>(this.apiUrl, { params });
     }
 
     create(data: TodoCreateRequest) {
-        return this.http.post<TodoResponse>(this.apiUrl, data);
+        return this.http.post<TodoResponse>(this.apiUrl, data).pipe(
+            tap(() => this.notifyChanged())
+        );
     }
 
     update(id: number, data: TodoUpdateRequest) {
-        return this.http.put<TodoResponse>(`${this.apiUrl}/${id}`, data);
+        return this.http.put<TodoResponse>(`${this.apiUrl}/${id}`, data).pipe(
+            tap(() => this.notifyChanged())
+        );
     }
 
     delete(id: number) {
-        return this.http.delete(`${this.apiUrl}/${id}`);
+        return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+            tap(() => this.notifyChanged())
+        );
     }
 }

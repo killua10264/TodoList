@@ -1,13 +1,16 @@
 import { Component, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { TodoService } from '../../../core/services/todo.service';
-import { CategoryService } from '../../../core/services/category.service';
+import { ProjectService } from '../../../core/services/project.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TodoResponse, PaginatedResponse, TodoUpdateRequest } from '../../../core/models/todo.model';
-import { CategoryResponse } from '../../../core/models/category.model';
+import { ProjectResponse } from '../../../core/models/project.model';
 
 import { TodoItemComponent } from '../todo-item/todo-item';
 import { TodoFormDialogComponent } from '../todo-form-dialog/todo-form-dialog';
+import { ProjectFormDialogComponent } from '../../project/project-form-dialog/project-form-dialog';
 import { PaginationComponent } from '../../../shared/pagination/pagination';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
@@ -15,7 +18,8 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
 @Component({
   selector: 'app-todo-list',
   imports: [
-    TodoItemComponent, TodoFormDialogComponent,
+    FormsModule,
+    TodoItemComponent, TodoFormDialogComponent, ProjectFormDialogComponent,
     PaginationComponent, LoadingSpinnerComponent, ConfirmDialogComponent
   ],
   templateUrl: './todo-list.html',
@@ -23,33 +27,69 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
 })
 export class TodoListComponent implements OnInit {
   private todoService = inject(TodoService);
-  private categoryService = inject(CategoryService);
+  private projectService = inject(ProjectService);
   private toast = inject(ToastService);
   private platformId = inject(PLATFORM_ID);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   todos = signal<TodoResponse[]>([]);
-  categories = signal<CategoryResponse[]>([]);
+  projects = signal<ProjectResponse[]>([]);
   isLoading = signal(true);
   currentPage = signal(1);
   totalCount = signal(0);
   pageSize = 20;
 
+  urlFilter = signal<string | null>(null);
+  selectedProjectId = signal<number | null>(null);
+  selectedStatus = signal<string>('all');
+  selectedSort = signal<string>('dueDate');
+
   showForm = false;
   editingTodo: TodoResponse | null = null;
+  showProjectForm = false;
 
   showDeleteConfirm = false;
   deletingTodoId: number | null = null;
+  deletingProjectId: number | null = null;
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.loadTodos();
-      this.loadCategories();
+      this.route.queryParams.subscribe(params => {
+        this.urlFilter.set(params['filter'] || null);
+        const projId = params['projectId'] ? Number(params['projectId']) : null;
+        this.selectedProjectId.set(projId);
+        this.currentPage.set(1);
+        this.loadTodos();
+      });
+      this.loadProjects();
     }
+  }
+
+  goToProjectDetail(projId: number) {
+    this.selectedProjectId.set(projId);
+    this.onFilterChanged();
+  }
+
+  openCreateProjectForm() {
+    this.showProjectForm = true;
+  }
+
+  onProjectFormSaved() {
+    this.showProjectForm = false;
+    this.loadProjects();
   }
 
   loadTodos() {
     this.isLoading.set(true);
-    this.todoService.getAll(this.currentPage(), this.pageSize).subscribe({
+    this.todoService.getAll(
+      this.currentPage(),
+      this.pageSize,
+      this.urlFilter(),
+      this.selectedProjectId(),
+      this.selectedStatus(),
+      this.selectedSort()
+    ).subscribe({
       next: (res: PaginatedResponse<TodoResponse>) => {
         this.todos.set(res.items);
         this.totalCount.set(res.totalCount);
@@ -62,9 +102,14 @@ export class TodoListComponent implements OnInit {
     });
   }
 
-  loadCategories() {
-    this.categoryService.getAll().subscribe({
-      next: (cats) => this.categories.set(cats)
+  onFilterChanged() {
+    this.currentPage.set(1);
+    this.loadTodos();
+  }
+
+  loadProjects() {
+    this.projectService.getAll().subscribe({
+      next: (projs) => this.projects.set(projs)
     });
   }
 
@@ -74,7 +119,7 @@ export class TodoListComponent implements OnInit {
       description: todo.description,
       priority: todo.priority,
       dueDate: todo.dueDate,
-      categoryId: todo.categoryId,
+      projectId: todo.projectId,
       isCompleted: !todo.isCompleted
     };
     this.todoService.update(todo.id, updateReq).subscribe({
@@ -101,23 +146,48 @@ export class TodoListComponent implements OnInit {
     this.loadTodos();
   }
 
+  onDeleteFromForm(todoId: number) {
+    this.showForm = false;
+    this.editingTodo = null;
+    this.onDeleteRequested(todoId);
+  }
+
   onDeleteRequested(todoId: number) {
     this.deletingTodoId = todoId;
+    this.deletingProjectId = null;
+    this.showDeleteConfirm = true;
+  }
+
+  onDeleteProjectRequested(event: Event, projId: number) {
+    event.stopPropagation();
+    this.deletingProjectId = projId;
+    this.deletingTodoId = null;
     this.showDeleteConfirm = true;
   }
 
   onDeleteConfirmed(confirmed: boolean) {
     this.showDeleteConfirm = false;
-    if (confirmed && this.deletingTodoId) {
-      this.todoService.delete(this.deletingTodoId).subscribe({
-        next: () => {
-          this.toast.show('Xóa thành công!', 'success');
-          this.loadTodos();
-        },
-        error: () => this.toast.show('Xóa thất bại.', 'error')
-      });
+    if (confirmed) {
+      if (this.deletingTodoId) {
+        this.todoService.delete(this.deletingTodoId).subscribe({
+          next: () => {
+            this.toast.show('Xóa công việc thành công!', 'success');
+            this.loadTodos();
+          },
+          error: () => this.toast.show('Xóa thất bại.', 'error')
+        });
+      } else if (this.deletingProjectId) {
+        this.projectService.delete(this.deletingProjectId).subscribe({
+          next: () => {
+            this.toast.show('Xóa dự án thành công!', 'success');
+            this.loadProjects();
+          },
+          error: () => this.toast.show('Xóa dự án thất bại.', 'error')
+        });
+      }
     }
     this.deletingTodoId = null;
+    this.deletingProjectId = null;
   }
 
   onPageChanged(page: number) {

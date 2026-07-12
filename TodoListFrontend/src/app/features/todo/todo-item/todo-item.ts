@@ -20,7 +20,11 @@ export class TodoItemComponent {
   }
 
   onCardClick(event: Event) {
-    // Khi bấm vào card thì mở form sửa, hoặc toggle tùy chọn
     this.edited.emit(this.todo());
+  }
+
+  onDelete(event: Event) {
+    event.stopPropagation();
+    this.deleted.emit(this.todo().id);
   }
 }

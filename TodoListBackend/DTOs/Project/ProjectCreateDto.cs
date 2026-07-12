@@ -1,8 +1,7 @@
-namespace TodoListBackend.DTOs.Category
+namespace TodoListBackend.DTOs.Project
 {
-    public class CategoryResponseDto
-    {  
-        public int Id { get; set; }
+    public class ProjectCreateDto
+    {
         public string Name { get; set; } = string.Empty;
         public string Color { get; set; } = string.Empty;
     }

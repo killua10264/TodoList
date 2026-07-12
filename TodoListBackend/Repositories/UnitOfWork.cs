@@ -7,18 +7,18 @@ namespace TodoListBackend.Repositories
         private readonly AppDbContext _context;
 
         public ITodoRepository Todos { get; }
-        public ICategoryRepository Categories { get; }
+        public IProjectRepository Projects { get; }
         public IUserRepository Users { get; }
 
         public UnitOfWork(
             AppDbContext context,
             ITodoRepository todoRepository,
-            ICategoryRepository categoryRepository,
+            IProjectRepository projectRepository,
             IUserRepository userRepository)
         {
             _context = context;
             Todos = todoRepository;
-            Categories = categoryRepository;
+            Projects = projectRepository;
             Users = userRepository;
         }
 

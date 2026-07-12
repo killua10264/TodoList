@@ -14,12 +14,11 @@ namespace TodoListBackend.Controllers
             _todoService = todoService;
         }
 
-        // FIX 2.2: Hỗ trợ pagination qua query string page và pageSize
         [HttpGet]
-        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? filter = null, [FromQuery] int? projectId = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null)
         {
             int userId = GetCurrentUserId();
-            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize);
+            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize, filter, projectId, status, sortBy);
 
             return Ok(paginatedTodos);
         }
@@ -29,7 +28,6 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
-            // FIX 4.2: Xóa null-check dead code — Service sẽ throw exception nếu lỗi
             var newTodo = await _todoService.CreateTodoAsync(dto, userId);
 
             return StatusCode(201, newTodo);
@@ -40,7 +38,6 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
-            // FIX 4.2: Xóa null-check dead code
             var updatedTodo = await _todoService.UpdateTodoAsync(id, dto, userId);
             
             return Ok(updatedTodo);
@@ -51,7 +48,6 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
 
-            // FIX 4.2: Xóa false check dead code
             await _todoService.DeleteTodoAsync(id, userId);
 
             return NoContent();

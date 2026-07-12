@@ -1,15 +1,15 @@
-export interface CategoryResponse {
+export interface ProjectResponse {
   id: number;
   name: string;
   color: string;
 }
 
-export interface CategoryCreateRequest {
+export interface ProjectCreateRequest {
   name: string;
   color: string;
 }
 
-export interface CategoryUpdateRequest {
+export interface ProjectUpdateRequest {
   name: string;
   color: string;
 }

@@ -6,10 +6,10 @@
         <option [value]="2">Trung bình</option>
         <option [value]="3">Cao</option>
     </select>
-    <select [(ngModel)]="selectedCategory" (change)="onFilterChange()">
-        <option [value]="0">Tất cả danh mục</option>
-        @for (cat of categories(); track cat.id) {
-        <option [value]="cat.id">{{ cat.name }}</option>
+    <select [(ngModel)]="selectedProject" (change)="onFilterChange()">
+        <option [value]="0">Tất cả dự án</option>
+        @for (proj of projects(); track proj.id) {
+        <option [value]="proj.id">{{ proj.name }}</option>
         }
     </select>
 </div>

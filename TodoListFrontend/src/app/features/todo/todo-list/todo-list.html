@@ -1,4 +1,28 @@
 <div class="todo-list-page">
+  <div class="filter-toolbar">
+    <div class="filter-group">
+      <select [ngModel]="selectedProjectId()" (ngModelChange)="selectedProjectId.set($event); onFilterChanged()" class="zen-select">
+        <option [ngValue]="null">Tất cả dự án</option>
+        @for (proj of projects(); track proj.id) {
+        <option [ngValue]="proj.id">{{ proj.name }}</option>
+        }
+      </select>
+
+      <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onFilterChanged()" class="zen-select">
+        <option value="all">Tất cả trạng thái</option>
+        <option value="pending">Đang ươm mầm (Chưa xong)</option>
+        <option value="completed">Đã nở hoa (Hoàn thành)</option>
+      </select>
+    </div>
+
+    <div class="sort-group">
+      <select [ngModel]="selectedSort()" (ngModelChange)="selectedSort.set($event); onFilterChanged()" class="zen-select sort-select">
+        <option value="dueDate">Hạn chót gần nhất</option>
+        <option value="priorityDesc">Ưu tiên cao nhất</option>
+      </select>
+    </div>
+  </div>
+
   @if (isLoading()) {
   <app-loading-spinner />
   } @else if (todos().length === 0) {
@@ -19,16 +43,20 @@
   }
   }
 
-  <!-- PILL BUTTON THÊM MỘT HẠT GIỐNG MỚI... -->
-  <div class="quick-add-container">
-    <div class="quick-add-pill" (click)="openCreateForm()">
-      <span>Thêm một hạt giống mới...</span>
-    </div>
-  </div>
+  <button class="btn-fab-add" (click)="openCreateForm()" title="Thêm một hạt giống mới">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  </button>
 
   @if (showForm) {
-  <app-todo-form-dialog [todo]="editingTodo" [categories]="categories()" (saved)="onFormSaved()"
-    (cancelled)="showForm = false" />
+  <app-todo-form-dialog [todo]="editingTodo" [projects]="projects()" (saved)="onFormSaved()"
+    (cancelled)="showForm = false" (deleted)="onDeleteFromForm($event)" />
+  }
+
+  @if (showProjectForm) {
+  <app-project-form-dialog (saved)="onProjectFormSaved()" (cancelled)="showProjectForm = false" />
   }
 
   <app-confirm-dialog [visible]="showDeleteConfirm" message="Bạn có chắc muốn xóa công việc này?"

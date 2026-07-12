@@ -45,61 +45,71 @@
   <!-- BODY: SIDEBAR & CONTENT -->
   <div class="zen-body">
     <aside class="zen-sidebar">
+      <!-- Đường vân nhánh cây – DUY NHẤT, trượt mượt theo tab -->
+      <div class="vine-separator" [class.visible]="vineVisible()" [style.top]="vineTop()">
+        <img src="assets/images/vine-separator.svg" alt="separator" class="vine-img" />
+      </div>
+
       <!-- 1. Tất cả công việc -->
-      <a routerLink="/todos" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" class="nav-item">
+      <a routerLink="/todos" [class.active]="pageTitle() === 'Tất cả công việc'" class="nav-item">
         <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
         <span class="nav-text">Tất cả công việc</span>
       </a>
 
-      <!-- Đường vân nhánh cây lượn sóng -->
-      <div class="vine-separator">
-        <img src="assets/images/vine-separator.svg" alt="separator" class="vine-img" />
-      </div>
-
       <!-- 2. Hôm nay -->
-      <a routerLink="/todos" [queryParams]="{filter: 'today'}" routerLinkActive="active" class="nav-item">
+      <a routerLink="/todos" [queryParams]="{filter: 'today'}" [class.active]="pageTitle() === 'Hôm nay'"
+        class="nav-item">
         <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
         <span class="nav-text">Hôm nay</span>
       </a>
 
       <!-- 3. Sắp tới -->
-      <a routerLink="/todos" [queryParams]="{filter: 'upcoming'}" routerLinkActive="active" class="nav-item">
+      <a routerLink="/todos" [queryParams]="{filter: 'upcoming'}" [class.active]="pageTitle() === 'Sắp tới'"
+        class="nav-item">
         <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
         <span class="nav-text">Sắp tới</span>
       </a>
 
-      <!-- 4. Báo cáo / Danh mục -->
-      <a routerLink="/categories" routerLinkActive="active" class="nav-item">
+      <!-- 4. Báo cáo -->
+      <a routerLink="/categories" [class.active]="pageTitle() === 'Báo cáo'" class="nav-item">
         <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
         <span class="nav-text">Báo cáo</span>
       </a>
 
-      <!-- DỰ ÁN CỦA TÔI -->
-      <div class="sidebar-projects">
-        <h3 class="projects-title">Dự án của tôi</h3>
-        <div class="project-list">
-          <div class="project-item">
-            <a [routerLink]="['/todos']" [queryParams]="{categoryId: 1}" class="project-link">
-              <span class="project-hash">#</span>
-              <span class="project-name">Học tập</span>
-            </a>
-            <button class="btn-project-more" title="Tùy chọn">···</button>
-          </div>
-          <div class="project-item">
-            <a [routerLink]="['/todos']" [queryParams]="{categoryId: 2}" class="project-link">
-              <span class="project-hash">#</span>
-              <span class="project-name">Công việc</span>
-            </a>
-            <button class="btn-project-more" title="Tùy chọn">···</button>
-          </div>
-          <div class="project-item">
-            <a [routerLink]="['/todos']" [queryParams]="{categoryId: 3}" class="project-link">
-              <span class="project-hash">#</span>
-              <span class="project-name">Khác</span>
-            </a>
-            <button class="btn-project-more" title="Tùy chọn">···</button>
-          </div>
+      <!-- PHÂN CÁCH SIDEBAR -->
+      <div class="sidebar-divider"></div>
+
+      <!-- DANH SÁCH CÔNG VIỆC -->
+      <div class="sidebar-worklist">
+        <div class="worklist-header">
+          <h3 class="worklist-title">Danh sách</h3>
+          @if (sidebarTotalPages() > 1) {
+          <span class="worklist-page-indicator">{{ sidebarPage() }}/{{ sidebarTotalPages() }}</span>
+          }
         </div>
+        <div class="worklist-scroll">
+          @if (sidebarTodos().length === 0) {
+          <div class="worklist-empty">Chưa có công việc</div>
+          } @else {
+          @for (todo of sidebarTodos(); track todo.id) {
+          <a class="worklist-item" [routerLink]="['/todos']" [queryParams]="{projectId: todo.projectId}"
+            [class.completed]="todo.isCompleted">
+            <span class="worklist-check" [class.checked]="todo.isCompleted">
+              @if (todo.isCompleted) { ✓ }
+            </span>
+            <span class="worklist-name">{{ todo.title }}</span>
+          </a>
+          }
+          }
+        </div>
+        @if (sidebarTotalPages() > 1) {
+        <div class="worklist-pagination">
+          <button class="worklist-page-btn" (click)="sidebarPrevPage()" [disabled]="sidebarPage() <= 1"
+            title="Trang trước">‹</button>
+          <button class="worklist-page-btn" (click)="sidebarNextPage()"
+            [disabled]="sidebarPage() >= sidebarTotalPages()" title="Trang sau">›</button>
+        </div>
+        }
       </div>
     </aside>
 
@@ -108,3 +118,7 @@
     </main>
   </div>
 </div>
+
+@if (showProjectModal) {
+<app-project-form-dialog (saved)="onProjectCreated()" (cancelled)="showProjectModal = false" />
+}

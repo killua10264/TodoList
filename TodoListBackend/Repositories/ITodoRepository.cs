@@ -4,8 +4,7 @@ namespace TodoListBackend.Repositories
 {
     public interface ITodoRepository
     {
-        // FIX 2.2: Pagination — trả kèm TotalCount
-        Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20);
+        Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? projectId = null, string? status = null, string? sortBy = null);
         Task<Todo?> GetByIdAsync(int id, int userId);
         Task AddAsync(Todo todo);
     }

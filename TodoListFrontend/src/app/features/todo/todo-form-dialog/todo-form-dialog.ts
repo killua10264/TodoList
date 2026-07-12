@@ -3,7 +3,7 @@ import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angula
 import { TodoService } from '../../../core/services/todo.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TodoResponse } from '../../../core/models/todo.model';
-import { CategoryResponse } from '../../../core/models/category.model';
+import { ProjectResponse } from '../../../core/models/project.model';
 
 @Component({
   selector: 'app-todo-form-dialog',
@@ -16,10 +16,11 @@ export class TodoFormDialogComponent implements OnInit {
   private toast = inject(ToastService);
 
   todo = input<TodoResponse | null>(null);
-  categories = input<CategoryResponse[]>([]);
+  projects = input<ProjectResponse[]>([]);
 
   saved = output<void>();
   cancelled = output<void>();
+  deleted = output<number>();
 
   isLoading = false;
 
@@ -28,7 +29,7 @@ export class TodoFormDialogComponent implements OnInit {
     description: new FormControl(''),
     priority: new FormControl(1, [Validators.required]),
     dueDate: new FormControl('', [Validators.required]),
-    categoryId: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
+    projectId: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
     isCompleted: new FormControl(false)
   });
 
@@ -39,12 +40,19 @@ export class TodoFormDialogComponent implements OnInit {
   ngOnInit() {
     const t = this.todo();
     if (t) {
+      let formProjId = +t.projectId;
+      const projName = (t.projectName || '').replace('#', '').trim().toLowerCase();
+      if (projName.includes('học tập')) formProjId = 1;
+      else if (projName.includes('công việc')) formProjId = 2;
+      else if (projName.includes('khác')) formProjId = 3;
+      else if (formProjId !== 1 && formProjId !== 2 && formProjId !== 3) formProjId = 1;
+
       this.todoForm.patchValue({
         title: t.title,
         description: t.description,
         priority: +t.priority,
         dueDate: t.dueDate.substring(0, 10),
-        categoryId: +t.categoryId,
+        projectId: formProjId,
         isCompleted: t.isCompleted
       });
     } else {
@@ -52,7 +60,7 @@ export class TodoFormDialogComponent implements OnInit {
       this.todoForm.patchValue({
         priority: 2, // Trung bình
         dueDate: today,
-        categoryId: 1 // Mặc định là # Học tập
+        projectId: 1 // Mặc định là Học tập
       });
     }
   }
@@ -65,7 +73,7 @@ export class TodoFormDialogComponent implements OnInit {
     const formValue = {
       ...this.todoForm.value,
       priority: +(this.todoForm.value.priority || 1),
-      categoryId: +(this.todoForm.value.categoryId || 1)
+      projectId: +(this.todoForm.value.projectId || 1)
     };
 
     if (this.isEditMode) {
@@ -78,6 +86,12 @@ export class TodoFormDialogComponent implements OnInit {
         next: () => { this.toast.show('Tạo mới thành công!', 'success'); this.saved.emit(); },
         error: () => { this.isLoading = false; this.toast.show('Tạo mới thất bại.', 'error'); }
       });
+    }
+  }
+
+  onDelete() {
+    if (this.todo()) {
+      this.deleted.emit(this.todo()!.id);
     }
   }
 }
