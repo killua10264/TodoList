@@ -51,5 +51,32 @@ namespace TodoListBackend.Services
                 Email = existingUser.Email
             };
         }
+
+        public async Task ChangePasswordAsync(int userId, ChangePassWordDto dto)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Tài khoản không tồn tại.");
+            }
+
+            if (string.IsNullOrEmpty(user.Password) || !BCrypt.Net.BCrypt.Verify(dto.OldPassword, user.Password))
+            {
+                throw new BusinessException("Mật khẩu hiện tại (mật khẩu cũ) không chính xác. Vui lòng kiểm tra lại.");
+            }
+
+            if (BCrypt.Net.BCrypt.Verify(dto.NewPassword, user.Password))
+            {
+                throw new BusinessException("Mật khẩu mới không được trùng với mật khẩu hiện tại.");
+            }
+
+            if (dto.NewPassword != dto.ConfirmNewPassword)
+            {
+                throw new BusinessException("Mật khẩu xác nhận không khớp với mật khẩu mới.");
+            }
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _unitOfWork.SaveChangesAsync();
+        }
     }
 }

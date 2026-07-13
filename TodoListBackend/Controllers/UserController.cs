@@ -24,5 +24,13 @@ namespace TodoListBackend.Controllers
 
             return Ok(new { message = "Cập nhật thông tin tài khoản thành công.", data = updatedUser });
         }
+
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePassWordDto dto)
+        {
+            int userId = GetCurrentUserId();
+            await _userService.ChangePasswordAsync(userId, dto);
+            return Ok(new { message = "Đổi mật khẩu thành công!" });
+        }
     }
 }

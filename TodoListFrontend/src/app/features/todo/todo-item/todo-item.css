@@ -58,6 +58,7 @@
   z-index: 15;
 }
 
+.btn-card-edit,
 .btn-card-delete {
   width: 28px;
   height: 28px;
@@ -74,8 +75,15 @@
   padding: 0;
 }
 
+.todo-card:hover .btn-card-edit,
 .todo-card:hover .btn-card-delete {
   opacity: 1;
+}
+
+.btn-card-edit:hover {
+  background: #54664c;
+  color: #ffffff;
+  transform: scale(1.12);
 }
 
 .btn-card-delete:hover {
@@ -84,10 +92,18 @@
   transform: scale(1.12);
 }
 
+.todo-card.completed .btn-card-edit,
 .todo-card.completed .btn-card-delete {
   border: 1.5px solid rgba(255, 255, 255, 0.9);
   background: transparent;
   color: #ffffff;
+}
+
+.todo-card.completed .btn-card-edit:hover {
+  background: #54664c;
+  border-color: #54664c;
+  color: #ffffff;
+  transform: scale(1.12);
 }
 
 .todo-card.completed .btn-card-delete:hover {

@@ -31,6 +31,10 @@ export class TodoService {
         return this.http.get<PaginatedResponse<TodoResponse>>(this.apiUrl, { params });
     }
 
+    getById(id: number) {
+        return this.http.get<TodoResponse>(`${this.apiUrl}/${id}`);
+    }
+
     create(data: TodoCreateRequest) {
         return this.http.post<TodoResponse>(this.apiUrl, data).pipe(
             tap(() => this.notifyChanged())

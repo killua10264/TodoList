@@ -33,6 +33,9 @@
           <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
             <span>👤 Hồ sơ cá nhân</span>
           </a>
+          <a routerLink="/change-password" (click)="closeUserMenu()" class="menu-item">
+            <span>🔐 Đổi mật khẩu</span>
+          </a>
           <button (click)="onLogout()" class="menu-item btn-logout-item">
             <span>🚪 Đăng xuất</span>
           </button>
@@ -92,9 +95,9 @@
           <div class="worklist-empty">Chưa có công việc</div>
           } @else {
           @for (todo of sidebarTodos(); track todo.id) {
-          <a class="worklist-item" [routerLink]="['/todos']" [queryParams]="{projectId: todo.projectId}"
+          <a class="worklist-item" [routerLink]="['/todos', todo.id, 'tree']"
             [class.completed]="todo.isCompleted">
-            <span class="worklist-check" [class.checked]="todo.isCompleted">
+            <span class="worklist-check" [class.checked]="todo.isCompleted" (click)="onToggleSidebarTodo($event, todo)" title="Đánh dấu hoàn thành">
               @if (todo.isCompleted) { ✓ }
             </span>
             <span class="worklist-name">{{ todo.title }}</span>

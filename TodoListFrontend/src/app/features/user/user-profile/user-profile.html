@@ -1,0 +1,25 @@
+<div class="profile-page">
+  <h2>👤 Hồ sơ cá nhân</h2>
+
+  <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="username">Tên người dùng</label>
+      <input id="username" formControlName="username" />
+      @if (profileForm.get('username')?.touched && profileForm.get('username')?.invalid) {
+        <span class="error">Tên phải có ít nhất 3 ký tự.</span>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" formControlName="email" />
+      @if (profileForm.get('email')?.touched && profileForm.get('email')?.invalid) {
+        <span class="error">Email không hợp lệ.</span>
+      }
+    </div>
+
+    <button type="submit" [disabled]="isLoading">
+      @if (isLoading) { Đang lưu... } @else { Cập nhật }
+    </button>
+  </form>
+</div>

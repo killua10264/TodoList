@@ -103,6 +103,19 @@ export class MainLayoutComponent implements OnInit {
     });
   }
 
+  onToggleSidebarTodo(event: Event, todo: TodoResponse) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.todoService.update(todo.id, {
+      title: todo.title,
+      description: todo.description,
+      priority: todo.priority,
+      dueDate: todo.dueDate,
+      isCompleted: !todo.isCompleted,
+      projectId: todo.projectId
+    }).subscribe();
+  }
+
   sidebarPrevPage() {
     if (this.sidebarPage() > 1) {
       this.sidebarPage.update(p => p - 1);

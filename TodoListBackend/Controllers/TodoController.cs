@@ -23,6 +23,16 @@ namespace TodoListBackend.Controllers
             return Ok(paginatedTodos);
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTodoById(int id)
+        {
+            int userId = GetCurrentUserId();
+            var todo = await _todoService.GetTodoByIdAsync(id, userId);
+            if (todo == null) return NotFound();
+
+            return Ok(todo);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateTodo([FromBody] TodoCreateDto dto)
         {

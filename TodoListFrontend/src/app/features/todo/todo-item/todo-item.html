@@ -1,6 +1,6 @@
-<div class="todo-card" [class.completed]="todo().isCompleted" (click)="onCardClick($event)">
+<div class="todo-card" [class.completed]="todo().isCompleted" (click)="onCardClick($event)" title="Nhấn để xem cây công việc chi tiết">
   @if (todo().isCompleted) {
-  <img src="assets/images/flower.svg" alt="completed" class="flower-badge" />
+    <img src="assets/images/flower.svg" alt="completed" class="flower-badge" />
   }
 
   <div class="card-content">
@@ -8,6 +8,16 @@
   </div>
 
   <div class="card-actions">
+    <!-- Nút Sửa (···) -->
+    <button type="button" class="btn-card-edit" (click)="onEdit($event)" title="Chỉnh sửa thông tin công việc">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="1"></circle>
+        <circle cx="19" cy="12" r="1"></circle>
+        <circle cx="5" cy="12" r="1"></circle>
+      </svg>
+    </button>
+
+    <!-- Nút Xóa -->
     <button type="button" class="btn-card-delete" (click)="onDelete($event)" title="Xóa công việc">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="3 6 5 6 21 6"></polyline>
@@ -15,9 +25,10 @@
       </svg>
     </button>
 
-    <div class="card-checkbox" (click)="onToggle($event)">
+    <!-- Checkbox Hoàn thành -->
+    <div class="card-checkbox" (click)="onToggle($event)" title="Đánh dấu hoàn thành">
       @if (todo().isCompleted) {
-      <span class="check-mark">✓</span>
+        <span class="check-mark">✓</span>
       }
     </div>
   </div>

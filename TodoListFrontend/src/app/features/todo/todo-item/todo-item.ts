@@ -1,4 +1,5 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { TodoResponse } from '../../../core/models/todo.model';
 
 @Component({
@@ -8,6 +9,7 @@ import { TodoResponse } from '../../../core/models/todo.model';
   styleUrl: './todo-item.css'
 })
 export class TodoItemComponent {
+  private router = inject(Router);
   todo = input.required<TodoResponse>();
 
   toggled = output<TodoResponse>();
@@ -19,8 +21,13 @@ export class TodoItemComponent {
     this.toggled.emit(this.todo());
   }
 
-  onCardClick(event: Event) {
+  onEdit(event: Event) {
+    event.stopPropagation();
     this.edited.emit(this.todo());
+  }
+
+  onCardClick(event: Event) {
+    this.router.navigate(['/todos', this.todo().id, 'tree']);
   }
 
   onDelete(event: Event) {

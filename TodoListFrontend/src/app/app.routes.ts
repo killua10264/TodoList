@@ -10,7 +10,10 @@ import { HomeComponent } from './features/home/home';
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { TodoListComponent } from './features/todo/todo-list/todo-list';
+import { TodoTreeViewComponent } from './features/todo/todo-tree-view/todo-tree-view';
 import { ProjectDetailComponent } from './features/project/project-detail/project-detail';
+import { UserProfileComponent } from './features/user/user-profile/user-profile';
+import { ChangePasswordComponent } from './features/user/change-password/change-password';
 
 export const routes: Routes = [
   {
@@ -36,7 +39,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: 'todos', component: TodoListComponent },
-      { path: 'projects/:id', redirectTo: 'todos' }
+      { path: 'todos/:id/tree', component: TodoTreeViewComponent },
+      { path: 'projects/:id', redirectTo: 'todos' },
+      { path: 'profile', component: UserProfileComponent },
+      { path: 'change-password', component: ChangePasswordComponent }
     ]
   },
 
