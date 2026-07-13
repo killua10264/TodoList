@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { UserService } from '../../core/services/user.service';
 import { ProjectService } from '../../core/services/project.service';
 import { TodoService } from '../../core/services/todo.service';
 import { ProjectResponse } from '../../core/models/project.model';
@@ -16,6 +17,7 @@ import { filter } from 'rxjs/operators';
 })
 export class MainLayoutComponent implements OnInit {
   private authService = inject(AuthService);
+  private userService = inject(UserService);
   private projectService = inject(ProjectService);
   private todoService = inject(TodoService);
   private router = inject(Router);
@@ -24,6 +26,15 @@ export class MainLayoutComponent implements OnInit {
   showProjectModal = false;
   projects = signal<ProjectResponse[]>([]);
   pageTitle = signal<string>('Tất cả công việc');
+
+  // Dynamic Avatar từ currentUser signal của UserService
+  headerAvatarUrl = computed(() => this.userService.currentUser()?.avatarUrl || null);
+  headerAvatarInitials = computed(() => {
+    const u = this.userService.currentUser();
+    if (!u) return 'AVT';
+    const name = u.displayName || u.username || 'A';
+    return name.charAt(0).toUpperCase();
+  });
 
   // Sidebar worklist: chỉ hiển thị tên các Todo card
   sidebarTodos = signal<TodoResponse[]>([]);
@@ -59,6 +70,7 @@ export class MainLayoutComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.userService.getProfile().subscribe();
     this.loadProjects();
     this.loadSidebarTodos();
     this.updatePageTitle(this.router.url);
@@ -131,6 +143,18 @@ export class MainLayoutComponent implements OnInit {
   }
 
   private updatePageTitle(url: string) {
+    if (url.includes('/profile')) {
+      this.pageTitle.set('Hồ sơ cá nhân');
+      return;
+    }
+    if (url.includes('/change-password')) {
+      this.pageTitle.set('Đổi mật khẩu');
+      return;
+    }
+    if (url.includes('/categories')) {
+      this.pageTitle.set('Báo cáo');
+      return;
+    }
     const projMatch = url.match(/\/projects\/(\d+)/);
     if (projMatch) {
       const id = +projMatch[1];

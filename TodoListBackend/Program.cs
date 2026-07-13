@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoListBackend.Data;
 using TodoListBackend.Repositories;
 using TodoListBackend.Services;
+using TodoListBackend.Models;
 
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -34,6 +35,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISubTaskRepository, SubTaskRepository>();
 builder.Services.AddScoped<ISubTaskService, SubTaskService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 builder.Services.AddRateLimiter(options =>
 {

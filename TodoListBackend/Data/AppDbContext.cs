@@ -62,6 +62,22 @@ namespace TodoListBackend.Data
                     .HasMaxLength(255);
                 entity.HasIndex(u => u.RefreshToken)
                     .HasDatabaseName("IX_Users_RefreshToken");
+                entity.Property(u => u.DisplayName)
+                    .HasMaxLength(100);
+                entity.Property(u => u.Bio)
+                    .HasMaxLength(300);
+                entity.Property(u => u.Timezone)
+                    .HasMaxLength(100)
+                    .HasDefaultValue("Asia/Ho_Chi_Minh");
+                entity.Property(u => u.Theme)
+                    .HasMaxLength(20)
+                    .HasDefaultValue("light");
+                entity.Property(u => u.Language)
+                    .HasMaxLength(10)
+                    .HasDefaultValue("vi");
+                entity.Property(u => u.FirstDayOfWeek)
+                    .HasMaxLength(20)
+                    .HasDefaultValue("Monday");
             });
 
             modelBuilder.Entity<Project>(entity =>

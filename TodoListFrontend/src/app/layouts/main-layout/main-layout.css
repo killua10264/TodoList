@@ -73,25 +73,6 @@
   position: relative;
 }
 
-.btn-settings {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.25s ease, background 0.2s ease;
-  padding: 0;
-}
-
-.btn-settings:hover {
-  transform: rotate(30deg) scale(1.08);
-  background: rgba(138, 154, 91, 0.12);
-}
-
 .avatar-wrapper {
   position: relative;
 }
@@ -100,22 +81,31 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  border: none;
+  border: 2px solid #ffffff;
   background: #d4dad6;
   color: #3a4a2e;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 1.05rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  padding: 0;
+}
+
+.header-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .btn-avatar:hover {
   background: #c5ccc8;
   transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(59, 82, 56, 0.2);
 }
 
 .user-menu-dropdown {

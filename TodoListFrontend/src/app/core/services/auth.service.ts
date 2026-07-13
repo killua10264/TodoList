@@ -35,9 +35,9 @@ export class AuthService {
     }
 
     logout() {
+        this.clearTokens();
         return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
             tap(() => {
-                this.clearTokens();
                 this.router.navigate(['/login']);
             })
         );
@@ -65,7 +65,7 @@ export class AuthService {
         return null;
     }
 
-    private clearTokens(): void {
+    clearTokens(): void {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');

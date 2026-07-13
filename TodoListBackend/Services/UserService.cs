@@ -14,6 +14,34 @@ namespace TodoListBackend.Services
             _unitOfWork = unitOfWork;
         }
 
+        private static UserResponseDto MapToResponseDto(User user)
+        {
+            return new UserResponseDto
+            {
+                Id = user.Id,
+                Username = user.Username,
+                Email = user.Email,
+                AvatarUrl = user.AvatarUrl,
+                DisplayName = user.DisplayName,
+                Bio = user.Bio,
+                Timezone = user.Timezone ?? "Asia/Ho_Chi_Minh",
+                Theme = user.Theme ?? "light",
+                Language = user.Language ?? "vi",
+                FirstDayOfWeek = user.FirstDayOfWeek ?? "Monday",
+                CreatedAt = user.CreatedAt
+            };
+        }
+
+        public async Task<UserResponseDto> GetProfileAsync(int userId)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Tài khoản không tồn tại.");
+            }
+            return MapToResponseDto(user);
+        }
+
         public async Task<UserResponseDto> UpdateUserAsync(int userId, UserUpdateDto dto)
         {
             var existingUser = await _unitOfWork.Users.GetByIdAsync(userId);
@@ -41,15 +69,39 @@ namespace TodoListBackend.Services
                 existingUser.Username = dto.Username.Trim();
             }
 
+            if (dto.AvatarUrl != null)
+            {
+                existingUser.AvatarUrl = dto.AvatarUrl;
+            }
+            if (dto.DisplayName != null)
+            {
+                existingUser.DisplayName = dto.DisplayName.Trim();
+            }
+            if (dto.Bio != null)
+            {
+                existingUser.Bio = dto.Bio.Trim();
+            }
+            if (!string.IsNullOrWhiteSpace(dto.Timezone))
+            {
+                existingUser.Timezone = dto.Timezone.Trim();
+            }
+            if (!string.IsNullOrWhiteSpace(dto.Theme))
+            {
+                existingUser.Theme = dto.Theme.Trim();
+            }
+            if (!string.IsNullOrWhiteSpace(dto.Language))
+            {
+                existingUser.Language = dto.Language.Trim();
+            }
+            if (!string.IsNullOrWhiteSpace(dto.FirstDayOfWeek))
+            {
+                existingUser.FirstDayOfWeek = dto.FirstDayOfWeek.Trim();
+            }
+
             // FIX 2.4: Không cần gọi UpdateAsync — Change Tracker tự detect changes
             await _unitOfWork.SaveChangesAsync();
 
-            return new UserResponseDto
-            {
-                Id = existingUser.Id,
-                Username = existingUser.Username,
-                Email = existingUser.Email
-            };
+            return MapToResponseDto(existingUser);
         }
 
         public async Task ChangePasswordAsync(int userId, ChangePassWordDto dto)
