@@ -31,9 +31,10 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISubTaskRepository, SubTaskRepository>();
+builder.Services.AddScoped<ISubTaskService, SubTaskService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// FIX 3.4: Thêm Rate Limiting để chống Brute-force và DoS attacks trên endpoints nhạy cảm
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("AuthLimit", opt =>
@@ -92,7 +93,6 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFE");
 
-// FIX 3.4: Kích hoạt Rate Limiting middleware
 app.UseRateLimiter();
 
 app.UseAuthentication();

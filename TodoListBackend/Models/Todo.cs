@@ -19,5 +19,8 @@ namespace TodoListBackend.Models
         // 1 - N voi Project
         public int ProjectId { get; set; }
         public Project Project { get; set; } = null!;
+
+        // 1 - N voi SubTask
+        public ICollection<SubTask> SubTasks { get; set; } = new List<SubTask>();
     }
 }

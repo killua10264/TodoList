@@ -9,17 +9,20 @@ namespace TodoListBackend.Repositories
         public ITodoRepository Todos { get; }
         public IProjectRepository Projects { get; }
         public IUserRepository Users { get; }
+        public ISubTaskRepository SubTasks { get; }
 
         public UnitOfWork(
             AppDbContext context,
             ITodoRepository todoRepository,
             IProjectRepository projectRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            ISubTaskRepository subTaskRepository)
         {
             _context = context;
             Todos = todoRepository;
             Projects = projectRepository;
             Users = userRepository;
+            SubTasks = subTaskRepository;
         }
 
         public async Task<int> SaveChangesAsync()

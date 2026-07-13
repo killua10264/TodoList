@@ -7,7 +7,6 @@ namespace TodoListBackend.Validators
     {
         public TodoUpdateDtoValidator()
         {
-            // FIX 4.3: Dùng .When() — chỉ validate khi field được gửi (partial update)
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Tiêu đề không được để trống.")
                 .MaximumLength(100).WithMessage("Tiêu đề không được vượt quá 100 ký tự.")

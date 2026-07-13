@@ -10,6 +10,7 @@ namespace TodoListBackend.Data
         public DbSet<Todo> Todos => Set<Todo>();
         public DbSet<User> Users => Set<User>();
         public DbSet<Project> Projects => Set<Project>();
+        public DbSet<SubTask> SubTasks => Set<SubTask>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +26,21 @@ namespace TodoListBackend.Data
 
                 entity.HasIndex(t => new { t.UserId, t.IsDeleted })
                       .HasDatabaseName("IX_Todos_UserId_IsDeleted");
+            });
+
+            modelBuilder.Entity<SubTask>(entity =>
+            {
+                entity.Property(s => s.Title)
+                    .HasMaxLength(200)
+                    .IsRequired();
+
+                entity.HasOne(s => s.Todo)
+                    .WithMany(t => t.SubTasks)
+                    .HasForeignKey(s => s.TodoId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(s => s.TodoId)
+                      .HasDatabaseName("IX_SubTasks_TodoId");
             });
 
             modelBuilder.Entity<User>(entity =>

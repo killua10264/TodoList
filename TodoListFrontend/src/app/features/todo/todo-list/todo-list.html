@@ -2,7 +2,7 @@
   <div class="filter-toolbar">
     <div class="filter-group">
       <select [ngModel]="selectedProjectId()" (ngModelChange)="selectedProjectId.set($event); onFilterChanged()" class="zen-select">
-        <option [ngValue]="null">Tất cả dự án</option>
+        <option [ngValue]="null">Tất cả danh mục</option>
         @for (proj of projects(); track proj.id) {
         <option [ngValue]="proj.id">{{ proj.name }}</option>
         }
