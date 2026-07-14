@@ -44,7 +44,7 @@ namespace TodoListBackend.Controllers
             // 2. Cập nhật URL mới vào hồ sơ người dùng trong Database
             var updatedUser = await _userService.UpdateUserAsync(userId, new UserUpdateDto { AvatarUrl = avatarUrl });
 
-            return Ok(new { message = "Tải ảnh đại diện lên Cloudinary thành công!", avatarUrl = avatarUrl, data = updatedUser });
+            return Ok(new { message = "Tải ảnh đại diện thành công!", avatarUrl = avatarUrl, data = updatedUser });
         }
 
         [HttpPut("change-password")]

@@ -11,7 +11,7 @@ import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { TodoListComponent } from './features/todo/todo-list/todo-list';
 import { TodoTreeViewComponent } from './features/todo/todo-tree-view/todo-tree-view';
-import { ProjectDetailComponent } from './features/project/project-detail/project-detail';
+import { CategoryDetailComponent } from './features/category/category-detail/category-detail';
 import { UserProfileComponent } from './features/user/user-profile/user-profile';
 import { ChangePasswordComponent } from './features/user/change-password/change-password';
 
@@ -40,6 +40,7 @@ export const routes: Routes = [
     children: [
       { path: 'todos', component: TodoListComponent },
       { path: 'todos/:id/tree', component: TodoTreeViewComponent },
+      { path: 'categories/:id', component: CategoryDetailComponent },
       { path: 'projects/:id', redirectTo: 'todos' },
       { path: 'profile', component: UserProfileComponent },
       { path: 'change-password', component: ChangePasswordComponent }

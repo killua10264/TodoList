@@ -2,9 +2,9 @@
   <!-- THANH LỌC CỦA DỰ ÁN - GIỮ NGUYÊN GIAO DIỆN NHƯ CŨ -->
   <div class="filter-toolbar">
     <div class="filter-group">
-      <!-- Tên dự án hiện tại -->
-      <div class="project-header-badge" [style.borderLeftColor]="project()?.color || '#4a5a3a'">
-        <span class="proj-title">📁 {{ project()?.name }}</span>
+      <!-- Tên danh mục hiện tại -->
+      <div class="project-header-badge" [style.borderLeftColor]="category()?.color || '#4a5a3a'">
+        <span class="proj-title">📁 {{ category()?.name }}</span>
       </div>
 
       <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onFilterChanged()"
@@ -24,7 +24,7 @@
     </div>
   </div>
 
-  @if (isLoading() && !project()) {
+  @if (isLoading() && !category()) {
   <app-loading-spinner />
   } @else if (todos().length === 0 && !isLoading()) {
   <div class="empty-state">
@@ -34,14 +34,14 @@
   <!-- CÂY MỌC TỪ DƯỚI ĐÁY WEB LÊN (TREE GROWING FROM BOTTOM UP) -->
   <div class="upward-tree-container">
     <!-- Thân cây mọc từ dưới đáy lên -->
-    <div class="upward-stem" [style.borderColor]="project()?.color || '#4a5a3a'"></div>
+    <div class="upward-stem" [style.borderColor]="category()?.color || '#4a5a3a'"></div>
 
     <div class="upward-leaves-list">
       @for (todo of todos(); track todo.id; let i = $index) {
       <div class="upward-leaf-node">
         <!-- Nhánh rẽ nối từ thân cây vào thẻ todo -->
-        <div class="upward-branch-line" [style.borderColor]="project()?.color || '#4a5a3a'">
-          <span class="leaf-bud" [style.backgroundColor]="project()?.color || '#4a5a3a'"></span>
+        <div class="upward-branch-line" [style.borderColor]="category()?.color || '#4a5a3a'">
+          <span class="leaf-bud" [style.backgroundColor]="category()?.color || '#4a5a3a'"></span>
         </div>
 
         <!-- THẺ TODO GIỮ NGUYÊN GIAO DIỆN NHƯ CŨ -->
@@ -54,8 +54,8 @@
     </div>
 
     <!-- Gốc cây ở dưới cùng -->
-    <div class="tree-base-root" [style.color]="project()?.color || '#4a5a3a'">
-      <span>🌱 Gốc rễ: {{ project()?.name }}</span>
+    <div class="tree-base-root" [style.color]="category()?.color || '#4a5a3a'">
+      <span>🌱 Gốc rễ: {{ category()?.name }}</span>
     </div>
   </div>
 
@@ -74,16 +74,16 @@
   </button>
 
   @if (showTodoForm) {
-  <app-todo-form-dialog [todo]="editingTodo" [projects]="allProjects()" (saved)="onTodoFormSaved()"
+  <app-todo-form-dialog [todo]="editingTodo" [categories]="allCategories()" (saved)="onTodoFormSaved()"
     (cancelled)="showTodoForm = false" (deleted)="onTodoDeleteFromForm($event)" />
   }
 
-  @if (showProjectForm) {
-  <app-project-form-dialog [project]="project()" (saved)="onProjectFormSaved()" (cancelled)="showProjectForm = false"
-    (deleted)="openDeleteConfirm('project', $event)" />
+  @if (showCategoryForm) {
+  <app-category-form-dialog [category]="category()" (saved)="onCategoryFormSaved()" (cancelled)="showCategoryForm = false"
+    (deleted)="openDeleteConfirm('category', $event)" />
   }
 
   <app-confirm-dialog [visible]="showDeleteConfirm"
-    [message]="deleteTargetType === 'project' ? 'Bạn có chắc chắn muốn xóa dự án này không?' : 'Bạn có chắc chắn muốn xóa công việc này không?'"
+    [message]="deleteTargetType === 'category' ? 'Bạn có chắc chắn muốn xóa danh mục này không?' : 'Bạn có chắc chắn muốn xóa công việc này không?'"
     (confirmed)="onDeleteConfirmed($event)" />
 </div>

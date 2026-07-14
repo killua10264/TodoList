@@ -3,7 +3,7 @@ import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angula
 import { TodoService } from '../../../core/services/todo.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TodoResponse } from '../../../core/models/todo.model';
-import { ProjectResponse } from '../../../core/models/project.model';
+import { CategoryResponse } from '../../../core/models/category.model';
 
 @Component({
   selector: 'app-todo-form-dialog',
@@ -16,7 +16,7 @@ export class TodoFormDialogComponent implements OnInit {
   private toast = inject(ToastService);
 
   todo = input<TodoResponse | null>(null);
-  projects = input<ProjectResponse[]>([]);
+  categories = input<CategoryResponse[]>([]);
 
   saved = output<void>();
   cancelled = output<void>();
@@ -29,7 +29,7 @@ export class TodoFormDialogComponent implements OnInit {
     description: new FormControl(''),
     priority: new FormControl(1, [Validators.required]),
     dueDate: new FormControl('', [Validators.required]),
-    projectId: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
+    categoryId: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
     isCompleted: new FormControl(false)
   });
 
@@ -40,19 +40,19 @@ export class TodoFormDialogComponent implements OnInit {
   ngOnInit() {
     const t = this.todo();
     if (t) {
-      let formProjId = +t.projectId;
-      const projName = (t.projectName || '').replace('#', '').trim().toLowerCase();
-      if (projName.includes('học tập')) formProjId = 1;
-      else if (projName.includes('công việc')) formProjId = 2;
-      else if (projName.includes('khác')) formProjId = 3;
-      else if (formProjId !== 1 && formProjId !== 2 && formProjId !== 3) formProjId = 1;
+      let formCatId = +t.categoryId;
+      const catName = (t.categoryName || '').replace('#', '').trim().toLowerCase();
+      if (catName.includes('học tập')) formCatId = 1;
+      else if (catName.includes('công việc')) formCatId = 2;
+      else if (catName.includes('khác')) formCatId = 3;
+      else if (formCatId !== 1 && formCatId !== 2 && formCatId !== 3) formCatId = 1;
 
       this.todoForm.patchValue({
         title: t.title,
         description: t.description,
         priority: +t.priority,
         dueDate: t.dueDate.substring(0, 10),
-        projectId: formProjId,
+        categoryId: formCatId,
         isCompleted: t.isCompleted
       });
     } else {
@@ -60,7 +60,7 @@ export class TodoFormDialogComponent implements OnInit {
       this.todoForm.patchValue({
         priority: 2, // Trung bình
         dueDate: today,
-        projectId: 1 // Mặc định là Học tập
+        categoryId: 1 // Mặc định là Học tập
       });
     }
   }
@@ -73,7 +73,7 @@ export class TodoFormDialogComponent implements OnInit {
     const formValue = {
       ...this.todoForm.value,
       priority: +(this.todoForm.value.priority || 1),
-      projectId: +(this.todoForm.value.projectId || 1)
+      categoryId: +(this.todoForm.value.categoryId || 1)
     };
 
     if (this.isEditMode) {

@@ -2,29 +2,29 @@ import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
-import { ProjectService } from '../../core/services/project.service';
+import { CategoryService } from '../../core/services/category.service';
 import { TodoService } from '../../core/services/todo.service';
-import { ProjectResponse } from '../../core/models/project.model';
+import { CategoryResponse } from '../../core/models/category.model';
 import { TodoResponse, PaginatedResponse } from '../../core/models/todo.model';
-import { ProjectFormDialogComponent } from '../../features/project/project-form-dialog/project-form-dialog';
+import { CategoryFormDialogComponent } from '../../features/category/category-form-dialog/category-form-dialog';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink, ProjectFormDialogComponent],
+  imports: [RouterOutlet, RouterLink, CategoryFormDialogComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
 export class MainLayoutComponent implements OnInit {
   private authService = inject(AuthService);
   private userService = inject(UserService);
-  private projectService = inject(ProjectService);
+  private categoryService = inject(CategoryService);
   private todoService = inject(TodoService);
   private router = inject(Router);
 
   showUserMenu = false;
-  showProjectModal = false;
-  projects = signal<ProjectResponse[]>([]);
+  showCategoryModal = false;
+  categories = signal<CategoryResponse[]>([]);
   pageTitle = signal<string>('Tất cả công việc');
 
   // Dynamic Avatar từ currentUser signal của UserService
@@ -63,7 +63,7 @@ export class MainLayoutComponent implements OnInit {
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.updatePageTitle(this.router.url);
-      this.loadProjects();
+      this.loadCategories();
       this.sidebarPage.set(1);
       this.loadSidebarTodos();
     });
@@ -71,20 +71,20 @@ export class MainLayoutComponent implements OnInit {
 
   ngOnInit() {
     this.userService.getProfile().subscribe();
-    this.loadProjects();
+    this.loadCategories();
     this.loadSidebarTodos();
     this.updatePageTitle(this.router.url);
 
-    this.projectService.refresh$.subscribe(() => this.loadProjects());
+    this.categoryService.refresh$.subscribe(() => this.loadCategories());
     this.todoService.refresh$.subscribe(() => {
       this.loadSidebarTodos();
     });
   }
 
-  loadProjects() {
-    this.projectService.getAll().subscribe({
+  loadCategories() {
+    this.categoryService.getAll().subscribe({
       next: (data) => {
-        this.projects.set(data);
+        this.categories.set(data);
         this.updatePageTitle(this.router.url);
       },
       error: () => { }
@@ -95,17 +95,17 @@ export class MainLayoutComponent implements OnInit {
   loadSidebarTodos() {
     const url = this.router.url;
     let urlFilter: string | null = null;
-    let projectId: number | null = null;
+    let categoryId: number | null = null;
 
     if (url.includes('filter=today')) urlFilter = 'today';
     else if (url.includes('filter=upcoming')) urlFilter = 'upcoming';
 
-    const projMatch = url.match(/projectId=(\d+)/);
-    if (projMatch) projectId = +projMatch[1];
+    const projMatch = url.match(/categoryId=(\d+)/) || url.match(/projectId=(\d+)/);
+    if (projMatch) categoryId = +projMatch[1];
 
     this.todoService.getAll(
       this.sidebarPage(), this.sidebarPageSize,
-      urlFilter, projectId, null, null
+      urlFilter, categoryId, null, null
     ).subscribe({
       next: (res: PaginatedResponse<TodoResponse>) => {
         this.sidebarTodos.set(res.items);
@@ -124,7 +124,7 @@ export class MainLayoutComponent implements OnInit {
       priority: todo.priority,
       dueDate: todo.dueDate,
       isCompleted: !todo.isCompleted,
-      projectId: todo.projectId
+      categoryId: todo.categoryId
     }).subscribe();
   }
 
@@ -151,28 +151,39 @@ export class MainLayoutComponent implements OnInit {
       this.pageTitle.set('Đổi mật khẩu');
       return;
     }
-    if (url.includes('/categories')) {
-      this.pageTitle.set('Báo cáo');
+    if (url.includes('/categories/')) {
+      const projMatch = url.match(/\/categories\/(\d+)/);
+      if (projMatch) {
+        const id = +projMatch[1];
+        const proj = this.categories().find(p => p.id === id);
+        if (proj) {
+          this.pageTitle.set(proj.name);
+        } else {
+          this.pageTitle.set('Chi tiết danh mục');
+        }
+      } else {
+        this.pageTitle.set('Danh mục');
+      }
       return;
     }
     const projMatch = url.match(/\/projects\/(\d+)/);
     if (projMatch) {
       const id = +projMatch[1];
-      const proj = this.projects().find(p => p.id === id);
+      const proj = this.categories().find(p => p.id === id);
       if (proj) {
         this.pageTitle.set(proj.name);
       } else {
-        this.pageTitle.set('Chi tiết dự án');
+        this.pageTitle.set('Chi tiết danh mục');
       }
     } else if (url.includes('filter=today')) {
       this.pageTitle.set('Hôm nay');
     } else if (url.includes('filter=upcoming')) {
       this.pageTitle.set('Sắp tới');
-    } else if (url.includes('projectId=')) {
-      const match = url.match(/projectId=(\d+)/);
+    } else if (url.includes('categoryId=') || url.includes('projectId=')) {
+      const match = url.match(/categoryId=(\d+)/) || url.match(/projectId=(\d+)/);
       if (match) {
         const id = +match[1];
-        const proj = this.projects().find(p => p.id === id);
+        const proj = this.categories().find(p => p.id === id);
         if (proj) {
           this.pageTitle.set(proj.name);
         } else if (id === 1) {
@@ -192,13 +203,13 @@ export class MainLayoutComponent implements OnInit {
     }
   }
 
-  openCreateProjectModal() {
-    this.showProjectModal = true;
+  openCreateCategoryModal() {
+    this.showCategoryModal = true;
   }
 
-  onProjectCreated() {
-    this.showProjectModal = false;
-    this.loadProjects();
+  onCategoryCreated() {
+    this.showCategoryModal = false;
+    this.loadCategories();
   }
 
   toggleUserMenu() {

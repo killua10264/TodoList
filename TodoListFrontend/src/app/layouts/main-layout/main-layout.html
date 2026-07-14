@@ -118,6 +118,6 @@
   </div>
 </div>
 
-@if (showProjectModal) {
-<app-project-form-dialog (saved)="onProjectCreated()" (cancelled)="showProjectModal = false" />
+@if (showCategoryModal) {
+<app-category-form-dialog (saved)="onCategoryCreated()" (cancelled)="showCategoryModal = false" />
 }

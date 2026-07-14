@@ -1,9 +1,9 @@
 <div class="todo-list-page">
   <div class="filter-toolbar">
     <div class="filter-group">
-      <select [ngModel]="selectedProjectId()" (ngModelChange)="selectedProjectId.set($event); onFilterChanged()" class="zen-select">
+      <select [ngModel]="selectedCategoryId()" (ngModelChange)="selectedCategoryId.set($event); onFilterChanged()" class="zen-select">
         <option [ngValue]="null">Tất cả danh mục</option>
-        @for (proj of projects(); track proj.id) {
+        @for (proj of categories(); track proj.id) {
         <option [ngValue]="proj.id">{{ proj.name }}</option>
         }
       </select>
@@ -51,12 +51,12 @@
   </button>
 
   @if (showForm) {
-  <app-todo-form-dialog [todo]="editingTodo" [projects]="projects()" (saved)="onFormSaved()"
+  <app-todo-form-dialog [todo]="editingTodo" [categories]="categories()" (saved)="onFormSaved()"
     (cancelled)="showForm = false" (deleted)="onDeleteFromForm($event)" />
   }
 
-  @if (showProjectForm) {
-  <app-project-form-dialog (saved)="onProjectFormSaved()" (cancelled)="showProjectForm = false" />
+  @if (showCategoryForm) {
+  <app-category-form-dialog (saved)="onCategoryFormSaved()" (cancelled)="showCategoryForm = false" />
   }
 
   <app-confirm-dialog [visible]="showDeleteConfirm" message="Bạn có chắc muốn xóa công việc này?"

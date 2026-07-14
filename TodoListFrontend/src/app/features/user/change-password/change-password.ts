@@ -5,6 +5,7 @@ import {
 } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
 
 @Component({
   selector: 'app-change-password',
@@ -20,9 +21,13 @@ export class ChangePasswordComponent {
   errorMessage = '';
   serverErrors: { [key: string]: string } = {};
 
+  getPasswordStatus() {
+    return checkPasswordStatus(this.passwordForm.get('newPassword')?.value);
+  }
+
   passwordForm = new FormGroup({
     oldPassword: new FormControl('', Validators.required),
-    newPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
+    newPassword: new FormControl('', [Validators.required, passwordRequirementsValidator()]),
     confirmNewPassword: new FormControl('', Validators.required)
   }, {
     // Validator cấp form (kiểm tra cross-field)

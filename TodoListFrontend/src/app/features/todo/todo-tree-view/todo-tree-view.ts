@@ -176,7 +176,7 @@ export class TodoTreeViewComponent implements OnInit {
       priority: current.priority,
       dueDate: current.dueDate,
       isCompleted: !current.isCompleted,
-      projectId: current.projectId
+      categoryId: current.categoryId
     }).subscribe({
       next: (updated) => {
         this.todo.set(updated);

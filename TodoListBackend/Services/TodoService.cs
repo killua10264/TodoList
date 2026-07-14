@@ -16,14 +16,14 @@ namespace TodoListBackend.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? projectId = null, string? status = null, string? sortBy = null)
+        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null)
         {
-            if (projectId.HasValue && projectId.Value > 0)
+            if (categoryId.HasValue && categoryId.Value > 0)
             {
-                projectId = await ResolveProjectIdAsync(projectId.Value, userId);
+                categoryId = await ResolveCategoryIdAsync(categoryId.Value, userId);
             }
 
-            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, projectId, status, sortBy);
+            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy);
             return new PaginatedResponse<TodoResponseDto>
             {
                 Items = todos.Select(t => t.ToResponseDto()!),
@@ -47,7 +47,7 @@ namespace TodoListBackend.Services
                 throw new BusinessException("Ngày hết hạn không được nằm trong quá khứ.");
             }
 
-            dto.ProjectId = await ResolveProjectIdAsync(dto.ProjectId, userId);
+            dto.CategoryId = await ResolveCategoryIdAsync(dto.CategoryId, userId);
 
             var newTodo = new Todo
             {
@@ -58,7 +58,7 @@ namespace TodoListBackend.Services
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 UserId = userId,
-                ProjectId = dto.ProjectId,
+                CategoryId = dto.CategoryId,
                 IsCompleted = false,
                 IsDeleted = false
             };
@@ -95,9 +95,9 @@ namespace TodoListBackend.Services
             existingTodo.DueDate = dto.DueDate ?? existingTodo.DueDate;
             existingTodo.IsCompleted = dto.IsCompleted ?? existingTodo.IsCompleted;
             
-            if (dto.ProjectId.HasValue)
+            if (dto.CategoryId.HasValue)
             {
-                existingTodo.ProjectId = await ResolveProjectIdAsync(dto.ProjectId.Value, userId);
+                existingTodo.CategoryId = await ResolveCategoryIdAsync(dto.CategoryId.Value, userId);
             }
 
             existingTodo.UpdatedAt = DateTime.UtcNow;
@@ -108,14 +108,14 @@ namespace TodoListBackend.Services
             return (updatedTodo ?? existingTodo).ToResponseDto()!;
         }
 
-        private async Task<int> ResolveProjectIdAsync(int inputProjectId, int userId)
+        private async Task<int> ResolveCategoryIdAsync(int inputCategoryId, int userId)
         {
-            var userProjects = (await _unitOfWork.Projects.GetAllProjectsAsync(userId)).ToList();
+            var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
 
-            if (inputProjectId == 1 || inputProjectId == 2 || inputProjectId == 3)
+            if (inputCategoryId == 1 || inputCategoryId == 2 || inputCategoryId == 3)
             {
-                string targetName = inputProjectId == 1 ? "Học tập" : (inputProjectId == 2 ? "Công việc" : "Khác");
-                var matchedByName = userProjects.FirstOrDefault(p =>
+                string targetName = inputCategoryId == 1 ? "Học tập" : (inputCategoryId == 2 ? "Công việc" : "Khác");
+                var matchedByName = userCategories.FirstOrDefault(p =>
                     string.Equals(p.Name, targetName, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(p.Name, $"# {targetName}", StringComparison.OrdinalIgnoreCase) ||
                     p.Name.EndsWith(targetName, StringComparison.OrdinalIgnoreCase));
@@ -125,19 +125,19 @@ namespace TodoListBackend.Services
                     return matchedByName.Id;
                 }
 
-                var newProject = new Project { Name = targetName, Color = "#4a5a3a", UserId = userId };
-                await _unitOfWork.Projects.AddAsync(newProject);
+                var newCategory = new Category { Name = targetName, Color = "#4a5a3a", UserId = userId };
+                await _unitOfWork.Categories.AddAsync(newCategory);
                 await _unitOfWork.SaveChangesAsync();
-                return newProject.Id;
+                return newCategory.Id;
             }
 
-            var project = await _unitOfWork.Projects.GetByIdAsync(inputProjectId, userId);
-            if (project != null)
+            var category = await _unitOfWork.Categories.GetByIdAsync(inputCategoryId, userId);
+            if (category != null)
             {
-                return project.Id;
+                return category.Id;
             }
 
-            return userProjects.FirstOrDefault()?.Id ?? inputProjectId;
+            return userCategories.FirstOrDefault()?.Id ?? inputCategoryId;
         }
     }
 }

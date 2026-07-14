@@ -12,7 +12,10 @@ namespace TodoListBackend.Validators
 
             RuleFor(x => x.NewPassword)
                 .NotEmpty().WithMessage("Vui lòng nhập mật khẩu mới.")
-                .MinimumLength(6).WithMessage("Mật khẩu mới phải có ít nhất 6 ký tự.");
+                .MinimumLength(8).WithMessage("Mật khẩu mới phải có ít nhất 8 ký tự.")
+                .Matches(@"[A-Z]").WithMessage("Mật khẩu mới cần ít nhất 1 chữ hoa.")
+                .Matches(@"[\d]").WithMessage("Mật khẩu mới cần ít nhất 1 chữ số.")
+                .Matches(@"[\W_]").WithMessage("Mật khẩu mới cần ít nhất 1 ký tự đặc biệt.");
 
             RuleFor(x => x.ConfirmNewPassword)
                 .NotEmpty().WithMessage("Vui lòng nhập lại xác nhận mật khẩu mới.")

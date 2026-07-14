@@ -1,9 +1,10 @@
-import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { UserResponse } from '../../../core/models/user.model';
 import { isPlatformBrowser } from '@angular/common';
+import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
 
 @Component({
   selector: 'app-user-profile',
@@ -15,11 +16,16 @@ export class UserProfileComponent implements OnInit {
   private userService = inject(UserService);
   private toast = inject(ToastService);
   private platformId = inject(PLATFORM_ID);
+  private cdr = inject(ChangeDetectorRef);
 
   isLoading = false;
   isFetching = true;
   avatarUrl: string | null = null;
   errorMessage = '';
+
+  getUsernameError() {
+    return getUsernameErrorMessage(this.profileForm.get('username')?.errors);
+  }
 
   // Danh sách Múi giờ phổ biến
   timezones = [
@@ -36,7 +42,7 @@ export class UserProfileComponent implements OnInit {
   ];
 
   profileForm = new FormGroup({
-    username: new FormControl('', [Validators.required, Validators.minLength(3)]),
+    username: new FormControl('', [Validators.required, usernameValidator()]),
     displayName: new FormControl('', [Validators.maxLength(100)]),
     email: new FormControl({ value: '', disabled: true }), // Read-only
     bio: new FormControl('', [Validators.maxLength(300)]),
@@ -48,6 +54,11 @@ export class UserProfileComponent implements OnInit {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      const cachedUser = this.userService.currentUser();
+      if (cachedUser) {
+        this.patchUserData(cachedUser);
+        this.isFetching = false;
+      }
       this.loadProfile();
     } else {
       this.isFetching = false;
@@ -55,26 +66,34 @@ export class UserProfileComponent implements OnInit {
   }
 
   loadProfile() {
-    this.isFetching = true;
+    if (!this.userService.currentUser()) {
+      this.isFetching = true;
+    }
     this.userService.getProfile().subscribe({
       next: (user: UserResponse) => {
         this.isFetching = false;
-        this.avatarUrl = user.avatarUrl || null;
-        this.profileForm.patchValue({
-          username: user.username,
-          displayName: user.displayName || user.username,
-          email: user.email,
-          bio: user.bio || '',
-          timezone: user.timezone || 'Asia/Ho_Chi_Minh',
-          theme: user.theme || 'light',
-          language: user.language || 'vi',
-          firstDayOfWeek: user.firstDayOfWeek || 'Monday'
-        });
+        this.patchUserData(user);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isFetching = false;
         this.toast.show('Không thể tải hồ sơ cá nhân.', 'error');
+        this.cdr.detectChanges();
       }
+    });
+  }
+
+  private patchUserData(user: UserResponse) {
+    this.avatarUrl = user.avatarUrl || null;
+    this.profileForm.patchValue({
+      username: user.username,
+      displayName: user.displayName || user.username,
+      email: user.email,
+      bio: user.bio || '',
+      timezone: user.timezone || 'Asia/Ho_Chi_Minh',
+      theme: user.theme || 'light',
+      language: user.language || 'vi',
+      firstDayOfWeek: user.firstDayOfWeek || 'Monday'
     });
   }
 
@@ -99,8 +118,10 @@ export class UserProfileComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e) => {
         this.avatarUrl = e.target?.result as string;
+        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
+      input.value = '';
     }
   }
 
@@ -108,6 +129,7 @@ export class UserProfileComponent implements OnInit {
   useDefaultAvatar() {
     this.avatarUrl = null;
     this.selectedFile = null;
+    this.cdr.detectChanges();
   }
 
   setTheme(themeValue: string) {
@@ -137,6 +159,7 @@ export class UserProfileComponent implements OnInit {
           this.isLoading = false;
           this.errorMessage = err.error?.message || 'Lỗi tải ảnh lên Cloudinary. Vui lòng thử lại!';
           this.toast.show(this.errorMessage, 'error');
+          this.cdr.detectChanges();
         }
       });
     } else {
@@ -162,11 +185,13 @@ export class UserProfileComponent implements OnInit {
       next: (res) => {
         this.isLoading = false;
         this.toast.show(res?.message || 'Cập nhật hồ sơ thành công!', 'success');
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Không thể cập nhật hồ sơ. Vui lòng thử lại!';
         this.toast.show(this.errorMessage, 'error');
+        this.cdr.detectChanges();
       }
     });
   }

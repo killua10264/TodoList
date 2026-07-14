@@ -17,9 +17,9 @@ namespace TodoListBackend.Mappings
                 IsCompleted = todoModel.IsCompleted,
                 Priority = todoModel.Priority,
                 DueDate = todoModel.DueDate,
-                ProjectId = todoModel.ProjectId,
-                ProjectName = todoModel.Project?.Name ?? string.Empty,
-                ProjectColor = todoModel.Project?.Color ?? string.Empty
+                CategoryId = todoModel.CategoryId,
+                CategoryName = todoModel.Category?.Name ?? string.Empty,
+                CategoryColor = todoModel.Category?.Color ?? string.Empty
             };
         }
     }

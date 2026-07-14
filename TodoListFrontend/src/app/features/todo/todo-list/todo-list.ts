@@ -3,14 +3,14 @@ import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TodoService } from '../../../core/services/todo.service';
-import { ProjectService } from '../../../core/services/project.service';
+import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { TodoResponse, PaginatedResponse, TodoUpdateRequest } from '../../../core/models/todo.model';
-import { ProjectResponse } from '../../../core/models/project.model';
+import { CategoryResponse } from '../../../core/models/category.model';
 
 import { TodoItemComponent } from '../todo-item/todo-item';
 import { TodoFormDialogComponent } from '../todo-form-dialog/todo-form-dialog';
-import { ProjectFormDialogComponent } from '../../project/project-form-dialog/project-form-dialog';
+import { CategoryFormDialogComponent } from '../../category/category-form-dialog/category-form-dialog';
 import { PaginationComponent } from '../../../shared/pagination/pagination';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
@@ -19,7 +19,7 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
   selector: 'app-todo-list',
   imports: [
     FormsModule,
-    TodoItemComponent, TodoFormDialogComponent, ProjectFormDialogComponent,
+    TodoItemComponent, TodoFormDialogComponent, CategoryFormDialogComponent,
     PaginationComponent, LoadingSpinnerComponent, ConfirmDialogComponent
   ],
   templateUrl: './todo-list.html',
@@ -27,57 +27,57 @@ import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-d
 })
 export class TodoListComponent implements OnInit {
   private todoService = inject(TodoService);
-  private projectService = inject(ProjectService);
+  private categoryService = inject(CategoryService);
   private toast = inject(ToastService);
   private platformId = inject(PLATFORM_ID);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   todos = signal<TodoResponse[]>([]);
-  projects = signal<ProjectResponse[]>([]);
+  categories = signal<CategoryResponse[]>([]);
   isLoading = signal(true);
   currentPage = signal(1);
   totalCount = signal(0);
   pageSize = 20;
 
   urlFilter = signal<string | null>(null);
-  selectedProjectId = signal<number | null>(null);
+  selectedCategoryId = signal<number | null>(null);
   selectedStatus = signal<string>('all');
   selectedSort = signal<string>('dueDate');
 
   showForm = false;
   editingTodo: TodoResponse | null = null;
-  showProjectForm = false;
+  showCategoryForm = false;
 
   showDeleteConfirm = false;
   deletingTodoId: number | null = null;
-  deletingProjectId: number | null = null;
+  deletingCategoryId: number | null = null;
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.route.queryParams.subscribe(params => {
         this.urlFilter.set(params['filter'] || null);
-        const projId = params['projectId'] ? Number(params['projectId']) : null;
-        this.selectedProjectId.set(projId);
+        const projId = (params['categoryId'] || params['projectId']) ? Number(params['categoryId'] || params['projectId']) : null;
+        this.selectedCategoryId.set(projId);
         this.currentPage.set(1);
         this.loadTodos();
       });
-      this.loadProjects();
+      this.loadCategories();
     }
   }
 
-  goToProjectDetail(projId: number) {
-    this.selectedProjectId.set(projId);
+  goToCategoryDetail(projId: number) {
+    this.selectedCategoryId.set(projId);
     this.onFilterChanged();
   }
 
-  openCreateProjectForm() {
-    this.showProjectForm = true;
+  openCreateCategoryForm() {
+    this.showCategoryForm = true;
   }
 
-  onProjectFormSaved() {
-    this.showProjectForm = false;
-    this.loadProjects();
+  onCategoryFormSaved() {
+    this.showCategoryForm = false;
+    this.loadCategories();
   }
 
   loadTodos() {
@@ -86,7 +86,7 @@ export class TodoListComponent implements OnInit {
       this.currentPage(),
       this.pageSize,
       this.urlFilter(),
-      this.selectedProjectId(),
+      this.selectedCategoryId(),
       this.selectedStatus(),
       this.selectedSort()
     ).subscribe({
@@ -107,9 +107,9 @@ export class TodoListComponent implements OnInit {
     this.loadTodos();
   }
 
-  loadProjects() {
-    this.projectService.getAll().subscribe({
-      next: (projs) => this.projects.set(projs)
+  loadCategories() {
+    this.categoryService.getAll().subscribe({
+      next: (projs) => this.categories.set(projs)
     });
   }
 
@@ -119,7 +119,7 @@ export class TodoListComponent implements OnInit {
       description: todo.description,
       priority: todo.priority,
       dueDate: todo.dueDate,
-      projectId: todo.projectId,
+      categoryId: todo.categoryId,
       isCompleted: !todo.isCompleted
     };
     this.todoService.update(todo.id, updateReq).subscribe({
@@ -154,13 +154,13 @@ export class TodoListComponent implements OnInit {
 
   onDeleteRequested(todoId: number) {
     this.deletingTodoId = todoId;
-    this.deletingProjectId = null;
+    this.deletingCategoryId = null;
     this.showDeleteConfirm = true;
   }
 
-  onDeleteProjectRequested(event: Event, projId: number) {
+  onDeleteCategoryRequested(event: Event, projId: number) {
     event.stopPropagation();
-    this.deletingProjectId = projId;
+    this.deletingCategoryId = projId;
     this.deletingTodoId = null;
     this.showDeleteConfirm = true;
   }
@@ -176,18 +176,18 @@ export class TodoListComponent implements OnInit {
           },
           error: () => this.toast.show('Xóa thất bại.', 'error')
         });
-      } else if (this.deletingProjectId) {
-        this.projectService.delete(this.deletingProjectId).subscribe({
+      } else if (this.deletingCategoryId) {
+        this.categoryService.delete(this.deletingCategoryId).subscribe({
           next: () => {
-            this.toast.show('Xóa dự án thành công!', 'success');
-            this.loadProjects();
+            this.toast.show('Xóa danh mục thành công!', 'success');
+            this.loadCategories();
           },
-          error: () => this.toast.show('Xóa dự án thất bại.', 'error')
+          error: () => this.toast.show('Xóa danh mục thất bại.', 'error')
         });
       }
     }
     this.deletingTodoId = null;
-    this.deletingProjectId = null;
+    this.deletingCategoryId = null;
   }
 
   onPageChanged(page: number) {

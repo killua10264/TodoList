@@ -29,8 +29,8 @@
 
     @if (todo()) {
     <div class="header-right-actions">
-      <div class="zen-category-pill" [style.backgroundColor]="todo()?.projectColor || '#4a6148'">
-        <span>{{ todo()?.projectName || 'Công việc chung' }}</span>
+      <div class="zen-category-pill" [style.backgroundColor]="todo()?.categoryColor || '#4a6148'">
+        <span>{{ todo()?.categoryName || 'Công việc chung' }}</span>
       </div>
 
       <button type="button" class="btn-zen-toggle-root" [class.is-completed]="todo()?.isCompleted"

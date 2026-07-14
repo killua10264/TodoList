@@ -66,7 +66,15 @@ namespace TodoListBackend.Services
 
             if (!string.IsNullOrWhiteSpace(dto.Username))
             {
-                existingUser.Username = dto.Username.Trim();
+                var newUsername = dto.Username.Trim();
+                if (!string.Equals(existingUser.Username, newUsername, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (await _unitOfWork.Users.ExistsByUsernameAsync(newUsername, userId))
+                    {
+                        throw new BusinessException("Tên đăng nhập (Username) này đã được sử dụng bởi một tài khoản khác.");
+                    }
+                    existingUser.Username = newUsername;
+                }
             }
 
             if (dto.AvatarUrl != null)

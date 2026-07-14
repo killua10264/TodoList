@@ -7,9 +7,9 @@ namespace TodoListBackend.Validators
     {
         public LoginDtoValidator()
         {
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email không được để trống.")
-                .EmailAddress().WithMessage("Email không hợp lệ.");
+            RuleFor(x => x)
+                .Must(x => !string.IsNullOrWhiteSpace(x.GetIdentifier()))
+                .WithMessage("Vui lòng nhập Tên đăng nhập hoặc Email.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Mật khẩu không được để trống.");

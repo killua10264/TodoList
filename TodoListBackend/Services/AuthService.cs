@@ -28,6 +28,11 @@ namespace TodoListBackend.Services
                 throw new ArgumentException("Email này đã tồn tại.");
             }
 
+            if (await _unitOfWork.Users.ExistsByUsernameAsync(dto.Username))
+            {
+                throw new ArgumentException("Tên đăng nhập (Username) này đã tồn tại.");
+            }
+
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
 
             var newUser = new User
@@ -60,11 +65,12 @@ namespace TodoListBackend.Services
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
-            var user = await _unitOfWork.Users.GetByEmailAsync(dto.Email);
+            string identifier = dto.GetIdentifier();
+            var user = await _unitOfWork.Users.GetByUsernameOrEmailAsync(identifier);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
             {
-                throw new UnauthorizedAccessException("Email hoặc mật khẩu không đúng.");
+                throw new UnauthorizedAccessException("Tên đăng nhập/Email hoặc mật khẩu không đúng.");
             }
 
             var accessToken = CreateJwtToken(user);

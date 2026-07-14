@@ -2,43 +2,43 @@ import { Component, inject, OnInit, signal, PLATFORM_ID, computed } from '@angul
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ProjectService } from '../../../core/services/project.service';
+import { CategoryService } from '../../../core/services/category.service';
 import { TodoService } from '../../../core/services/todo.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { ProjectResponse } from '../../../core/models/project.model';
+import { CategoryResponse } from '../../../core/models/category.model';
 import { TodoResponse, PaginatedResponse, TodoUpdateRequest } from '../../../core/models/todo.model';
 
 import { TodoItemComponent } from '../../todo/todo-item/todo-item';
 import { TodoFormDialogComponent } from '../../todo/todo-form-dialog/todo-form-dialog';
-import { ProjectFormDialogComponent } from '../project-form-dialog/project-form-dialog';
+import { CategoryFormDialogComponent } from '../category-form-dialog/category-form-dialog';
 import { PaginationComponent } from '../../../shared/pagination/pagination';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
 
 @Component({
-  selector: 'app-project-detail',
+  selector: 'app-category-detail',
   imports: [
     FormsModule,
     TodoItemComponent,
     TodoFormDialogComponent,
-    ProjectFormDialogComponent,
+    CategoryFormDialogComponent,
     PaginationComponent,
     LoadingSpinnerComponent,
     ConfirmDialogComponent
   ],
-  templateUrl: './project-detail.html',
-  styleUrl: './project-detail.css'
+  templateUrl: './category-detail.html',
+  styleUrl: './category-detail.css'
 })
-export class ProjectDetailComponent implements OnInit {
-  private projectService = inject(ProjectService);
+export class CategoryDetailComponent implements OnInit {
+  private categoryService = inject(CategoryService);
   private todoService = inject(TodoService);
   private toast = inject(ToastService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  project = signal<ProjectResponse | null>(null);
-  allProjects = signal<ProjectResponse[]>([]);
+  category = signal<CategoryResponse | null>(null);
+  allCategories = signal<CategoryResponse[]>([]);
   todos = signal<TodoResponse[]>([]);
   isLoading = signal(true);
 
@@ -61,10 +61,10 @@ export class ProjectDetailComponent implements OnInit {
   showTodoForm = false;
   editingTodo: TodoResponse | null = null;
 
-  showProjectForm = false;
+  showCategoryForm = false;
 
   showDeleteConfirm = false;
-  deleteTargetType: 'todo' | 'project' = 'todo';
+  deleteTargetType: 'todo' | 'category' = 'todo';
   deletingId: number | null = null;
 
   ngOnInit() {
@@ -73,40 +73,40 @@ export class ProjectDetailComponent implements OnInit {
         const id = Number(params.get('id'));
         if (id) {
           this.currentPage.set(1);
-          this.loadProjectDetail(id);
+          this.loadCategoryDetail(id);
         }
       });
-      this.loadAllProjects();
+      this.loadAllCategories();
     }
   }
 
-  loadAllProjects() {
-    this.projectService.getAll().subscribe({
-      next: (projs) => this.allProjects.set(projs)
+  loadAllCategories() {
+    this.categoryService.getAll().subscribe({
+      next: (projs) => this.allCategories.set(projs)
     });
   }
 
-  loadProjectDetail(id: number) {
+  loadCategoryDetail(id: number) {
     this.isLoading.set(true);
-    this.projectService.getById(id).subscribe({
+    this.categoryService.getById(id).subscribe({
       next: (proj) => {
-        this.project.set(proj);
-        this.loadProjectTodos(id);
+        this.category.set(proj);
+        this.loadCategoryTodos(id);
       },
       error: () => {
-        this.toast.show('Không thể tải thông tin dự án.', 'error');
+        this.toast.show('Không thể tải thông tin danh mục.', 'error');
         this.isLoading.set(false);
         this.router.navigate(['/todos']);
       }
     });
   }
 
-  loadProjectTodos(projectId: number) {
+  loadCategoryTodos(categoryId: number) {
     this.todoService.getAll(
       this.currentPage(),
       this.pageSize,
       null,
-      projectId,
+      categoryId,
       this.selectedStatus(),
       this.selectedSort()
     ).subscribe({
@@ -116,17 +116,17 @@ export class ProjectDetailComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toast.show('Không thể tải danh sách công việc của dự án.', 'error');
+        this.toast.show('Không thể tải danh sách công việc của danh mục.', 'error');
         this.isLoading.set(false);
       }
     });
   }
 
   onFilterChanged() {
-    const p = this.project();
+    const p = this.category();
     if (p) {
       this.currentPage.set(1);
-      this.loadProjectTodos(p.id);
+      this.loadCategoryTodos(p.id);
     }
   }
 
@@ -136,7 +136,7 @@ export class ProjectDetailComponent implements OnInit {
       description: todo.description,
       priority: todo.priority,
       dueDate: todo.dueDate,
-      projectId: todo.projectId,
+      categoryId: todo.categoryId,
       isCompleted: !todo.isCompleted
     };
     this.todoService.update(todo.id, updateReq).subscribe({
@@ -160,9 +160,9 @@ export class ProjectDetailComponent implements OnInit {
   onTodoFormSaved() {
     this.showTodoForm = false;
     this.editingTodo = null;
-    const p = this.project();
+    const p = this.category();
     if (p) {
-      this.loadProjectTodos(p.id);
+      this.loadCategoryTodos(p.id);
     }
   }
 
@@ -172,20 +172,20 @@ export class ProjectDetailComponent implements OnInit {
     this.openDeleteConfirm('todo', todoId);
   }
 
-  openEditProjectForm() {
-    this.showProjectForm = true;
+  openEditCategoryForm() {
+    this.showCategoryForm = true;
   }
 
-  onProjectFormSaved() {
-    this.showProjectForm = false;
-    const p = this.project();
+  onCategoryFormSaved() {
+    this.showCategoryForm = false;
+    const p = this.category();
     if (p) {
-      this.loadProjectDetail(p.id);
-      this.loadAllProjects();
+      this.loadCategoryDetail(p.id);
+      this.loadAllCategories();
     }
   }
 
-  openDeleteConfirm(type: 'todo' | 'project', id: number) {
+  openDeleteConfirm(type: 'todo' | 'category', id: number) {
     this.deleteTargetType = type;
     this.deletingId = id;
     this.showDeleteConfirm = true;
@@ -198,18 +198,18 @@ export class ProjectDetailComponent implements OnInit {
         this.todoService.delete(this.deletingId).subscribe({
           next: () => {
             this.toast.show('Xóa công việc thành công!', 'success');
-            const p = this.project();
-            if (p) this.loadProjectTodos(p.id);
+            const p = this.category();
+            if (p) this.loadCategoryTodos(p.id);
           },
           error: () => this.toast.show('Xóa công việc thất bại.', 'error')
         });
-      } else if (this.deleteTargetType === 'project') {
-        this.projectService.delete(this.deletingId).subscribe({
+      } else if (this.deleteTargetType === 'category') {
+        this.categoryService.delete(this.deletingId).subscribe({
           next: () => {
-            this.toast.show('Xóa dự án thành công!', 'success');
+            this.toast.show('Xóa danh mục thành công!', 'success');
             this.router.navigate(['/todos']);
           },
-          error: () => this.toast.show('Xóa dự án thất bại.', 'error')
+          error: () => this.toast.show('Xóa danh mục thất bại.', 'error')
         });
       }
     }
@@ -218,9 +218,9 @@ export class ProjectDetailComponent implements OnInit {
 
   onPageChanged(page: number) {
     this.currentPage.set(page);
-    const p = this.project();
+    const p = this.category();
     if (p) {
-      this.loadProjectTodos(p.id);
+      this.loadCategoryTodos(p.id);
     }
   }
 }

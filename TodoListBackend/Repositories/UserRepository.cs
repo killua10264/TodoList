@@ -25,15 +25,41 @@ namespace TodoListBackend.Repositories
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<bool> ExistsByEmailAsync(string email)
+        public async Task<User?> GetByUsernameAsync(string username)
         {
-            return await _context.Users.AnyAsync(u => u.Email == email);
+            var lower = username.ToLower();
+            return await _context.Users.FirstOrDefaultAsync(u => u.Username.ToLower() == lower);
         }
 
-        // FIX 3.7: Check email tồn tại nhưng loại trừ user hiện tại (cho update profile)
+        public async Task<User?> GetByUsernameOrEmailAsync(string usernameOrEmail)
+        {
+            var lower = usernameOrEmail.ToLower();
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == lower || u.Username.ToLower() == lower);
+        }
+
+        public async Task<bool> ExistsByEmailAsync(string email)
+        {
+            var lower = email.ToLower();
+            return await _context.Users.AnyAsync(u => u.Email.ToLower() == lower);
+        }
+
+        public async Task<bool> ExistsByUsernameAsync(string username)
+        {
+            var lower = username.ToLower();
+            return await _context.Users.AnyAsync(u => u.Username.ToLower() == lower);
+        }
+
+        // FIX 3.7: Check email/username tồn tại nhưng loại trừ user hiện tại (cho update profile)
         public async Task<bool> ExistsByEmailAsync(string email, int excludeUserId)
         {
-            return await _context.Users.AnyAsync(u => u.Email == email && u.Id != excludeUserId);
+            var lower = email.ToLower();
+            return await _context.Users.AnyAsync(u => u.Email.ToLower() == lower && u.Id != excludeUserId);
+        }
+
+        public async Task<bool> ExistsByUsernameAsync(string username, int excludeUserId)
+        {
+            var lower = username.ToLower();
+            return await _context.Users.AnyAsync(u => u.Username.ToLower() == lower && u.Id != excludeUserId);
         }
 
         public async Task AddAsync(User user)

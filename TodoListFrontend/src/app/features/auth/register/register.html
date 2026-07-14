@@ -2,10 +2,11 @@
     <h1 class="register-title">Đăng ký tài khoản</h1>
 
     <div class="leaf-field">
-        <label for="username">Tên người dùng</label>
-        <input id="username" type="text" formControlName="username" placeholder="Nhập tên..." />
+        <label for="username">Tên đăng nhập (Username)</label>
+        <input id="username" type="text" formControlName="username"
+            placeholder="Nhập tên đăng nhập (VD: quocbao_99)..." />
         @if (registerForm.get('username')?.touched && registerForm.get('username')?.invalid) {
-        <span class="error">Tên phải có ít nhất 3 ký tự.</span>
+        <span class="error">{{ getUsernameError() }}</span>
         }
     </div>
 
@@ -20,14 +21,38 @@
     <div class="leaf-field">
         <label for="password">Mật khẩu</label>
         <div class="password-input-wrapper">
-            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Nhập mật khẩu..." />
-            <button type="button" class="btn-toggle-password" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'">
+            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                placeholder="Nhập mật khẩu..." />
+            <button type="button" class="btn-toggle-password" (click)="togglePassword()"
+                [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'">
                 {{ showPassword ? '👁️' : '🔒' }}
             </button>
         </div>
-        @if (registerForm.get('password')?.touched && registerForm.get('password')?.invalid) {
-        <span class="error">Mật khẩu phải có ít nhất 6 ký tự.</span>
+        @if (registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')) {
+        <span class="error">Vui lòng nhập mật khẩu.</span>
         }
+
+        <div class="password-checklist">
+            <ul class="checklist-items">
+                <li [class.passed]="getPasswordStatus().hasMinLength"
+                    [class.failed]="!getPasswordStatus().hasMinLength">
+                    <span class="icon">{{ getPasswordStatus().hasMinLength ? '🟢' : '🔴' }}</span> Ít nhất 8 ký tự
+                </li>
+                <li [class.passed]="getPasswordStatus().hasUpperCase"
+                    [class.failed]="!getPasswordStatus().hasUpperCase">
+                    <span class="icon">{{ getPasswordStatus().hasUpperCase ? '🟢' : '🔴' }}</span> Ít nhất 1 chữ hoa
+                    (A-Z)
+                </li>
+                <li [class.passed]="getPasswordStatus().hasNumber" [class.failed]="!getPasswordStatus().hasNumber">
+                    <span class="icon">{{ getPasswordStatus().hasNumber ? '🟢' : '🔴' }}</span> Ít nhất 1 chữ số (0-9)
+                </li>
+                <li [class.passed]="getPasswordStatus().hasSpecialChar"
+                    [class.failed]="!getPasswordStatus().hasSpecialChar">
+                    <span class="icon">{{ getPasswordStatus().hasSpecialChar ? '🟢' : '🔴' }}</span> Ít nhất 1 ký tự đặc
+                    biệt (@, #, $, ...)
+                </li>
+            </ul>
+        </div>
     </div>
 
     <button type="submit" class="btn-register" [disabled]="isLoading">

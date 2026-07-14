@@ -13,11 +13,11 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? projectId = null, string? status = null, string? sortBy = null)
+        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null)
         {
             var query = _context.Todos
                 .AsNoTracking()
-                .Include(t => t.Project)
+                .Include(t => t.Category)
                 .Where(t => t.UserId == userId && !t.IsDeleted);
 
             if (!string.IsNullOrEmpty(filter))
@@ -33,9 +33,9 @@ namespace TodoListBackend.Repositories
                 }
             }
 
-            if (projectId.HasValue && projectId.Value > 0)
+            if (categoryId.HasValue && categoryId.Value > 0)
             {
-                query = query.Where(t => t.ProjectId == projectId.Value);
+                query = query.Where(t => t.CategoryId == categoryId.Value);
             }
 
             if (!string.IsNullOrEmpty(status) && status.ToLower() != "all")
@@ -83,7 +83,7 @@ namespace TodoListBackend.Repositories
         public async Task<Todo?> GetByIdAsync(int id, int userId)
         {
             return await _context.Todos
-                .Include(t => t.Project)
+                .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId && !t.IsDeleted);
         }
 

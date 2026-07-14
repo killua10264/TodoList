@@ -53,11 +53,9 @@
 
         <div class="form-group">
           <label for="username">Tên đăng nhập (Username)</label>
-          <input id="username" formControlName="username" />
-          @if (profileForm.get('username')?.touched && profileForm.get('username')?.hasError('required')) {
-            <span class="error">Tên đăng nhập không được để trống.</span>
-          } @else if (profileForm.get('username')?.touched && profileForm.get('username')?.hasError('minlength')) {
-            <span class="error">Tên đăng nhập phải có ít nhất 3 ký tự.</span>
+          <input id="username" formControlName="username" placeholder="Nhập tên đăng nhập (VD: quocbao_99)..." />
+          @if (profileForm.get('username')?.touched && profileForm.get('username')?.invalid) {
+            <span class="error">{{ getUsernameError() }}</span>
           }
         </div>
 

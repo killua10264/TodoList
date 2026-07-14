@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ProjectResponse } from '../../../core/models/project.model';
+import { CategoryResponse } from '../../../core/models/category.model';
 
 @Component({
     selector: 'app-todo-filter-bar',
@@ -9,18 +9,18 @@ import { ProjectResponse } from '../../../core/models/project.model';
     styleUrl: './todo-filter-bar.css'
 })
 export class TodoFilterBarComponent {
-    projects = input<ProjectResponse[]>([]);
+    categories = input<CategoryResponse[]>([]);
     filterChanged = output<any>();
 
     searchText = '';
     selectedPriority = 0;
-    selectedProject = 0;
+    selectedCategory = 0;
 
     onFilterChange() {
         this.filterChanged.emit({
             search: this.searchText,
             priority: this.selectedPriority,
-            projectId: this.selectedProject
+            categoryId: this.selectedCategory
         });
     }
 }

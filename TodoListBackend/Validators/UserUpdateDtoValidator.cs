@@ -5,11 +5,21 @@ namespace TodoListBackend.Validators
 {
     public class UserUpdateDtoValidator : AbstractValidator<UserUpdateDto>
     {
+        private static readonly string[] ReservedUsernames = new[] { "admin", "root", "system", "moderator", "support", "staff", "superuser", "null", "undefined" };
+
         public UserUpdateDtoValidator()
         {
             RuleFor(x => x.Username)
                 .NotEmpty().WithMessage("Tên đăng nhập không được để trống.")
-                .MaximumLength(50).WithMessage("Tên đăng nhập tối đa 50 ký tự.");
+                .Length(3, 30).WithMessage("Tên đăng nhập phải từ 3 đến 30 ký tự.")
+                .Matches(@"^[a-zA-Z0-9_.]+$").WithMessage("Tên đăng nhập chỉ được chứa chữ cái không dấu (a-z), chữ số (0-9), dấu chấm (.) và dấu gạch dưới (_).")
+                .Must(u => !string.IsNullOrEmpty(u) && !u.StartsWith("_") && !u.StartsWith(".") && !u.EndsWith("_") && !u.EndsWith("."))
+                .WithMessage("Tên đăng nhập không được bắt đầu hoặc kết thúc bằng dấu chấm (.) hoặc dấu gạch dưới (_).")
+                .Must(u => !string.IsNullOrEmpty(u) && !u.Contains("..") && !u.Contains("__") && !u.Contains("._") && !u.Contains("_."))
+                .WithMessage("Tên đăng nhập không được chứa 2 dấu chấm hoặc dấu gạch dưới liên tiếp.")
+                .Must(u => !string.IsNullOrEmpty(u) && !ReservedUsernames.Contains(u.ToLower()))
+                .WithMessage("Tên đăng nhập này chứa từ khóa nhạy cảm hoặc hệ thống không được phép sử dụng.")
+                .When(x => !string.IsNullOrWhiteSpace(x.Username));
 
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email không được để trống.")

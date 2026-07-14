@@ -9,7 +9,7 @@ namespace TodoListBackend.Data
 
         public DbSet<Todo> Todos => Set<Todo>();
         public DbSet<User> Users => Set<User>();
-        public DbSet<Project> Projects => Set<Project>();
+        public DbSet<Category> Categories => Set<Category>();
         public DbSet<SubTask> SubTasks => Set<SubTask>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +26,11 @@ namespace TodoListBackend.Data
 
                 entity.HasIndex(t => new { t.UserId, t.IsDeleted })
                       .HasDatabaseName("IX_Todos_UserId_IsDeleted");
+
+                entity.HasOne(t => t.Category)
+                    .WithMany(c => c.Todos)
+                    .HasForeignKey(t => t.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<SubTask>(entity =>
@@ -80,7 +85,7 @@ namespace TodoListBackend.Data
                     .HasDefaultValue("Monday");
             });
 
-            modelBuilder.Entity<Project>(entity =>
+            modelBuilder.Entity<Category>(entity =>
             {
                 entity.Property(p => p.Name)
                     .HasMaxLength(100) 
@@ -93,7 +98,7 @@ namespace TodoListBackend.Data
                     .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasIndex(p => p.UserId)
-                      .HasDatabaseName("IX_Projects_UserId");
+                      .HasDatabaseName("IX_Categories_UserId");
             });
         }
     }

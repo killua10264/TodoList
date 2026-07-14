@@ -18,13 +18,13 @@ export class TodoService {
         this.refresh$.next();
     }
 
-    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, projectId?: number | null, status?: string | null, sortBy?: string | null) {
+    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, categoryId?: number | null, status?: string | null, sortBy?: string | null) {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('pageSize', pageSize.toString());
 
         if (filter) params = params.set('filter', filter);
-        if (projectId && projectId > 0) params = params.set('projectId', projectId.toString());
+        if (categoryId && categoryId > 0) params = params.set('categoryId', categoryId.toString());
         if (status && status !== 'all') params = params.set('status', status);
         if (sortBy) params = params.set('sortBy', sortBy);
 

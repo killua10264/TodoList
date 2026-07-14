@@ -3,6 +3,8 @@ import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
+import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
 
 @Component({
     selector: 'app-register',
@@ -22,10 +24,18 @@ export class RegisterComponent {
         this.showPassword = !this.showPassword;
     }
 
+    getUsernameError() {
+        return getUsernameErrorMessage(this.registerForm.get('username')?.errors);
+    }
+
+    getPasswordStatus() {
+        return checkPasswordStatus(this.registerForm.get('password')?.value);
+    }
+
     registerForm = new FormGroup({
-        username: new FormControl('', [Validators.required, Validators.minLength(3)]),
+        username: new FormControl('', [Validators.required, usernameValidator()]),
         email: new FormControl('', [Validators.required, Validators.email]),
-        password: new FormControl('', [Validators.required, Validators.minLength(6)])
+        password: new FormControl('', [Validators.required, passwordRequirementsValidator()])
     });
 
     onSubmit() {
