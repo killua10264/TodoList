@@ -69,11 +69,43 @@
         <span class="nav-text">Sắp tới</span>
       </a>
 
-      <!-- 4. Báo cáo -->
-      <a routerLink="/categories" [class.active]="pageTitle() === 'Báo cáo'" class="nav-item">
+      <!-- 4. Khu vườn Danh mục (/categories) -->
+      <a routerLink="/categories" [class.active]="pageTitle() === 'Khu vườn Danh mục' || pageTitle() === 'Báo cáo' || pageTitle() === 'Danh mục'" class="nav-item">
         <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-        <span class="nav-text">Báo cáo</span>
+        <span class="nav-text">Khu vườn Danh mục</span>
       </a>
+
+      <!-- KHU VƯỜN DANH MỤC -->
+      <div class="sidebar-categories">
+        <div class="categories-header">
+          <a routerLink="/categories" class="categories-header-link" title="Mở trang quản lý toàn bộ Khu vườn Danh mục">
+            <h3 class="categories-title">Danh mục</h3>
+          </a>
+          <button type="button" class="btn-add-category" (click)="openCreateCategoryModal()" title="Thêm danh mục mới">+</button>
+        </div>
+        <div class="categories-list">
+          @for (cat of categories(); track cat.id) {
+          <div class="category-row-wrapper">
+            <a class="category-nav-item" [routerLink]="['/todos']" [queryParams]="{categoryId: cat.id}" [class.active]="pageTitle() === cat.name">
+              <span class="category-dot" [style.backgroundColor]="cat.color || '#6b7a45'"></span>
+              <span class="category-name">{{ cat.name }}</span>
+              @if (cat.todoCount !== undefined && cat.todoCount > 0) {
+              <span class="category-badge">{{ cat.todoCount }}</span>
+              }
+            </a>
+            <button type="button" class="btn-cat-more-actions" (click)="toggleCategoryMenu($event, cat)" title="Tùy chọn danh mục...">···</button>
+
+            @if (activeCategoryMenuId === cat.id) {
+            <div class="category-options-menu" (click)="$event.stopPropagation()">
+              <button type="button" class="cat-option-btn delete-option" (click)="onDeleteSidebarCategory($event, cat)">
+                🗑️ Xóa danh mục
+              </button>
+            </div>
+            }
+          </div>
+          }
+        </div>
+      </div>
 
       <!-- PHÂN CÁCH SIDEBAR -->
       <div class="sidebar-divider"></div>
@@ -120,4 +152,13 @@
 
 @if (showCategoryModal) {
 <app-category-form-dialog (saved)="onCategoryCreated()" (cancelled)="showCategoryModal = false" />
+}
+
+@if (showDeleteCategoryConfirm) {
+<app-confirm-dialog
+  [visible]="true"
+  title="Xác nhận nhổ bỏ luống hoa (danh mục)"
+  [message]="'Bạn có chắc chắn muốn xóa danh mục &quot;' + (deletingCategory?.name || '') + '&quot; không? Toàn bộ công việc bên trong sẽ được chuyển giao an toàn sang danh mục &quot;Khác&quot; để bảo toàn dữ liệu.'"
+  (confirmed)="onDeleteCategoryConfirmed($event)"
+/>
 }

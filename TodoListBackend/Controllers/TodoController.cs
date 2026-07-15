@@ -15,10 +15,10 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? filter = null, [FromQuery] int? projectId = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null)
+        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? filter = null, [FromQuery] int? categoryId = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null)
         {
             int userId = GetCurrentUserId();
-            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize, filter, projectId, status, sortBy);
+            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy);
 
             return Ok(paginatedTodos);
         }

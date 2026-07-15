@@ -77,6 +77,19 @@ export class CategoryDetailComponent implements OnInit {
         }
       });
       this.loadAllCategories();
+
+      this.todoService.refresh$.subscribe(() => {
+        const p = this.category();
+        if (p) {
+          this.loadCategoryDetail(p.id, true);
+        }
+      });
+      this.categoryService.refresh$.subscribe(() => {
+        const p = this.category();
+        if (p) {
+          this.loadCategoryDetail(p.id, true);
+        }
+      });
     }
   }
 
@@ -86,12 +99,14 @@ export class CategoryDetailComponent implements OnInit {
     });
   }
 
-  loadCategoryDetail(id: number) {
-    this.isLoading.set(true);
+  loadCategoryDetail(id: number, silent = false) {
+    if (!silent) {
+      this.isLoading.set(true);
+    }
     this.categoryService.getById(id).subscribe({
       next: (proj) => {
         this.category.set(proj);
-        this.loadCategoryTodos(id);
+        this.loadCategoryTodos(id, silent);
       },
       error: () => {
         this.toast.show('Không thể tải thông tin danh mục.', 'error');
@@ -101,7 +116,10 @@ export class CategoryDetailComponent implements OnInit {
     });
   }
 
-  loadCategoryTodos(categoryId: number) {
+  loadCategoryTodos(categoryId: number, silent = false) {
+    if (!silent) {
+      this.isLoading.set(true);
+    }
     this.todoService.getAll(
       this.currentPage(),
       this.pageSize,
@@ -162,7 +180,7 @@ export class CategoryDetailComponent implements OnInit {
     this.editingTodo = null;
     const p = this.category();
     if (p) {
-      this.loadCategoryTodos(p.id);
+      this.loadCategoryTodos(p.id, true);
     }
   }
 

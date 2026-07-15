@@ -112,9 +112,10 @@ namespace TodoListBackend.Services
         {
             var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
 
-            if (inputCategoryId == 1 || inputCategoryId == 2 || inputCategoryId == 3)
+            if (inputCategoryId == 1 || inputCategoryId == 2 || inputCategoryId == 3 || inputCategoryId <= 0)
             {
-                string targetName = inputCategoryId == 1 ? "Học tập" : (inputCategoryId == 2 ? "Công việc" : "Khác");
+                int targetCode = inputCategoryId <= 0 ? 3 : inputCategoryId;
+                string targetName = targetCode == 1 ? "Học tập" : (targetCode == 2 ? "Công việc" : "Khác");
                 var matchedByName = userCategories.FirstOrDefault(p =>
                     string.Equals(p.Name, targetName, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(p.Name, $"# {targetName}", StringComparison.OrdinalIgnoreCase) ||
@@ -125,7 +126,7 @@ namespace TodoListBackend.Services
                     return matchedByName.Id;
                 }
 
-                var newCategory = new Category { Name = targetName, Color = "#4a5a3a", UserId = userId };
+                var newCategory = new Category { Name = targetName, Color = targetCode == 1 ? "#4a5a3a" : (targetCode == 2 ? "#6b7a45" : "#8a8570"), UserId = userId };
                 await _unitOfWork.Categories.AddAsync(newCategory);
                 await _unitOfWork.SaveChangesAsync();
                 return newCategory.Id;
@@ -137,7 +138,7 @@ namespace TodoListBackend.Services
                 return category.Id;
             }
 
-            return userCategories.FirstOrDefault()?.Id ?? inputCategoryId;
+            return await ResolveCategoryIdAsync(3, userId);
         }
     }
 }

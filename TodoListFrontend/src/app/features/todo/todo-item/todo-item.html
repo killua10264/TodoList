@@ -5,6 +5,12 @@
 
   <div class="card-content">
     <span class="todo-title" [class.completed-title]="todo().isCompleted">{{ todo().title }}</span>
+    @if (todo().categoryName) {
+      <div class="todo-category-badge" [class.completed-badge]="todo().isCompleted">
+        <span class="cat-mini-dot" [style.backgroundColor]="todo().categoryColor || '#8a8570'"></span>
+        <span class="cat-badge-text">{{ todo().categoryName }}</span>
+      </div>
+    }
   </div>
 
   <div class="card-actions">

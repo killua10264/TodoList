@@ -1,0 +1,383 @@
+.category-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.2rem;
+  padding: 0.5rem 1rem 3rem 0.5rem;
+  font-family: 'Inter', sans-serif;
+  color: #2e3a22;
+}
+
+/* ─── BANNER TỔNG QUAN ─── */
+.garden-banner {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(246, 244, 237, 0.95) 100%);
+  border: 1px solid #e2ded4;
+  border-radius: 20px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 10px 30px rgba(46, 58, 34, 0.06);
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+.banner-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.banner-title {
+  font-family: 'Lora', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #1a2214;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.banner-subtitle {
+  font-size: 0.95rem;
+  color: #6b7a45;
+  margin: 0.3rem 0 0;
+}
+
+.btn-create-garden {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #6b7a45;
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 1.4rem;
+  border-radius: 12px;
+  font-family: 'Lora', serif;
+  font-size: 0.98rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(107, 122, 69, 0.3);
+}
+
+.btn-create-garden:hover {
+  background: #54664c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(107, 122, 69, 0.4);
+}
+
+.btn-icon {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ─── STATS GRID TRÊN BANNER ─── */
+.banner-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.2rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #eae6de;
+  border-radius: 14px;
+  padding: 1.1rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #8a8570;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.stat-value {
+  font-family: 'Lora', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1c2613;
+}
+
+.stat-value small {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #8a8570;
+}
+
+.completed-val {
+  color: #4a5a3a;
+}
+
+.stat-progress-card {
+  grid-column: span 1;
+  justify-content: center;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-percent {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #6b7a45;
+}
+
+.progress-track {
+  width: 100%;
+  height: 8px;
+  background: #e2ded4;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 0.3rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #8a9a5b 0%, #54664c 100%);
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ─── ZEN GRID CARDS ─── */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.6rem;
+}
+
+.category-card {
+  background: #ffffff;
+  border: 1.5px solid #eae6de;
+  border-left: 6px solid var(--cat-color);
+  border-radius: 18px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.3rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(46, 58, 34, 0.1);
+  border-color: var(--cat-color);
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.cat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.cat-color-dot {
+  width: 14px;
+  height: 14px;
+  min-width: 14px;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.cat-title {
+  font-family: 'Lora', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a2214;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.btn-action.edit:hover {
+  background: #f3efe6;
+  border-color: #d8d2c4;
+}
+
+.btn-action.delete:hover {
+  background: #fff0f0;
+  border-color: #f5c6cb;
+}
+
+.card-middle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  background: #fcfbf9;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #f2eee6;
+}
+
+.stats-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  background: #eef1e8;
+  color: #3a4a2e;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.stat-pill.completed {
+  background: #f3efe6;
+  color: #6b7a45;
+}
+
+.cat-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.cat-progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #717d65;
+  font-weight: 600;
+}
+
+.percent-text {
+  font-weight: 700;
+  color: #1c2613;
+}
+
+.progress-track.sm {
+  height: 6px;
+  background: #e2ded4;
+  border-radius: 4px;
+}
+
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-top: 0.2rem;
+}
+
+.btn-add-todo {
+  background: transparent;
+  color: #54664c;
+  border: 1.5px dashed #a8b569;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-todo:hover {
+  background: #6b7a45;
+  color: #ffffff;
+  border-style: solid;
+}
+
+.btn-view-detail {
+  text-decoration: none;
+  background: #2e3a22;
+  color: #ffffff;
+  padding: 0.55rem 1.1rem;
+  border-radius: 10px;
+  font-family: 'Lora', serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-view-detail:hover {
+  background: #4a5a3a;
+  transform: translateX(3px);
+}
+
+/* ─── LOADING & EMPTY STATES ─── */
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 4rem 0;
+}
+
+.empty-garden {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px dashed #d8d2c4;
+  border-radius: 20px;
+  padding: 4rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+}
+
+.empty-title {
+  font-family: 'Lora', serif;
+  font-size: 1.5rem;
+  color: #1c2613;
+  margin: 0;
+}
+
+.empty-desc {
+  font-size: 0.95rem;
+  color: #8a8570;
+  max-width: 450px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.empty-btn {
+  margin-top: 0.5rem;
+}

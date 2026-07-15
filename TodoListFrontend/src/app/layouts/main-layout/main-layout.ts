@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
@@ -7,11 +7,12 @@ import { TodoService } from '../../core/services/todo.service';
 import { CategoryResponse } from '../../core/models/category.model';
 import { TodoResponse, PaginatedResponse } from '../../core/models/todo.model';
 import { CategoryFormDialogComponent } from '../../features/category/category-form-dialog/category-form-dialog';
+import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink, CategoryFormDialogComponent],
+  imports: [RouterOutlet, RouterLink, CategoryFormDialogComponent, ConfirmDialogComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
@@ -24,6 +25,9 @@ export class MainLayoutComponent implements OnInit {
 
   showUserMenu = false;
   showCategoryModal = false;
+  showDeleteCategoryConfirm = false;
+  activeCategoryMenuId: number | null = null;
+  deletingCategory: CategoryResponse | null = null;
   categories = signal<CategoryResponse[]>([]);
   pageTitle = signal<string>('Tất cả công việc');
 
@@ -46,10 +50,16 @@ export class MainLayoutComponent implements OnInit {
     Math.max(1, Math.ceil(this.sidebarTotalCount() / this.sidebarPageSize))
   );
 
-  private mainTabs = ['Tất cả công việc', 'Hôm nay', 'Sắp tới', 'Báo cáo'];
-  vineVisible = computed(() => this.mainTabs.includes(this.pageTitle()));
+  private mainTabs = ['Tất cả công việc', 'Hôm nay', 'Sắp tới', 'Khu vườn Danh mục'];
+  vineVisible = computed(() => {
+    const title = this.pageTitle();
+    return this.mainTabs.includes(title) || title === 'Báo cáo' || title === 'Danh mục';
+  });
   vineTop = computed(() => {
-    const index = this.mainTabs.indexOf(this.pageTitle());
+    let index = this.mainTabs.indexOf(this.pageTitle());
+    if (index === -1 && (this.pageTitle() === 'Báo cáo' || this.pageTitle() === 'Danh mục')) {
+      index = 3;
+    }
     if (index === -1) return '2.6rem';
     const itemHeight = 2.2;
     const gap = 1.5;
@@ -75,9 +85,13 @@ export class MainLayoutComponent implements OnInit {
     this.loadSidebarTodos();
     this.updatePageTitle(this.router.url);
 
-    this.categoryService.refresh$.subscribe(() => this.loadCategories());
+    this.categoryService.refresh$.subscribe(() => {
+      this.loadCategories();
+      this.loadSidebarTodos();
+    });
     this.todoService.refresh$.subscribe(() => {
       this.loadSidebarTodos();
+      this.loadCategories();
     });
   }
 
@@ -151,7 +165,7 @@ export class MainLayoutComponent implements OnInit {
       this.pageTitle.set('Đổi mật khẩu');
       return;
     }
-    if (url.includes('/categories/')) {
+    if (url.includes('/categories')) {
       const projMatch = url.match(/\/categories\/(\d+)/);
       if (projMatch) {
         const id = +projMatch[1];
@@ -162,7 +176,7 @@ export class MainLayoutComponent implements OnInit {
           this.pageTitle.set('Chi tiết danh mục');
         }
       } else {
-        this.pageTitle.set('Danh mục');
+        this.pageTitle.set('Khu vườn Danh mục');
       }
       return;
     }
@@ -210,6 +224,49 @@ export class MainLayoutComponent implements OnInit {
   onCategoryCreated() {
     this.showCategoryModal = false;
     this.loadCategories();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    if (this.activeCategoryMenuId !== null) {
+      this.activeCategoryMenuId = null;
+    }
+  }
+
+  toggleCategoryMenu(event: Event, cat: CategoryResponse) {
+    event.stopPropagation();
+    event.preventDefault();
+    if (this.activeCategoryMenuId === cat.id) {
+      this.activeCategoryMenuId = null;
+    } else {
+      this.activeCategoryMenuId = cat.id;
+    }
+  }
+
+  closeCategoryMenu() {
+    this.activeCategoryMenuId = null;
+  }
+
+  onDeleteSidebarCategory(event: Event, cat: CategoryResponse) {
+    event.stopPropagation();
+    event.preventDefault();
+    this.closeCategoryMenu();
+    this.deletingCategory = cat;
+    this.showDeleteCategoryConfirm = true;
+  }
+
+  onDeleteCategoryConfirmed(confirmed: boolean) {
+    this.showDeleteCategoryConfirm = false;
+    if (confirmed && this.deletingCategory) {
+      this.categoryService.delete(this.deletingCategory.id).subscribe({
+        next: () => {
+          this.loadCategories();
+          this.todoService.notifyChanged();
+        },
+        error: () => {}
+      });
+    }
+    this.deletingCategory = null;
   }
 
   toggleUserMenu() {

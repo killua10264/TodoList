@@ -63,6 +63,15 @@ export class TodoListComponent implements OnInit {
         this.loadTodos();
       });
       this.loadCategories();
+
+      this.todoService.refresh$.subscribe(() => {
+        this.loadTodos(true);
+        this.loadCategories();
+      });
+      this.categoryService.refresh$.subscribe(() => {
+        this.loadCategories();
+        this.loadTodos(true);
+      });
     }
   }
 
@@ -80,8 +89,10 @@ export class TodoListComponent implements OnInit {
     this.loadCategories();
   }
 
-  loadTodos() {
-    this.isLoading.set(true);
+  loadTodos(silent = false) {
+    if (!silent) {
+      this.isLoading.set(true);
+    }
     this.todoService.getAll(
       this.currentPage(),
       this.pageSize,
@@ -143,7 +154,7 @@ export class TodoListComponent implements OnInit {
   onFormSaved() {
     this.showForm = false;
     this.editingTodo = null;
-    this.loadTodos();
+    this.loadTodos(true);
   }
 
   onDeleteFromForm(todoId: number) {

@@ -17,6 +17,7 @@ export class TodoFormDialogComponent implements OnInit {
 
   todo = input<TodoResponse | null>(null);
   categories = input<CategoryResponse[]>([]);
+  initialCategoryId = input<number | null>(null);
 
   saved = output<void>();
   cancelled = output<void>();
@@ -29,7 +30,7 @@ export class TodoFormDialogComponent implements OnInit {
     description: new FormControl(''),
     priority: new FormControl(1, [Validators.required]),
     dueDate: new FormControl('', [Validators.required]),
-    categoryId: new FormControl<number>(1, [Validators.required, Validators.min(1)]),
+    categoryId: new FormControl<number>(3, [Validators.required, Validators.min(1)]),
     isCompleted: new FormControl(false)
   });
 
@@ -57,10 +58,16 @@ export class TodoFormDialogComponent implements OnInit {
       });
     } else {
       const today = new Date().toISOString().substring(0, 10);
+      let defaultCatId = this.initialCategoryId() || 3;
+      // Nếu trong danh sách categories có mục "Khác", ưu tiên lấy ID của nó nếu chưa có initialCategoryId
+      if (!this.initialCategoryId() && this.categories().length > 0) {
+        const otherCat = this.categories().find(c => c.name.toLowerCase().includes('khác'));
+        if (otherCat) defaultCatId = otherCat.id;
+      }
       this.todoForm.patchValue({
         priority: 2, // Trung bình
         dueDate: today,
-        categoryId: 1 // Mặc định là Học tập
+        categoryId: defaultCatId
       });
     }
   }

@@ -13,7 +13,9 @@ namespace TodoListBackend.Mappings
             {
                 Id = categoryModel.Id,
                 Name = categoryModel.Name,
-                Color = categoryModel.Color
+                Color = categoryModel.Color,
+                TodoCount = categoryModel.Todos?.Count ?? 0,
+                CompletedTodoCount = categoryModel.Todos?.Count(t => t.IsCompleted) ?? 0
             };
         }
     }

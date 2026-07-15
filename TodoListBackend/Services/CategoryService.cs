@@ -49,9 +49,14 @@ namespace TodoListBackend.Services
 
         public async Task<CategoryResponseDto> CreateCategoryAsync(CategoryCreateDto dto, int userId)
         {
+            if (await _unitOfWork.Categories.ExistsByNameAsync(dto.Name.Trim(), userId))
+            {
+                throw new BusinessException($"Danh mục với tên '{dto.Name.Trim()}' đã tồn tại trong khu vườn của bạn.");
+            }
+
             var category = new Category
             {
-                Name = dto.Name,
+                Name = dto.Name.Trim(),
                 Color = dto.Color,
                 UserId = userId
             };
@@ -69,6 +74,26 @@ namespace TodoListBackend.Services
             if (category == null)
                 throw new NotFoundException($"Không tìm thấy danh mục có ID = {id}.");
 
+            if (category.Todos != null && category.Todos.Any())
+            {
+                // Tìm danh mục "Khác" hoặc danh mục khác để an toàn chuyển giao công việc
+                var allCategories = await _unitOfWork.Categories.GetAllCategoriesAsync(userId);
+                var fallbackCategory = allCategories.FirstOrDefault(c => c.Id != id && c.Name.Equals("Khác", StringComparison.OrdinalIgnoreCase))
+                                    ?? allCategories.FirstOrDefault(c => c.Id != id);
+
+                if (fallbackCategory == null)
+                {
+                    fallbackCategory = new Category { Name = "Khác", Color = "#8a8570", UserId = userId };
+                    await _unitOfWork.Categories.AddAsync(fallbackCategory);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                foreach (var todo in category.Todos)
+                {
+                    todo.CategoryId = fallbackCategory.Id;
+                }
+            }
+
             await _unitOfWork.Categories.DeleteAsync(category);
             await _unitOfWork.SaveChangesAsync();
         }
@@ -79,7 +104,12 @@ namespace TodoListBackend.Services
             if (existingCategory == null)
                 throw new NotFoundException($"Không tìm thấy danh mục có ID = {id}.");
 
-            existingCategory.Name = dto.Name;
+            if (await _unitOfWork.Categories.ExistsByNameAsync(dto.Name.Trim(), userId, id))
+            {
+                throw new BusinessException($"Danh mục với tên '{dto.Name.Trim()}' đã tồn tại trong khu vườn của bạn.");
+            }
+
+            existingCategory.Name = dto.Name.Trim();
             existingCategory.Color = dto.Color;
 
             await _unitOfWork.SaveChangesAsync();

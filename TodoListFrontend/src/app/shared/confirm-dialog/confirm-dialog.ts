@@ -9,6 +9,9 @@ export class ConfirmDialogComponent {
     /** Dialog có đang hiển thị không */
     visible = input.required<boolean>();
 
+    /** Tiêu đề dialog */
+    title = input<string>('⚠️ Xác nhận');
+
     /** Nội dung câu hỏi */
     message = input<string>('Bạn có chắc chắn muốn thực hiện hành động này?');
 

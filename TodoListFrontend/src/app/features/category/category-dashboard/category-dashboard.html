@@ -1,0 +1,123 @@
+<div class="category-dashboard-container">
+  <!-- BANNER TỔNG QUAN KHU VƯỜN -->
+  <div class="garden-banner">
+    <div class="banner-header">
+      <div class="banner-titles">
+        <h2 class="banner-title">Khu Vườn Danh Mục</h2>
+        <p class="banner-subtitle">Quản lý và quy hoạch các luống hoa tĩnh lặng trong toàn bộ khu vườn của bạn</p>
+      </div>
+      <button class="btn-create-garden" (click)="openCreateCategory()">
+        <span class="btn-icon">+</span> Thêm luống hoa mới
+      </button>
+    </div>
+
+    <!-- CARDS STATS TỔNG HỢP -->
+    <div class="banner-stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">📁 Tổng số danh mục</span>
+        <span class="stat-value">{{ totalCategoriesCount() }} <small>luống</small></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">🌱 Tổng hạt giống</span>
+        <span class="stat-value">{{ totalTodosCount() }} <small>việc</small></span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">🌸 Hoa đã nở</span>
+        <span class="stat-value completed-val">{{ totalCompletedCount() }} <small>việc</small></span>
+      </div>
+      <div class="stat-card stat-progress-card">
+        <div class="progress-header">
+          <span class="stat-label">📈 Tiến độ toàn vườn</span>
+          <span class="progress-percent">{{ overallProgressPercent() }}%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar" [style.width.%]="overallProgressPercent()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DANH SÁCH CÁC DANH MỤC (ZEN GRID) -->
+  @if (isLoading()) {
+    <div class="loading-wrapper">
+      <app-loading-spinner />
+    </div>
+  } @else if (categories().length === 0) {
+    <div class="empty-garden">
+      <div class="empty-icon">🌱</div>
+      <h3 class="empty-title">Khu vườn đang trống</h3>
+      <p class="empty-desc">Bạn chưa gieo luống danh mục nào. Hãy tạo danh mục đầu tiên để phân loại hạt giống công việc nhé!</p>
+      <button class="btn-create-garden empty-btn" (click)="openCreateCategory()">+ Tạo danh mục đầu tiên</button>
+    </div>
+  } @else {
+    <div class="categories-grid">
+      @for (cat of categories(); track cat.id) {
+        <div class="category-card" [style.--cat-color]="cat.color || '#6b7a45'">
+          <div class="card-top">
+            <div class="cat-pill">
+              <span class="cat-color-dot" [style.backgroundColor]="cat.color || '#6b7a45'"></span>
+              <h3 class="cat-title" [title]="cat.name">{{ cat.name }}</h3>
+            </div>
+            <div class="card-actions">
+              <button class="btn-action edit" (click)="openEditCategory(cat)" title="Chỉnh sửa danh mục">✏️</button>
+              <button class="btn-action delete" (click)="openDeleteCategoryConfirm(cat)" title="Xóa danh mục">🗑️</button>
+            </div>
+          </div>
+
+          <div class="card-middle">
+            <div class="stats-row">
+              <span class="stat-pill">🌱 <strong>{{ cat.todoCount ?? 0 }}</strong> hạt giống</span>
+              <span class="stat-pill completed">🌸 <strong>{{ cat.completedTodoCount ?? 0 }}</strong> hoa nở</span>
+            </div>
+            <div class="cat-progress">
+              <div class="cat-progress-info">
+                <span>Độ hoàn thiện</span>
+                <span class="percent-text">{{ getCategoryProgress(cat) }}%</span>
+              </div>
+              <div class="progress-track sm">
+                <div class="progress-bar" [style.width.%]="getCategoryProgress(cat)" [style.backgroundColor]="cat.color || '#6b7a45'"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-bottom">
+            <button class="btn-add-todo" (click)="openCreateTodoForCategory(cat.id)">
+              + Gieo thêm việc
+            </button>
+            <a class="btn-view-detail" [routerLink]="['/todos']" [queryParams]="{categoryId: cat.id}">
+              Vào khu vườn ›
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- MODAL TẠO/SỬA DANH MỤC -->
+@if (showCategoryForm()) {
+  <app-category-form-dialog
+    [category]="editingCategory()"
+    (saved)="onCategoryFormSaved()"
+    (cancelled)="showCategoryForm.set(false)"
+  />
+}
+
+<!-- MODAL TẠO CÔNG VIỆC TRONG DANH MỤC -->
+@if (showTodoForm()) {
+  <app-todo-form-dialog
+    [initialCategoryId]="selectedCategoryIdForTodo()"
+    (saved)="onTodoFormSaved()"
+    (cancelled)="showTodoForm.set(false)"
+  />
+}
+
+<!-- DIALOG XÁC NHẬN XÓA AN TOÀN -->
+@if (showDeleteConfirm()) {
+  <app-confirm-dialog
+    [visible]="true"
+    title="Xác nhận nhổ bỏ danh mục"
+    [message]="'Bạn có chắc chắn muốn nhổ bỏ danh mục &quot;' + (deletingCategory()?.name || '') + '&quot; không? Toàn bộ hạt giống/công việc bên trong sẽ được tự động chuyển giao an toàn sang danh mục &quot;Khác&quot; để không bị mất mát dữ liệu.'"
+    (confirmed)="onDeleteConfirmed($event)"
+  />
+}

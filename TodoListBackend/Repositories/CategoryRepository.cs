@@ -17,6 +17,7 @@ namespace TodoListBackend.Repositories
         {
             return await _context.Categories
                 .AsNoTracking()
+                .Include(p => p.Todos)
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
         }
@@ -24,12 +25,27 @@ namespace TodoListBackend.Repositories
         public async Task<Category?> GetByIdAsync(int id, int userId)
         {
             return await _context.Categories
+                .Include(p => p.Todos)
                 .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
         }
 
-        public async Task<Category?> GetByNameAsync(string name)
+        public async Task<Category?> GetByNameAsync(string name, int userId)
         {
-            return await _context.Categories.FirstOrDefaultAsync(p => p.Name == name);
+            return await _context.Categories
+                .FirstOrDefaultAsync(p => p.Name.ToLower() == name.ToLower() && p.UserId == userId);
+        }
+
+        public async Task<bool> ExistsByNameAsync(string name, int userId, int? excludeId = null)
+        {
+            var query = _context.Categories
+                .Where(p => p.Name.ToLower() == name.ToLower() && p.UserId == userId);
+
+            if (excludeId.HasValue)
+            {
+                query = query.Where(p => p.Id != excludeId.Value);
+            }
+
+            return await query.AnyAsync();
         }
 
         public async Task AddAsync(Category category)
