@@ -80,9 +80,15 @@ namespace TodoListBackend.Repositories
             return (items, totalCount);
         }
 
-        public async Task<Todo?> GetByIdAsync(int id, int userId)
+        public async Task<Todo?> GetByIdAsync(int id, int userId, bool trackChanges = false)
         {
-            return await _context.Todos
+            var query = _context.Todos.AsQueryable();
+            
+            if (!trackChanges) {
+                query = query.AsNoTracking();
+            }
+
+            return await query
                 .Include(t => t.Category)
                 .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId && !t.IsDeleted);
         }

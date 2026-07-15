@@ -14,7 +14,17 @@ namespace TodoListBackend.Controllers
             _subTaskService = subTaskService;
         }
 
-        [HttpGet("by-todo/{todoId}")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSubTaskById(int id)
+        {
+            int userId = GetCurrentUserId();
+            var subTask = await _subTaskService.GetSubTaskByIdAsync(id, userId);
+            
+            if (subTask == null) return NotFound();
+            return Ok(subTask);
+        }
+
+        [HttpGet("todo/{todoId}")]
         public async Task<IActionResult> GetSubTasksByTodoId(int todoId)
         {
             int userId = GetCurrentUserId();
@@ -27,7 +37,7 @@ namespace TodoListBackend.Controllers
         {
             int userId = GetCurrentUserId();
             var newSubTask = await _subTaskService.CreateSubTaskAsync(dto, userId);
-            return StatusCode(201, newSubTask);
+            return CreatedAtAction(nameof(GetSubTaskById), new { id = newSubTask.Id }, newSubTask);
         }
 
         [HttpPut("{id}")]

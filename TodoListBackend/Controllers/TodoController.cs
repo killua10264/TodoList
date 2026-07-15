@@ -40,7 +40,7 @@ namespace TodoListBackend.Controllers
 
             var newTodo = await _todoService.CreateTodoAsync(dto, userId);
 
-            return StatusCode(201, newTodo);
+            return CreatedAtAction(nameof(GetTodoById), new { id = newTodo.Id }, newTodo);
         }
 
         [HttpPut("{id}")]

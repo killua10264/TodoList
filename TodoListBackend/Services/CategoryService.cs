@@ -17,8 +17,8 @@ namespace TodoListBackend.Services
 
         public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync(int userId)
         {
-            var categories = await _unitOfWork.Categories.GetAllCategoriesAsync(userId);
-            var categoryList = categories.ToList();
+            var projectedCategories = await _unitOfWork.Categories.GetAllCategoriesProjectedAsync(userId);
+            var categoryList = projectedCategories.ToList();
 
             if (!categoryList.Any())
             {
@@ -35,15 +35,22 @@ namespace TodoListBackend.Services
                 }
                 await _unitOfWork.SaveChangesAsync();
 
-                categoryList = defaultCategories;
+                categoryList = defaultCategories.Select(p => new CategoryResponseDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Color = p.Color,
+                    TodoCount = 0,
+                    CompletedTodoCount = 0
+                }).ToList();
             }
 
-            return categoryList.Select(p => p.ToResponseDto()!);
+            return categoryList;
         }
 
         public async Task<CategoryResponseDto?> GetCategoryByIdAsync(int id, int userId)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id, userId);
+            var category = await _unitOfWork.Categories.GetByIdAsync(id, userId, trackChanges: false);
             return category?.ToResponseDto();
         }
 
@@ -70,7 +77,7 @@ namespace TodoListBackend.Services
 
         public async Task DeleteCategoryAsync(int id, int userId)
         {
-            var category = await _unitOfWork.Categories.GetByIdAsync(id, userId);
+            var category = await _unitOfWork.Categories.GetByIdAsync(id, userId, trackChanges: true);
             if (category == null)
                 throw new NotFoundException($"Không tìm thấy danh mục có ID = {id}.");
 
@@ -100,7 +107,7 @@ namespace TodoListBackend.Services
 
         public async Task<CategoryResponseDto> UpdateCategoryAsync(int id, CategoryUpdateDto dto, int userId)
         {
-            var existingCategory = await _unitOfWork.Categories.GetByIdAsync(id, userId);
+            var existingCategory = await _unitOfWork.Categories.GetByIdAsync(id, userId, trackChanges: true);
             if (existingCategory == null)
                 throw new NotFoundException($"Không tìm thấy danh mục có ID = {id}.");
 

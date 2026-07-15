@@ -73,7 +73,7 @@ namespace TodoListBackend.Services
 
         public async Task DeleteTodoAsync(int id, int userId)
         {
-            var todo = await _unitOfWork.Todos.GetByIdAsync(id, userId);
+            var todo = await _unitOfWork.Todos.GetByIdAsync(id, userId, trackChanges: true);
             if (todo == null)
                 throw new NotFoundException($"Không tìm thấy công việc có ID = {id} hoặc công việc đã bị xóa.");
 
@@ -85,7 +85,7 @@ namespace TodoListBackend.Services
 
         public async Task<TodoResponseDto> UpdateTodoAsync(int id, TodoUpdateDto dto, int userId)
         {
-            var existingTodo = await _unitOfWork.Todos.GetByIdAsync(id, userId);
+            var existingTodo = await _unitOfWork.Todos.GetByIdAsync(id, userId, trackChanges: true);
             if (existingTodo == null)
                 throw new NotFoundException($"Không tìm thấy công việc có ID = {id} hoặc công việc đã bị xóa.");
 
@@ -104,7 +104,7 @@ namespace TodoListBackend.Services
 
             await _unitOfWork.SaveChangesAsync();
 
-            var updatedTodo = await _unitOfWork.Todos.GetByIdAsync(existingTodo.Id, userId);
+            var updatedTodo = await _unitOfWork.Todos.GetByIdAsync(existingTodo.Id, userId, trackChanges: false);
             return (updatedTodo ?? existingTodo).ToResponseDto()!;
         }
 

@@ -16,6 +16,7 @@ namespace TodoListBackend.Repositories
         public async Task<IEnumerable<SubTask>> GetByTodoIdAsync(int todoId, int userId)
         {
             return await _context.SubTasks
+                .AsNoTracking()
                 .Include(s => s.Todo)
                 .Where(s => s.TodoId == todoId && s.Todo.UserId == userId && !s.Todo.IsDeleted)
                 .OrderBy(s => s.SortOrder)
@@ -23,11 +24,14 @@ namespace TodoListBackend.Repositories
                 .ToListAsync();
         }
 
-        public async Task<SubTask?> GetByIdAsync(int id, int userId)
+        public async Task<SubTask?> GetByIdAsync(int id, int userId, bool trackChanges = false)
         {
-            return await _context.SubTasks
-                .Include(s => s.Todo)
-                .FirstOrDefaultAsync(s => s.Id == id && s.Todo.UserId == userId && !s.Todo.IsDeleted);
+            var query = _context.SubTasks.Include(s => s.Todo).AsQueryable();
+            if (!trackChanges)
+            {
+                query = query.AsNoTracking();
+            }
+            return await query.FirstOrDefaultAsync(s => s.Id == id && s.Todo.UserId == userId && !s.Todo.IsDeleted);
         }
 
         public async Task AddAsync(SubTask subTask)

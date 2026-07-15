@@ -40,7 +40,7 @@ namespace TodoListBackend.Controllers
 
             var newCategory = await _categoryService.CreateCategoryAsync(dto, userId);
 
-            return StatusCode(201, newCategory);
+            return CreatedAtAction(nameof(GetCategoryById), new { id = newCategory.Id }, newCategory);
         }
 
         [HttpPut("{id}")]

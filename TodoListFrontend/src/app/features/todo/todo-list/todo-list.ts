@@ -1,7 +1,8 @@
-import { Component, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
+import { Component, inject, OnInit, signal, PLATFORM_ID, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TodoService } from '../../../core/services/todo.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -31,7 +32,7 @@ export class TodoListComponent implements OnInit {
   private toast = inject(ToastService);
   private platformId = inject(PLATFORM_ID);
   private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private destroyRef = inject(DestroyRef); // Đã bỏ Router vì không dùng đến
 
   todos = signal<TodoResponse[]>([]);
   categories = signal<CategoryResponse[]>([]);
@@ -51,34 +52,33 @@ export class TodoListComponent implements OnInit {
 
   showDeleteConfirm = false;
   deletingTodoId: number | null = null;
-  deletingCategoryId: number | null = null;
+  // Đã xóa deletingCategoryId vì component này không chịu trách nhiệm xóa category
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      this.route.queryParams.subscribe(params => {
+      this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
         this.urlFilter.set(params['filter'] || null);
         const projId = (params['categoryId'] || params['projectId']) ? Number(params['categoryId'] || params['projectId']) : null;
         this.selectedCategoryId.set(projId);
         this.currentPage.set(1);
         this.loadTodos();
       });
+
       this.loadCategories();
 
-      this.todoService.refresh$.subscribe(() => {
+      // Chỉ lắng nghe sự kiện của Todo
+      this.todoService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.loadTodos(true);
-        this.loadCategories();
       });
-      this.categoryService.refresh$.subscribe(() => {
+
+      // Chỉ lắng nghe sự kiện của Category
+      this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.loadCategories();
-        this.loadTodos(true);
       });
     }
   }
 
-  goToCategoryDetail(projId: number) {
-    this.selectedCategoryId.set(projId);
-    this.onFilterChanged();
-  }
+  // Đã bỏ goToCategoryDetail() vì việc filter danh mục đã được handle qua ngModel trên select
 
   openCreateCategoryForm() {
     this.showCategoryForm = true;
@@ -86,13 +86,14 @@ export class TodoListComponent implements OnInit {
 
   onCategoryFormSaved() {
     this.showCategoryForm = false;
-    this.loadCategories();
+    // Bỏ this.loadCategories() vì refresh$ đã lo
   }
 
   loadTodos(silent = false) {
     if (!silent) {
       this.isLoading.set(true);
     }
+    // Bỏ takeUntilDestroyed dư thừa
     this.todoService.getAll(
       this.currentPage(),
       this.pageSize,
@@ -115,10 +116,11 @@ export class TodoListComponent implements OnInit {
 
   onFilterChanged() {
     this.currentPage.set(1);
-    this.loadTodos();
+    this.loadTodos(); // Đây là hành động manual từ UI nên vẫn giữ lại
   }
 
   loadCategories() {
+    // Bỏ takeUntilDestroyed dư thừa
     this.categoryService.getAll().subscribe({
       next: (projs) => this.categories.set(projs)
     });
@@ -133,9 +135,12 @@ export class TodoListComponent implements OnInit {
       categoryId: todo.categoryId,
       isCompleted: !todo.isCompleted
     };
+
+    // Bỏ takeUntilDestroyed dư thừa
     this.todoService.update(todo.id, updateReq).subscribe({
-      next: (updated) => {
-        this.todos.update(list => list.map(t => t.id === todo.id ? updated : t));
+      next: () => {
+        // Không cần cập nhật mảng thủ công nếu Service phát tín hiệu refresh$
+        // Hàm loadTodos(true) sẽ tự động chạy và lấy state mới nhất
       },
       error: () => this.toast.show('Cập nhật trạng thái thất bại.', 'error')
     });
@@ -154,7 +159,7 @@ export class TodoListComponent implements OnInit {
   onFormSaved() {
     this.showForm = false;
     this.editingTodo = null;
-    this.loadTodos(true);
+    // Bỏ this.loadTodos() vì refresh$ đã lo
   }
 
   onDeleteFromForm(todoId: number) {
@@ -165,40 +170,28 @@ export class TodoListComponent implements OnInit {
 
   onDeleteRequested(todoId: number) {
     this.deletingTodoId = todoId;
-    this.deletingCategoryId = null;
     this.showDeleteConfirm = true;
   }
 
-  onDeleteCategoryRequested(event: Event, projId: number) {
-    event.stopPropagation();
-    this.deletingCategoryId = projId;
-    this.deletingTodoId = null;
-    this.showDeleteConfirm = true;
-  }
+  // Đã xóa hàm onDeleteCategoryRequested(event: Event, projId: number) vì dead code
 
   onDeleteConfirmed(confirmed: boolean) {
     this.showDeleteConfirm = false;
-    if (confirmed) {
-      if (this.deletingTodoId) {
-        this.todoService.delete(this.deletingTodoId).subscribe({
-          next: () => {
-            this.toast.show('Xóa công việc thành công!', 'success');
-            this.loadTodos();
-          },
-          error: () => this.toast.show('Xóa thất bại.', 'error')
-        });
-      } else if (this.deletingCategoryId) {
-        this.categoryService.delete(this.deletingCategoryId).subscribe({
-          next: () => {
-            this.toast.show('Xóa danh mục thành công!', 'success');
-            this.loadCategories();
-          },
-          error: () => this.toast.show('Xóa danh mục thất bại.', 'error')
-        });
-      }
+    if (confirmed && this.deletingTodoId) {
+      this.todoService.delete(this.deletingTodoId).subscribe({
+        next: () => {
+          this.toast.show('Xóa công việc thành công!', 'success');
+          // Bỏ this.loadTodos() vì refresh$ đã lo
+
+          // Logic tùy chọn: Xử lý lùi trang nếu xóa phần tử cuối cùng của trang hiện tại
+          if (this.todos().length === 1 && this.currentPage() > 1) {
+            this.currentPage.update(p => p - 1);
+          }
+        },
+        error: () => this.toast.show('Xóa thất bại.', 'error')
+      });
     }
     this.deletingTodoId = null;
-    this.deletingCategoryId = null;
   }
 
   onPageChanged(page: number) {

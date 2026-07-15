@@ -19,7 +19,7 @@ export class SubTaskService {
   }
 
   getByTodoId(todoId: number) {
-    return this.http.get<SubTaskResponse[]>(`${this.apiUrl}/by-todo/${todoId}`);
+    return this.http.get<SubTaskResponse[]>(`${this.apiUrl}/todo/${todoId}`);
   }
 
   create(data: SubTaskCreateDto) {

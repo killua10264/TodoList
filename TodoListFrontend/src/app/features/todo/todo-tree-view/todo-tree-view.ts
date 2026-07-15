@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TodoService } from '../../../core/services/todo.service';
 import { SubTaskService } from '../../../core/services/subtask.service';
 import { TodoResponse } from '../../../core/models/todo.model';
@@ -20,6 +21,7 @@ export class TodoTreeViewComponent implements OnInit {
   private router = inject(Router);
   private todoService = inject(TodoService);
   private subTaskService = inject(SubTaskService);
+  private destroyRef = inject(DestroyRef);
 
   todo = signal<TodoResponse | null>(null);
   subTasks = signal<SubTaskResponse[]>([]);
@@ -39,14 +41,14 @@ export class TodoTreeViewComponent implements OnInit {
   deleteTargetType = signal<'todo' | 'subtask'>('subtask');
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       const id = +(params.get('id') || 0);
       if (id > 0) {
         this.loadTreeData(id);
       }
     });
 
-    this.subTaskService.refresh$.subscribe(() => {
+    this.subTaskService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       const currentTodo = this.todo();
       if (currentTodo) {
         this.loadSubTasks(currentTodo.id);

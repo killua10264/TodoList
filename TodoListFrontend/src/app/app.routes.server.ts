@@ -6,10 +6,6 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
-    path: 'categories/:id',
-    renderMode: RenderMode.Client
-  },
-  {
     path: 'todos/:id/tree',
     renderMode: RenderMode.Client
   },

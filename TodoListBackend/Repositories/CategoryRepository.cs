@@ -22,9 +22,31 @@ namespace TodoListBackend.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Category?> GetByIdAsync(int id, int userId)
+        public async Task<IEnumerable<TodoListBackend.DTOs.Category.CategoryResponseDto>> GetAllCategoriesProjectedAsync(int userId)
         {
             return await _context.Categories
+                .AsNoTracking()
+                .Where(p => p.UserId == userId)
+                .Select(p => new TodoListBackend.DTOs.Category.CategoryResponseDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Color = p.Color,
+                    TodoCount = p.Todos.Count(),
+                    CompletedTodoCount = p.Todos.Count(t => t.IsCompleted)
+                })
+                .ToListAsync();
+        }
+
+        public async Task<Category?> GetByIdAsync(int id, int userId, bool trackChanges = false)
+        {
+            var query = _context.Categories.AsQueryable();
+
+            if (!trackChanges){
+                query = query.AsNoTracking();
+            }
+
+            return await query
                 .Include(p => p.Todos)
                 .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
         }
