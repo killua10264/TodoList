@@ -55,7 +55,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://todo-list-killua7.vercel.app")
+        policy.SetIsOriginAllowed(origin => 
+                new Uri(origin).Host == "localhost" || 
+                new Uri(origin).Host.EndsWith(".vercel.app"))
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
