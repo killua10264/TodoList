@@ -17,8 +17,8 @@ namespace TodoListBackend.Validators
             RuleFor(x => x.Priority)
                 .InclusiveBetween(1, 5).WithMessage("Độ ưu tiên là các số từ 1 đến 5.");
 
-            RuleFor(x => x.DueDate)
-                .GreaterThan(DateTime.UtcNow).WithMessage("Giờ hết hạn không được là thời gian trong quá khứ.");
+            RuleFor(x => x.DueDate.Date)
+                .GreaterThanOrEqualTo(DateTime.UtcNow.Date).WithMessage("Giờ hết hạn không được là thời gian trong quá khứ.");
         }
     }
 }

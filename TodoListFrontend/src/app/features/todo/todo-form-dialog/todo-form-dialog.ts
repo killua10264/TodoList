@@ -86,14 +86,22 @@ export class TodoFormDialogComponent implements OnInit {
     if (this.isEditMode) {
       this.todoService.update(this.todo()!.id, formValue as any).subscribe({
         next: () => { this.toast.show('Cập nhật thành công!', 'success'); this.saved.emit(); },
-        error: () => { this.isLoading = false; this.toast.show('Cập nhật thất bại.', 'error'); }
+        error: (err) => { this.isLoading = false; this.toast.show(this.extractError(err) || 'Cập nhật thất bại.', 'error'); }
       });
     } else {
       this.todoService.create(formValue as any).subscribe({
         next: () => { this.toast.show('Tạo mới thành công!', 'success'); this.saved.emit(); },
-        error: () => { this.isLoading = false; this.toast.show('Tạo mới thất bại.', 'error'); }
+        error: (err) => { this.isLoading = false; this.toast.show(this.extractError(err) || 'Tạo mới thất bại.', 'error'); }
       });
     }
+  }
+
+  private extractError(err: any): string {
+    if (err.error?.errors) {
+      const firstKey = Object.keys(err.error.errors)[0];
+      return err.error.errors[firstKey][0];
+    }
+    return err.error?.message || err.error || '';
   }
 
   onDelete() {
