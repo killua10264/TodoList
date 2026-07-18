@@ -54,7 +54,7 @@ namespace TodoListBackend.Services
                 Title = dto.Title,
                 Description = dto.Description,
                 Priority = dto.Priority,
-                DueDate = dto.DueDate,
+                DueDate = DateTime.SpecifyKind(dto.DueDate, DateTimeKind.Utc),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 UserId = userId,
@@ -92,7 +92,7 @@ namespace TodoListBackend.Services
             existingTodo.Title = dto.Title ?? existingTodo.Title;
             existingTodo.Description = dto.Description ?? existingTodo.Description;
             existingTodo.Priority = dto.Priority ?? existingTodo.Priority;
-            existingTodo.DueDate = dto.DueDate ?? existingTodo.DueDate;
+            existingTodo.DueDate = dto.DueDate.HasValue ? DateTime.SpecifyKind(dto.DueDate.Value, DateTimeKind.Utc) : existingTodo.DueDate;
             existingTodo.IsCompleted = dto.IsCompleted ?? existingTodo.IsCompleted;
             
             if (dto.CategoryId.HasValue)
