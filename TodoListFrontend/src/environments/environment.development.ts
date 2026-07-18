@@ -1,3 +1,3 @@
 export const environment = {
-    apiUrl: 'http://localhost:5205'
+    apiUrl: 'https://todolist-api-backend-wk13.onrender.com/'
 };
