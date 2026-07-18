@@ -1,5 +1,5 @@
 # 1. Dùng .NET SDK để build ứng dụng
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /app
 
 # 2. Copy file .csproj và tải các thư viện
@@ -11,7 +11,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # 4. Tạo môi trường chạy (Runtime) siêu nhẹ để đưa lên web
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /app/out .
 
