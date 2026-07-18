@@ -50,7 +50,7 @@ export class LoginComponent {
                     console.log('Chi tiết lỗi API:', err);
                     let message = 'Tên đăng nhập/Email hoặc mật khẩu không đúng.';
                     if (err.status === 0) {
-                        message = 'Không thể kết nối đến máy chủ Backend (http://localhost:5205). Vui lòng đảm bảo Backend đang chạy.';
+                        message = 'Không thể kết nối đến máy chủ Backend. Vui lòng thử lại sau.';
                     } else if (err.status === 429) {
                         message = 'Bạn đã thử đăng nhập quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.';
                     } else if (err.error?.errors) {

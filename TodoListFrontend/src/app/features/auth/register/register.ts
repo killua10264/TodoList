@@ -59,7 +59,7 @@ export class RegisterComponent {
                 let message = 'Đăng ký thất bại. Vui lòng thử lại.';
                 
                 if (err.status === 0) {
-                    message = 'Không thể kết nối đến máy chủ Backend (http://localhost:5205). Vui lòng đảm bảo Backend đang chạy.';
+                    message = 'Không thể kết nối đến máy chủ Backend. Vui lòng thử lại sau.';
                 } else if (err.status === 429) {
                     message = 'Bạn đã bấm đăng ký quá nhiều lần. Vui lòng đợi 1 phút trước khi thử lại.';
                 } else if (err.error?.errors) {
