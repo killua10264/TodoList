@@ -61,8 +61,9 @@ builder.Services.AddCors(options =>
 
         policy.SetIsOriginAllowed(origin => 
             allowedOrigins.Contains(origin) || 
-            new Uri(origin).Host == "localhost");
-
+            new Uri(origin).Host == "localhost")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
     });
 });
 
@@ -109,7 +110,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://*:{port}");
+if (!app.Environment.IsDevelopment())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    app.Urls.Add($"http://*:{port}");
+}
 
 app.Run();
