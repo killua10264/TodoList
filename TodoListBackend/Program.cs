@@ -59,9 +59,13 @@ builder.Services.AddCors(options =>
             .GetSection("Cors:AllowedOrigins").Get<string[]>() 
             ?? Array.Empty<string>();
 
-        policy.SetIsOriginAllowed(origin => 
-            allowedOrigins.Contains(origin) || 
-            new Uri(origin).Host == "localhost")
+        policy.SetIsOriginAllowed(origin =>
+        {
+            var host = new Uri(origin).Host;
+            return allowedOrigins.Contains(origin) ||
+                   host == "localhost" ||
+                   host.EndsWith(".vercel.app");
+        })
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
