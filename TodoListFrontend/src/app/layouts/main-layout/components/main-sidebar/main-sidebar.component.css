@@ -77,6 +77,11 @@
   min-width: 0;
 }
 
+.categories-header-link {
+  text-decoration: none;
+  color: inherit;
+}
+
 .sidebar-categories {
   display: flex;
   flex-direction: column;

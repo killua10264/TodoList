@@ -1,3 +1,23 @@
+.zen-header {
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3.5rem;
+  background: transparent;
+  position: relative;
+}
+
+.zen-header-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .header-main-title {
   font-family: 'Lora', serif;
   font-size: 2.6rem;

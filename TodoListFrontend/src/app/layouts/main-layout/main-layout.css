@@ -7,6 +7,20 @@
   color: #2e3a22;
 }
 
+.zen-body {
+  display: flex;
+  flex: 1;
+  padding: 1rem 3.5rem 3rem 0;
+  gap: 3.5rem;
+  width: 100%;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+
 .zen-header {
   height: 90px;
   display: flex;
