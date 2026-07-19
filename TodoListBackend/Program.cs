@@ -60,12 +60,8 @@ builder.Services.AddCors(options =>
             ?? Array.Empty<string>();
 
         policy.SetIsOriginAllowed(origin =>
-        {
-            var host = new Uri(origin).Host;
-            return allowedOrigins.Contains(origin) ||
-                   host == "localhost" ||
-                   host.EndsWith(".vercel.app");
-        })
+            allowedOrigins.Contains(origin) ||
+            new Uri(origin).Host == "localhost")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
