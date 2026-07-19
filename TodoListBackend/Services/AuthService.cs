@@ -45,8 +45,6 @@ namespace TodoListBackend.Services
 
             await _unitOfWork.Users.AddAsync(newUser);
             await _unitOfWork.SaveChangesAsync(); // Save để lấy User.Id
-
-            // Tự động login sau khi đăng ký
             var accessToken = CreateJwtToken(newUser);
             var rawRefreshToken = GenerateRefreshToken();
             var refreshToken = HashHelper.ComputeSha256Hash(rawRefreshToken);
@@ -117,7 +115,7 @@ namespace TodoListBackend.Services
 
         public async Task LogoutAsync(int userId)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            var user = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true);
             if (user == null) return;
 
             user.RefreshToken = null;
@@ -162,3 +160,4 @@ namespace TodoListBackend.Services
         }
     }
 }
+

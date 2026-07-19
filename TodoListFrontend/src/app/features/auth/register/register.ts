@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
 import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'app-register',
@@ -49,13 +50,14 @@ export class RegisterComponent {
             username: username!,
             email: email!,
             password: password!
-        }).subscribe({
+        }).pipe(finalize(() => {
+            this.isLoading = false;
+        })).subscribe({
             next: () => {
                 this.toast.show('Đăng ký thành công!', 'success');
                 this.router.navigate(['/todos']);
             },
             error: (err) => {
-                this.isLoading = false;
                 let message = 'Đăng ký thất bại. Vui lòng thử lại.';
                 
                 if (err.status === 0) {

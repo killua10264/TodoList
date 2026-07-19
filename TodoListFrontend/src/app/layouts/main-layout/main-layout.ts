@@ -1,5 +1,5 @@
-import { Component, inject, signal, computed, OnInit, HostListener } from '@angular/core';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { Component, inject, signal, computed, OnInit, HostListener, DestroyRef } from '@angular/core';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserService } from '../../core/services/user.service';
 import { CategoryService } from '../../core/services/category.service';
@@ -8,11 +8,14 @@ import { CategoryResponse } from '../../core/models/category.model';
 import { TodoResponse, PaginatedResponse } from '../../core/models/todo.model';
 import { CategoryFormDialogComponent } from '../../features/category/category-form-dialog/category-form-dialog';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog';
+import { MainHeaderComponent } from './components/main-header/main-header.component';
+import { MainSidebarComponent } from './components/main-sidebar/main-sidebar.component';
 import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-main-layout',
-  imports: [RouterOutlet, RouterLink, CategoryFormDialogComponent, ConfirmDialogComponent],
+  imports: [RouterOutlet, CategoryFormDialogComponent, ConfirmDialogComponent, MainHeaderComponent, MainSidebarComponent],
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.css'
 })
@@ -22,16 +25,14 @@ export class MainLayoutComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private todoService = inject(TodoService);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
-  showUserMenu = false;
   showCategoryModal = false;
   showDeleteCategoryConfirm = false;
   activeCategoryMenuId: number | null = null;
   deletingCategory: CategoryResponse | null = null;
   categories = signal<CategoryResponse[]>([]);
   pageTitle = signal<string>('Tất cả công việc');
-
-  // Dynamic Avatar từ currentUser signal của UserService
   headerAvatarUrl = computed(() => this.userService.currentUser()?.avatarUrl || null);
   headerAvatarInitials = computed(() => {
     const u = this.userService.currentUser();
@@ -39,8 +40,6 @@ export class MainLayoutComponent implements OnInit {
     const name = u.displayName || u.username || 'A';
     return name.charAt(0).toUpperCase();
   });
-
-  // Sidebar worklist: chỉ hiển thị tên các Todo card
   sidebarTodos = signal<TodoResponse[]>([]);
   sidebarTotalCount = signal(0);
   sidebarPage = signal(1);
@@ -49,28 +48,10 @@ export class MainLayoutComponent implements OnInit {
   sidebarTotalPages = computed(() =>
     Math.max(1, Math.ceil(this.sidebarTotalCount() / this.sidebarPageSize))
   );
-
-  private mainTabs = ['Tất cả công việc', 'Hôm nay', 'Sắp tới', 'Khu vườn Danh mục'];
-  vineVisible = computed(() => {
-    const title = this.pageTitle();
-    return this.mainTabs.includes(title) || title === 'Báo cáo' || title === 'Danh mục';
-  });
-  vineTop = computed(() => {
-    let index = this.mainTabs.indexOf(this.pageTitle());
-    if (index === -1 && (this.pageTitle() === 'Báo cáo' || this.pageTitle() === 'Danh mục')) {
-      index = 3;
-    }
-    if (index === -1) return '2.6rem';
-    const itemHeight = 2.2;
-    const gap = 1.5;
-    const sidebarPadTop = 1;
-    const top = sidebarPadTop + index * (itemHeight + gap) + itemHeight - 0.3;
-    return top + 'rem';
-  });
-
   constructor() {
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntilDestroyed(this.destroyRef)
     ).subscribe(() => {
       this.updatePageTitle(this.router.url);
       this.loadCategories();
@@ -85,11 +66,11 @@ export class MainLayoutComponent implements OnInit {
     this.loadSidebarTodos();
     this.updatePageTitle(this.router.url);
 
-    this.categoryService.refresh$.subscribe(() => {
+    this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadCategories();
       this.loadSidebarTodos();
     });
-    this.todoService.refresh$.subscribe(() => {
+    this.todoService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadSidebarTodos();
       this.loadCategories();
     });
@@ -105,8 +86,7 @@ export class MainLayoutComponent implements OnInit {
     });
   }
 
-  /** Tải danh sách todo cho sidebar — đồng bộ filter với URL hiện tại */
-  loadSidebarTodos() {
+    loadSidebarTodos() {
     const url = this.router.url;
     let urlFilter: string | null = null;
     let categoryId: number | null = null;
@@ -129,9 +109,11 @@ export class MainLayoutComponent implements OnInit {
     });
   }
 
-  onToggleSidebarTodo(event: Event, todo: TodoResponse) {
-    event.stopPropagation();
-    event.preventDefault();
+  onToggleSidebarTodo(event: any) {
+    const e = event.event as Event;
+    const todo = event.todo as TodoResponse;
+    e.stopPropagation();
+    e.preventDefault();
     this.todoService.update(todo.id, {
       title: todo.title,
       description: todo.description,
@@ -233,13 +215,14 @@ export class MainLayoutComponent implements OnInit {
     }
   }
 
-  toggleCategoryMenu(event: Event, cat: CategoryResponse) {
-    event.stopPropagation();
-    event.preventDefault();
-    if (this.activeCategoryMenuId === cat.id) {
+  toggleCategoryMenu(event: any) {
+    const e = event.event as Event;
+    e.stopPropagation();
+    e.preventDefault();
+    if (this.activeCategoryMenuId === event.cat.id) {
       this.activeCategoryMenuId = null;
     } else {
-      this.activeCategoryMenuId = cat.id;
+      this.activeCategoryMenuId = event.cat.id;
     }
   }
 
@@ -247,11 +230,12 @@ export class MainLayoutComponent implements OnInit {
     this.activeCategoryMenuId = null;
   }
 
-  onDeleteSidebarCategory(event: Event, cat: CategoryResponse) {
-    event.stopPropagation();
-    event.preventDefault();
+  onDeleteSidebarCategory(event: any) {
+    const e = event.event as Event;
+    e.stopPropagation();
+    e.preventDefault();
     this.closeCategoryMenu();
-    this.deletingCategory = cat;
+    this.deletingCategory = event.cat;
     this.showDeleteCategoryConfirm = true;
   }
 
@@ -269,16 +253,9 @@ export class MainLayoutComponent implements OnInit {
     this.deletingCategory = null;
   }
 
-  toggleUserMenu() {
-    this.showUserMenu = !this.showUserMenu;
-  }
-
-  closeUserMenu() {
-    this.showUserMenu = false;
-  }
-
   onLogout() {
-    this.showUserMenu = false;
     this.authService.logout().subscribe();
   }
 }
+
+

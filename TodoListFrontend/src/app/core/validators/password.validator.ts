@@ -7,7 +7,6 @@ export interface PasswordChecklist {
     hasSpecialChar: boolean;
 }
 
-/** Check list 4 điều kiện của mật khẩu theo thời gian thực */
 export function checkPasswordStatus(password: string | null | undefined): PasswordChecklist {
     const val = password || '';
     return {
@@ -18,7 +17,6 @@ export function checkPasswordStatus(password: string | null | undefined): Passwo
     };
 }
 
-/** Validator kiểm tra mật khẩu hợp lệ khi submit form */
 export function passwordRequirementsValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
         const value = control.value;
@@ -32,3 +30,4 @@ export function passwordRequirementsValidator(): ValidatorFn {
         return null;
     };
 }
+

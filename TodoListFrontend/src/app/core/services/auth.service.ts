@@ -2,7 +2,7 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { tap } from 'rxjs';
+import { tap, finalize } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { LoginRequest, RegisterRequest, AuthResponse, TokenRequest } from '../models/auth.model';
 
@@ -35,15 +35,14 @@ export class AuthService {
     }
 
     logout() {
-        this.clearTokens();
         return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
-            tap(() => {
+            finalize(() => {
+                this.clearTokens();
                 this.router.navigate(['/login']);
             })
         );
     }
 
-    // Help functions - an toàn với SSR (Server-Side Rendering)
     private saveTokens(response: AuthResponse): void {
         if (isPlatformBrowser(this.platformId)) {
             localStorage.setItem('accessToken', response.accessToken);

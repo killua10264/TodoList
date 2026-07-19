@@ -9,8 +9,6 @@ import { TodoFormDialogComponent } from '../../todo/todo-form-dialog/todo-form-d
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
-// Mở rộng interface để chứa thêm % progress đã tính toán sẵn
 interface CategoryViewMode extends CategoryResponse {
   progressPercent: number;
 }
@@ -32,8 +30,6 @@ export class CategoryDashboardComponent implements OnInit {
   private todoService = inject(TodoService);
   private toast = inject(ToastService);
   private destroyRef = inject(DestroyRef);
-
-  // Dùng interface mới để render UI
   categories = signal<CategoryViewMode[]>([]);
   isLoading = signal<boolean>(true);
 
@@ -61,8 +57,6 @@ export class CategoryDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
-
-    // Chỉ đăng ký refresh$ tại đây, tự động dọn dẹp khi Component hủy
     this.categoryService.refresh$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.loadCategories(true));
@@ -76,11 +70,8 @@ export class CategoryDashboardComponent implements OnInit {
     if (!silent) {
       this.isLoading.set(true);
     }
-
-    // Đã bỏ takeUntilDestroyed dư thừa ở đây
-    this.categoryService.getAll().subscribe({
+    this.categoryService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        // Map dữ liệu để tính toán % sẵn 1 lần duy nhất, giải phóng template HTML
         const mappedData: CategoryViewMode[] = data.map(cat => {
           const total = cat.todoCount ?? 0;
           const completed = cat.completedTodoCount ?? 0;
@@ -111,7 +102,6 @@ export class CategoryDashboardComponent implements OnInit {
   onCategoryFormSaved(): void {
     this.showCategoryForm.set(false);
     this.editingCategory.set(null);
-    // Bỏ this.loadCategories() vì refresh$ đã lo việc này
   }
 
   openCreateTodoForCategory(categoryId: number): void {
@@ -122,7 +112,6 @@ export class CategoryDashboardComponent implements OnInit {
   onTodoFormSaved(): void {
     this.showTodoForm.set(false);
     this.selectedCategoryIdForTodo.set(null);
-    // Bỏ this.loadCategories() vì refresh$ đã lo việc này
   }
 
   openDeleteCategoryConfirm(cat: CategoryResponse): void {
@@ -135,11 +124,9 @@ export class CategoryDashboardComponent implements OnInit {
     this.showDeleteConfirm.set(false);
 
     if (confirmed && target) {
-      // Đã bỏ takeUntilDestroyed dư thừa ở đây
-      this.categoryService.delete(target.id).subscribe({
+      this.categoryService.delete(target.id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.toast.show(`Đã nhổ bỏ danh mục "${target.name}". Các công việc bên trong đã được chuyển giao an toàn!`, 'success');
-          // Bỏ this.loadCategories() vì refresh$ đã lo việc này
         },
         error: () => {
           this.toast.show('Không thể xóa danh mục này.', 'error');

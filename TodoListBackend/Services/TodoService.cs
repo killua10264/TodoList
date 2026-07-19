@@ -110,7 +110,7 @@ namespace TodoListBackend.Services
 
         private async Task<int> ResolveCategoryIdAsync(int inputCategoryId, int userId)
         {
-            var userCategories = (await _unitOfWork.Categories.GetAllCategoriesAsync(userId)).ToList();
+            var userCategories = (await _unitOfWork.Categories.GetAllLightAsync(userId)).ToList();
 
             if (inputCategoryId == 1 || inputCategoryId == 2 || inputCategoryId == 3 || inputCategoryId <= 0)
             {
@@ -138,7 +138,7 @@ namespace TodoListBackend.Services
                 return category.Id;
             }
 
-            return await ResolveCategoryIdAsync(3, userId);
+            throw new BusinessException("Không thể xác định danh mục cho công việc này. Danh mục không tồn tại hoặc bạn không có quyền truy cập.");
         }
     }
 }

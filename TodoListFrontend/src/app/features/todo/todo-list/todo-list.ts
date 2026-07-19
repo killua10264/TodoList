@@ -52,7 +52,6 @@ export class TodoListComponent implements OnInit {
 
   showDeleteConfirm = false;
   deletingTodoId: number | null = null;
-  // Đã xóa deletingCategoryId vì component này không chịu trách nhiệm xóa category
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -65,20 +64,14 @@ export class TodoListComponent implements OnInit {
       });
 
       this.loadCategories();
-
-      // Chỉ lắng nghe sự kiện của Todo
       this.todoService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.loadTodos(true);
       });
-
-      // Chỉ lắng nghe sự kiện của Category
       this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.loadCategories();
       });
     }
   }
-
-  // Đã bỏ goToCategoryDetail() vì việc filter danh mục đã được handle qua ngModel trên select
 
   openCreateCategoryForm() {
     this.showCategoryForm = true;
@@ -86,14 +79,12 @@ export class TodoListComponent implements OnInit {
 
   onCategoryFormSaved() {
     this.showCategoryForm = false;
-    // Bỏ this.loadCategories() vì refresh$ đã lo
   }
 
   loadTodos(silent = false) {
     if (!silent) {
       this.isLoading.set(true);
     }
-    // Bỏ takeUntilDestroyed dư thừa
     this.todoService.getAll(
       this.currentPage(),
       this.pageSize,
@@ -101,7 +92,7 @@ export class TodoListComponent implements OnInit {
       this.selectedCategoryId(),
       this.selectedStatus(),
       this.selectedSort()
-    ).subscribe({
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: PaginatedResponse<TodoResponse>) => {
         this.todos.set(res.items);
         this.totalCount.set(res.totalCount);
@@ -116,12 +107,11 @@ export class TodoListComponent implements OnInit {
 
   onFilterChanged() {
     this.currentPage.set(1);
-    this.loadTodos(); // Đây là hành động manual từ UI nên vẫn giữ lại
+    this.loadTodos();
   }
 
   loadCategories() {
-    // Bỏ takeUntilDestroyed dư thừa
-    this.categoryService.getAll().subscribe({
+    this.categoryService.getAll().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (projs) => this.categories.set(projs)
     });
   }
@@ -136,11 +126,8 @@ export class TodoListComponent implements OnInit {
       isCompleted: !todo.isCompleted
     };
 
-    // Bỏ takeUntilDestroyed dư thừa
-    this.todoService.update(todo.id, updateReq).subscribe({
+    this.todoService.update(todo.id, updateReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
-        // Không cần cập nhật mảng thủ công nếu Service phát tín hiệu refresh$
-        // Hàm loadTodos(true) sẽ tự động chạy và lấy state mới nhất
       },
       error: () => this.toast.show('Cập nhật trạng thái thất bại.', 'error')
     });
@@ -159,7 +146,6 @@ export class TodoListComponent implements OnInit {
   onFormSaved() {
     this.showForm = false;
     this.editingTodo = null;
-    // Bỏ this.loadTodos() vì refresh$ đã lo
   }
 
   onDeleteFromForm(todoId: number) {
@@ -173,17 +159,12 @@ export class TodoListComponent implements OnInit {
     this.showDeleteConfirm = true;
   }
 
-  // Đã xóa hàm onDeleteCategoryRequested(event: Event, projId: number) vì dead code
-
   onDeleteConfirmed(confirmed: boolean) {
     this.showDeleteConfirm = false;
     if (confirmed && this.deletingTodoId) {
       this.todoService.delete(this.deletingTodoId).subscribe({
         next: () => {
           this.toast.show('Xóa công việc thành công!', 'success');
-          // Bỏ this.loadTodos() vì refresh$ đã lo
-
-          // Logic tùy chọn: Xử lý lùi trang nếu xóa phần tử cuối cùng của trang hiện tại
           if (this.todos().length === 1 && this.currentPage() > 1) {
             this.currentPage.update(p => p - 1);
           }

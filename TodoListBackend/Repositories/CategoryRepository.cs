@@ -22,6 +22,14 @@ namespace TodoListBackend.Repositories
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<Category>> GetAllLightAsync(int userId)
+        {
+            return await _context.Categories
+                .AsNoTracking()
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<TodoListBackend.DTOs.Category.CategoryResponseDto>> GetAllCategoriesProjectedAsync(int userId)
         {
             return await _context.Categories
@@ -32,8 +40,8 @@ namespace TodoListBackend.Repositories
                     Id = p.Id,
                     Name = p.Name,
                     Color = p.Color,
-                    TodoCount = p.Todos.Count(),
-                    CompletedTodoCount = p.Todos.Count(t => t.IsCompleted)
+                    TodoCount = p.Todos.Count(t => !t.IsDeleted),
+                    CompletedTodoCount = p.Todos.Count(t => t.IsCompleted && !t.IsDeleted)
                 })
                 .ToListAsync();
         }

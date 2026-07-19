@@ -9,10 +9,11 @@ import { TodoResponse } from '../../../core/models/todo.model';
 import { SubTaskResponse } from '../../../core/models/subtask.model';
 import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading-spinner';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
+import { TodoTreeLeafComponent } from './components/todo-tree-leaf/todo-tree-leaf.component';
 
 @Component({
   selector: 'app-todo-tree-view',
-  imports: [CommonModule, RouterLink, FormsModule, LoadingSpinnerComponent, ConfirmDialogComponent],
+  imports: [CommonModule, RouterLink, FormsModule, LoadingSpinnerComponent, ConfirmDialogComponent, TodoTreeLeafComponent],
   templateUrl: './todo-tree-view.html',
   styleUrl: './todo-tree-view.css'
 })
@@ -26,16 +27,8 @@ export class TodoTreeViewComponent implements OnInit {
   todo = signal<TodoResponse | null>(null);
   subTasks = signal<SubTaskResponse[]>([]);
   isLoading = signal<boolean>(true);
-
-  // Thêm lá mới (subtask)
   newLeafTitle = signal<string>('');
   isAdding = signal<boolean>(false);
-
-  // Chỉnh sửa lá
-  editingSubTaskId = signal<number | null>(null);
-  editingTitle = signal<string>('');
-
-  // Xác nhận xóa
   showDeleteConfirm = signal<boolean>(false);
   deleteTargetId = signal<number | null>(null);
   deleteTargetType = signal<'todo' | 'subtask'>('subtask');
@@ -58,7 +51,7 @@ export class TodoTreeViewComponent implements OnInit {
 
   loadTreeData(todoId: number) {
     this.isLoading.set(true);
-    this.todoService.getById(todoId).subscribe({
+    this.todoService.getById(todoId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.todo.set(data);
         this.loadSubTasks(todoId);
@@ -71,7 +64,7 @@ export class TodoTreeViewComponent implements OnInit {
   }
 
   loadSubTasks(todoId: number) {
-    this.subTaskService.getByTodoId(todoId).subscribe({
+    this.subTaskService.getByTodoId(todoId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (list) => {
         this.subTasks.set(list);
         this.isLoading.set(false);
@@ -81,8 +74,6 @@ export class TodoTreeViewComponent implements OnInit {
       }
     });
   }
-
-  // Gieo lá mới (Add Subtask)
   onAddLeaf() {
     const title = this.newLeafTitle().trim();
     const currentTodo = this.todo();
@@ -92,7 +83,7 @@ export class TodoTreeViewComponent implements OnInit {
     this.subTaskService.create({
       title: title,
       todoId: currentTodo.id
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.newLeafTitle.set('');
         this.isAdding.set(false);
@@ -102,27 +93,15 @@ export class TodoTreeViewComponent implements OnInit {
       }
     });
   }
-
-  // Toggle trạng thái hoàn thành lá (SubTask)
   onToggleLeaf(leaf: SubTaskResponse) {
     this.subTaskService.update(leaf.id, {
       title: leaf.title,
       isCompleted: !leaf.isCompleted,
       sortOrder: leaf.sortOrder
-    }).subscribe();
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
-
-  // Bắt đầu sửa lá
-  startEditingLeaf(leaf: SubTaskResponse) {
-    this.editingSubTaskId.set(leaf.id);
-    this.editingTitle.set(leaf.title);
-  }
-
-  // Lưu chỉnh sửa lá
-  saveEditingLeaf(leaf: SubTaskResponse) {
-    const newTitle = this.editingTitle().trim();
+  saveEditingLeaf(leaf: SubTaskResponse, newTitle: string) {
     if (!newTitle || newTitle === leaf.title) {
-      this.editingSubTaskId.set(null);
       return;
     }
 
@@ -130,18 +109,8 @@ export class TodoTreeViewComponent implements OnInit {
       title: newTitle,
       isCompleted: leaf.isCompleted,
       sortOrder: leaf.sortOrder
-    }).subscribe({
-      next: () => {
-        this.editingSubTaskId.set(null);
-      }
-    });
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
-
-  cancelEditingLeaf() {
-    this.editingSubTaskId.set(null);
-  }
-
-  // Mở confirm dialog xóa
   openDeleteConfirm(type: 'todo' | 'subtask', id: number) {
     this.deleteTargetType.set(type);
     this.deleteTargetId.set(id);
@@ -157,17 +126,15 @@ export class TodoTreeViewComponent implements OnInit {
     if (!id) return;
 
     if (type === 'subtask') {
-      this.subTaskService.delete(id).subscribe();
+      this.subTaskService.delete(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
     } else if (type === 'todo') {
-      this.todoService.delete(id).subscribe({
+      this.todoService.delete(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.router.navigate(['/todos']);
         }
       });
     }
   }
-
-  // Cập nhật trạng thái hoàn thành của toàn bộ cây (Todo cha)
   onToggleParentTodo() {
     const current = this.todo();
     if (!current) return;
@@ -179,10 +146,11 @@ export class TodoTreeViewComponent implements OnInit {
       dueDate: current.dueDate,
       isCompleted: !current.isCompleted,
       categoryId: current.categoryId
-    }).subscribe({
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.todo.set(updated);
       }
     });
   }
 }
+

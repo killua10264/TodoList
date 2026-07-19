@@ -24,6 +24,20 @@ namespace TodoListBackend.Repositories
                 .ToListAsync();
         }
 
+        public async Task<int> GetCountByTodoIdAsync(int todoId)
+        {
+            return await _context.SubTasks
+                .CountAsync(s => s.TodoId == todoId);
+        }
+
+        public async Task<int> GetMaxSortOrderByTodoIdAsync(int todoId)
+        {
+            return await _context.SubTasks
+                .Where(s => s.TodoId == todoId)
+                .Select(s => (int?)s.SortOrder)
+                .MaxAsync() ?? 0;
+        }
+
         public async Task<SubTask?> GetByIdAsync(int id, int userId, bool trackChanges = false)
         {
             var query = _context.SubTasks.Include(s => s.Todo).AsQueryable();

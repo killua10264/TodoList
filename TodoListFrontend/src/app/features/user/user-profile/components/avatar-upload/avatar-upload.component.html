@@ -1,0 +1,20 @@
+<div class="avatar-container">
+  <div class="avatar-preview">
+    @if (avatarUrl()) {
+      <img [src]="avatarUrl()" alt="Avatar" class="avatar-img" />
+    } @else {
+      <div class="avatar-placeholder">{{ avatarInitials() }}</div>
+    }
+  </div>
+  <div class="avatar-actions">
+    <label class="btn-avatar-upload">
+      📸 Đổi ảnh đại diện
+      <input type="file" accept="image/*" (change)="handleFileSelected($event)" hidden />
+    </label>
+    @if (avatarUrl()) {
+      <button type="button" class="btn-avatar-default" (click)="handleUseDefault()">
+        🗑️ Dùng ảnh mặc định
+      </button>
+    }
+  </div>
+</div>

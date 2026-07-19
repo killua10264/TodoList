@@ -19,12 +19,10 @@ namespace TodoListBackend.Middlewares
         {
             try
             {
-                // Cho phép Request đi tiếp đến các Middleware tiếp theo (Authentication, Controller...)
                 await _next(context);
             }
             catch (Exception ex)
             {
-                // Bắt toàn bộ lỗi sập/ngoại lệ bị rò rỉ ra từ Controller hoặc Service
                 _logger.LogError(ex, "❌ [LỖI HỆ THỐNG] {Message} | Đường dẫn: {Path}", ex.Message, context.Request.Path);
                 await HandleExceptionAsync(context, ex);
             }
@@ -33,9 +31,6 @@ namespace TodoListBackend.Middlewares
         private static Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
             context.Response.ContentType = "application/json";
-
-            // FIX 4.1: Chỉ trả message từ BusinessException (do dev kiểm soát).
-            // Mọi exception khác → message chung, tránh leak thông tin nội bộ.
             var (statusCode, message) = ex switch
             {
                 BusinessException bex => (bex.StatusCode, bex.Message),
@@ -46,8 +41,6 @@ namespace TodoListBackend.Middlewares
             };
 
             context.Response.StatusCode = statusCode;
-
-            // Cấu trúc JSON trả về cho Client
             var response = new
             {
                 statusCode,
@@ -58,3 +51,4 @@ namespace TodoListBackend.Middlewares
         }
     }
 }
+

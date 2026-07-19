@@ -13,11 +13,12 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        // FIX 2.4: Xóa UpdateAsync — EF Change Tracker tự detect changes
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<User?> GetByIdAsync(int id, bool trackChanges = false)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            var query = _context.Users.AsQueryable();
+            if (!trackChanges) query = query.AsNoTracking();
+            return await query.FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<User?> GetByEmailAsync(string email)
@@ -49,7 +50,6 @@ namespace TodoListBackend.Repositories
             return await _context.Users.AnyAsync(u => u.Username.ToLower() == lower);
         }
 
-        // FIX 3.7: Check email/username tồn tại nhưng loại trừ user hiện tại (cho update profile)
         public async Task<bool> ExistsByEmailAsync(string email, int excludeUserId)
         {
             var lower = email.ToLower();

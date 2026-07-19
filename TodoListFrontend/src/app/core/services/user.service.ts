@@ -10,8 +10,6 @@ export class UserService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/api/users`;
     private platformId = inject(PLATFORM_ID);
-
-    // Reactive signal lưu giữ thông tin user hiện tại cho toàn bộ ứng dụng (Header Avatar, Profile...)
     currentUser = signal<UserResponse | null>(null);
 
     getProfile() {
@@ -49,3 +47,4 @@ export class UserService {
         return this.http.put(`${this.apiUrl}/change-password`, data);
     }
 }
+

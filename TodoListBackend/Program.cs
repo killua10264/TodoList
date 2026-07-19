@@ -55,11 +55,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
     {
+        var allowedOrigins = builder.Configuration
+            .GetSection("Cors:AllowedOrigins").Get<string[]>() 
+            ?? Array.Empty<string>();
+
         policy.SetIsOriginAllowed(origin => 
-                new Uri(origin).Host == "localhost" || 
-                new Uri(origin).Host.EndsWith(".vercel.app"))
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+            allowedOrigins.Contains(origin) || 
+            new Uri(origin).Host == "localhost");
+
     });
 });
 

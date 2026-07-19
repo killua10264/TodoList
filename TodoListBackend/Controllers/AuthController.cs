@@ -9,7 +9,8 @@ namespace TodoListBackend.Controllers
 {
     [Route("api/auth")]
     [ApiController]
-    public class AuthController : ControllerBase
+    [Authorize]
+    public class AuthController : BaseApiController
     {
         private readonly IAuthService _authService;
 
@@ -17,18 +18,16 @@ namespace TodoListBackend.Controllers
         {
             _authService = authService;
         }
-
-        // FIX 3.4: Áp dụng Rate Limiting — tối đa 5 request/phút/IP để chống brute-force register
         [HttpPost("register")]
+        [AllowAnonymous]
         [EnableRateLimiting("AuthLimit")]
         public async Task<IActionResult> Register([FromBody] RegisterDto request)
         {
             var result = await _authService.RegisterAsync(request);
             return StatusCode(201, result);
         }
-
-        // FIX 3.4: Áp dụng Rate Limiting cho login
         [HttpPost("login")]
+        [AllowAnonymous]
         [EnableRateLimiting("AuthLimit")]
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
@@ -37,6 +36,7 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpPost("refresh-token")]
+        [AllowAnonymous]
         public async Task<IActionResult> RefreshToken([FromBody] TokenDto request)
         {
             var result = await _authService.RefreshTokenAsync(request.RefreshToken);
@@ -44,15 +44,9 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpPost("logout")]
-        [Authorize]
         public async Task<IActionResult> Logout()
         {
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
-            {
-                return Unauthorized(new { message = "Không thể xác thực danh tính người dùng." });
-            }
-
+            int userId = GetCurrentUserId();
             await _authService.LogoutAsync(userId);
             return NoContent();
         }

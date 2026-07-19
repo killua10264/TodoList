@@ -8,7 +8,6 @@ export interface ToastMessage {
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
-    // signal() = reactive state trong Angular 21
     toasts = signal<ToastMessage[]>([]);
     private nextId = 0;
 
@@ -23,3 +22,4 @@ export class ToastService {
         this.toasts.update(list => list.filter(t => t.id !== id));
     }
 }
+

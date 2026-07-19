@@ -80,94 +80,13 @@
 
     <div class="leaves-forest-container">
       @for (sub of subTasks(); track sub.id; let i = $index) {
-      <div class="organic-leaf-row" [class.leaf-completed]="sub.isCompleted">
-        <div class="leaf-branch-connector">
-          <svg viewBox="0 0 100 50" class="branch-curve-svg" preserveAspectRatio="none">
-            <path d="M 0 38 C 30 38, 60 24, 100 24" fill="none" [style.stroke]="sub.isCompleted ? '#243C22' : '#516c51'"
-              stroke-width="4.5" stroke-linecap="round" />
-          </svg>
-        </div>
-
-        <div class="botanical-leaf-card leaf-svg-{{ i % 3 }} leaf-rot-{{ i % 5 }}" [class.is-done]="sub.isCompleted">
-          <div class="leaf-svg-bg-wrapper">
-            @if (i % 3 === 0) {
-            <svg width="100%" height="100%" viewBox="0 0 194 83" fill="none" preserveAspectRatio="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M192.816 4.11679C192.665 4.55447 192.456 5.15313 192.189 5.89351C191.583 7.57723 190.68 9.99403 189.499 12.9188C187.136 18.7703 183.66 26.6478 179.21 34.7612C174.757 42.8788 169.343 51.2058 163.109 57.9733C156.872 64.7436 149.861 69.9034 142.211 71.7865C126.53 75.6462 84.6796 83.2105 50.4699 82.0573C33.3401 81.4798 18.2676 78.7181 9.32174 72.3332C4.86906 69.1551 1.96963 65.1051 1.0498 60.0075C0.128757 54.903 1.17298 48.6396 4.81593 40.9778C10.7584 28.4796 23.6803 21.1928 39.2739 16.067C54.8735 10.9394 72.7832 8.07581 88.5968 4.18356C104.198 0.343587 130.421 0.335087 152.828 1.30292C164.013 1.78605 174.219 2.51049 181.627 3.11451C185.331 3.41649 188.336 3.68796 190.414 3.88418C191.453 3.9823 192.262 4.06181 192.809 4.11648C192.811 4.11671 192.814 4.11656 192.816 4.11679Z"
-                [style.fill]="sub.isCompleted ? '#3A5B37' : '#C8E3C0'"
-                [style.stroke]="sub.isCompleted ? '#243C22' : '#668761'"
-                style="fill-opacity: 0.9; stroke-width: 1.8px;" />
-            </svg>
-            } @else if (i % 3 === 1) {
-            <svg width="100%" height="100%" viewBox="0 0 236 94" fill="none" preserveAspectRatio="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M234.54 4.14718C234.347 4.5893 234.087 5.17834 233.763 5.89807C232.985 7.62574 231.838 10.1053 230.363 13.105C227.412 19.106 223.154 27.1842 217.919 35.4987C212.682 43.817 206.482 52.3489 199.655 59.2732C192.821 66.2039 185.413 71.468 177.756 73.3527C162.046 77.2194 111.096 88.8395 67.783 91.7334C46.1024 93.1819 26.4539 92.4342 14.0872 87.5119C7.91157 85.0539 3.65243 81.5938 1.79398 76.9569C-0.0552686 72.3424 0.408866 66.397 4.0386 58.7628C16.1142 33.3654 45.002 11.8787 76.2657 4.18354C84.0348 2.27131 97.8533 1.3035 114.283 0.9406C130.688 0.578257 149.623 0.819311 167.583 1.30278C185.541 1.78621 202.519 2.51159 215.007 3.11595C221.251 3.41811 226.372 3.69 229.933 3.88639C231.712 3.98457 233.102 4.06419 234.046 4.11894C234.227 4.12942 234.392 4.13854 234.54 4.14718Z"
-                [style.fill]="sub.isCompleted ? '#3A5B37' : '#C8E3C0'"
-                [style.stroke]="sub.isCompleted ? '#243C22' : '#668761'"
-                style="fill-opacity: 0.9; stroke-width: 1.8px;" />
-            </svg>
-            } @else {
-            <svg width="100%" height="100%" viewBox="0 0 187 81" fill="none" preserveAspectRatio="none"
-              xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M185.778 4.14399C185.684 4.49815 185.558 4.96222 185.399 5.52426C185 6.93377 184.394 8.95946 183.569 11.4153C181.918 16.3291 179.393 22.9559 175.896 29.8172C168.875 43.5893 158.056 58.0709 142.704 61.8497C126.961 65.7245 84.9864 76.7214 50.6401 78.9983C33.4357 80.1389 18.3094 79.0763 9.33335 73.967C4.87314 71.4281 1.98163 67.9186 1.05647 63.2221C0.127934 58.5081 1.15482 52.4684 4.80318 44.7952C10.9159 31.939 15.4089 23.766 22.2171 17.8103C29.0205 11.8589 38.2257 8.04715 53.9227 4.18356C61.6972 2.26999 73.8627 1.30308 87.7913 0.940402C101.702 0.578214 117.313 0.819738 131.949 1.30312C146.584 1.78646 160.239 2.5109 170.235 3.11515C175.233 3.41726 179.315 3.68976 182.148 3.8861C183.565 3.98427 184.669 4.06274 185.419 4.11746C185.549 4.12698 185.669 4.13599 185.778 4.14399Z"
-                [style.fill]="sub.isCompleted ? '#3A5B37' : '#C8E3C0'"
-                [style.stroke]="sub.isCompleted ? '#243C22' : '#668761'"
-                style="fill-opacity: 0.9; stroke-width: 1.8px;" />
-            </svg>
-            }
-          </div>
-
-          @if (sub.isCompleted) {
-          <div class="blooming-flower-badge" title="Lá đã trọn vẹn, hoa đã nở!">
-            <img src="assets/images/flower.svg" class="flower-icon-asset" alt="Blooming flower" />
-          </div>
-          }
-
-          <div class="leaf-inner-content" (click)="onToggleLeaf(sub)">
-            <div class="zen-leaf-checkbox" [class.checked]="sub.isCompleted">
-              @if (sub.isCompleted) {
-              <span>✓</span>
-              }
-            </div>
-
-            <div class="leaf-title-area" (click)="$event.stopPropagation()">
-              @if (editingSubTaskId() === sub.id) {
-              <input type="text" [(ngModel)]="editingTitle" (keyup.enter)="saveEditingLeaf(sub)"
-                (keyup.escape)="cancelEditingLeaf()" (blur)="saveEditingLeaf(sub)" class="zen-leaf-edit-input"
-                autofocus />
-              } @else {
-              <span class="leaf-title-text" [class.strikethrough]="sub.isCompleted" (dblclick)="startEditingLeaf(sub)">
-                {{ sub.title }}
-              </span>
-              }
-            </div>
-          </div>
-
-          <div class="leaf-hover-actions">
-            @if (editingSubTaskId() !== sub.id) {
-            <button type="button" class="btn-leaf-icon" (click)="startEditingLeaf(sub)" title="Chỉnh sửa lá">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-              </svg>
-            </button>
-            <button type="button" class="btn-leaf-icon delete" (click)="openDeleteConfirm('subtask', sub.id)"
-              title="Xóa lá này">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-            </button>
-            }
-          </div>
-
-        </div>
-      </div>
+      <app-todo-tree-leaf
+        [sub]="sub"
+        [index]="i"
+        (onToggle)="onToggleLeaf($event)"
+        (onUpdateTitle)="saveEditingLeaf($event.sub, $event.newTitle)"
+        (onDeleteRequest)="openDeleteConfirm('subtask', $event.id)"
+      />
       } @empty {
       <div class="zen-forest-empty">
         <p>🍃 Vườn lá đang chờ chồi non! Hãy nhập nhánh lá mới ở dưới gốc cây để nuôi dưỡng công việc này.</p>

@@ -19,12 +19,12 @@ export interface TodoCreateRequest {
 }
 
 export interface TodoUpdateRequest {
-  title: string;
-  description: string;
-  priority: number;
-  dueDate: string;
-  categoryId: number;
-  isCompleted: boolean;
+  title?: string;
+  description?: string;
+  priority?: number;
+  dueDate?: string;
+  categoryId?: number;
+  isCompleted?: boolean;
 }
 
 export interface PaginatedResponse<T> {

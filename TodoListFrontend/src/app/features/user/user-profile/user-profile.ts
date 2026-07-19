@@ -6,9 +6,11 @@ import { UserResponse } from '../../../core/models/user.model';
 import { isPlatformBrowser } from '@angular/common';
 import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
 
+import { AvatarUploadComponent } from './components/avatar-upload/avatar-upload.component';
+
 @Component({
   selector: 'app-user-profile',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, AvatarUploadComponent],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
@@ -26,8 +28,6 @@ export class UserProfileComponent implements OnInit {
   getUsernameError() {
     return getUsernameErrorMessage(this.profileForm.get('username')?.errors);
   }
-
-  // Danh sách Múi giờ phổ biến
   timezones = [
     { value: 'Asia/Ho_Chi_Minh', label: 'Asia/Ho_Chi_Minh (UTC+07:00) - Hà Nội, TP.HCM' },
     { value: 'UTC', label: 'UTC (Giờ phối hợp quốc tế - UTC+00:00)' },
@@ -97,16 +97,14 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  /** Lấy chữ cái đầu làm Avatar mặc định */
-  getAvatarInitials(): string {
+    getAvatarInitials(): string {
     const name = this.profileForm.get('displayName')?.value || this.profileForm.get('username')?.value || 'U';
     return name.charAt(0).toUpperCase();
   }
 
   selectedFile: File | null = null;
 
-  /** Xử lý tải ảnh lên (FileReader để preview, đồng thời lưu file để upload lên Cloudinary) */
-  onFileSelected(event: Event) {
+    onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -125,8 +123,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  /** Dùng ảnh mặc định (xóa avatarUrl) */
-  useDefaultAvatar() {
+    useDefaultAvatar() {
     this.avatarUrl = null;
     this.selectedFile = null;
     this.cdr.detectChanges();
@@ -146,8 +143,6 @@ export class UserProfileComponent implements OnInit {
     if (this.profileForm.invalid) return;
 
     this.isLoading = true;
-
-    // Nếu người dùng có chọn file ảnh mới, upload qua backend Cloudinary trước
     if (this.selectedFile) {
       this.userService.uploadAvatar(this.selectedFile).subscribe({
         next: (uploadRes) => {
@@ -196,3 +191,5 @@ export class UserProfileComponent implements OnInit {
     });
   }
 }
+
+

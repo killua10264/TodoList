@@ -1,148 +1,26 @@
 <div class="zen-layout">
-  <!-- NAVBAR / HEADER -->
-  <header class="zen-header">
-    <a routerLink="/todos" class="zen-logo">
-      <img src="assets/images/logo.svg" alt="Zen Branch" class="logo-img" />
-      <div class="logo-text">
-        <span class="logo-brand">Zen Branch</span>
-        <span class="logo-tagline">Khu vườn Tĩnh Lặng</span>
-      </div>
-    </a>
+  <app-main-header
+    [pageTitle]="pageTitle()"
+    [headerAvatarUrl]="headerAvatarUrl()"
+    [headerAvatarInitials]="headerAvatarInitials()"
+    (onLogout)="onLogout()"
+  />
 
-    <!-- TIÊU ĐỀ CHÍNH NẰM CHÍNH GIỮA HEADER -->
-    <div class="zen-header-center">
-      <h1 class="header-main-title">{{ pageTitle() }}</h1>
-    </div>
-
-    <div class="zen-actions">
-      <!-- Nút Avatar (AVT) tròn -->
-      <div class="avatar-wrapper">
-        <button class="btn-avatar" (click)="toggleUserMenu()" title="Tài khoản">
-          @if (headerAvatarUrl()) {
-            <img [src]="headerAvatarUrl()" alt="Avatar" class="header-avatar-img" />
-          } @else {
-            <span class="header-avatar-initials">{{ headerAvatarInitials() }}</span>
-          }
-        </button>
-        @if (showUserMenu) {
-        <div class="user-menu-dropdown">
-          <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
-            <span>👤 Hồ sơ cá nhân</span>
-          </a>
-          <a routerLink="/change-password" (click)="closeUserMenu()" class="menu-item">
-            <span>🔐 Đổi mật khẩu</span>
-          </a>
-          <button (click)="onLogout()" class="menu-item btn-logout-item">
-            <span>🚪 Đăng xuất</span>
-          </button>
-        </div>
-        }
-      </div>
-    </div>
-  </header>
-
-  <!-- BODY: SIDEBAR & CONTENT -->
-  <div class="zen-body">
-    <aside class="zen-sidebar">
-      <!-- Đường vân nhánh cây – DUY NHẤT, trượt mượt theo tab -->
-      <div class="vine-separator" [class.visible]="vineVisible()" [style.top]="vineTop()">
-        <img src="assets/images/vine-separator.svg" alt="separator" class="vine-img" />
-      </div>
-
-      <!-- 1. Tất cả công việc -->
-      <a routerLink="/todos" [class.active]="pageTitle() === 'Tất cả công việc'" class="nav-item">
-        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-        <span class="nav-text">Tất cả công việc</span>
-      </a>
-
-      <!-- 2. Hôm nay -->
-      <a routerLink="/todos" [queryParams]="{filter: 'today'}" [class.active]="pageTitle() === 'Hôm nay'"
-        class="nav-item">
-        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-        <span class="nav-text">Hôm nay</span>
-      </a>
-
-      <!-- 3. Sắp tới -->
-      <a routerLink="/todos" [queryParams]="{filter: 'upcoming'}" [class.active]="pageTitle() === 'Sắp tới'"
-        class="nav-item">
-        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-        <span class="nav-text">Sắp tới</span>
-      </a>
-
-      <!-- 4. Khu vườn Danh mục (/categories) -->
-      <a routerLink="/categories" [class.active]="pageTitle() === 'Khu vườn Danh mục' || pageTitle() === 'Báo cáo' || pageTitle() === 'Danh mục'" class="nav-item">
-        <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-        <span class="nav-text">Khu vườn Danh mục</span>
-      </a>
-
-      <!-- KHU VƯỜN DANH MỤC -->
-      <div class="sidebar-categories">
-        <div class="categories-header">
-          <a routerLink="/categories" class="categories-header-link" title="Mở trang quản lý toàn bộ Khu vườn Danh mục">
-            <h3 class="categories-title">Danh mục</h3>
-          </a>
-          <button type="button" class="btn-add-category" (click)="openCreateCategoryModal()" title="Thêm danh mục mới">+</button>
-        </div>
-        <div class="categories-list">
-          @for (cat of categories(); track cat.id) {
-          <div class="category-row-wrapper">
-            <a class="category-nav-item" [routerLink]="['/todos']" [queryParams]="{categoryId: cat.id}" [class.active]="pageTitle() === cat.name">
-              <span class="category-dot" [style.backgroundColor]="cat.color || '#6b7a45'"></span>
-              <span class="category-name">{{ cat.name }}</span>
-              @if (cat.todoCount !== undefined && cat.todoCount > 0) {
-              <span class="category-badge">{{ cat.todoCount }}</span>
-              }
-            </a>
-            <button type="button" class="btn-cat-more-actions" (click)="toggleCategoryMenu($event, cat)" title="Tùy chọn danh mục...">···</button>
-
-            @if (activeCategoryMenuId === cat.id) {
-            <div class="category-options-menu" (click)="$event.stopPropagation()">
-              <button type="button" class="cat-option-btn delete-option" (click)="onDeleteSidebarCategory($event, cat)">
-                🗑️ Xóa danh mục
-              </button>
-            </div>
-            }
-          </div>
-          }
-        </div>
-      </div>
-
-      <!-- PHÂN CÁCH SIDEBAR -->
-      <div class="sidebar-divider"></div>
-
-      <!-- DANH SÁCH CÔNG VIỆC -->
-      <div class="sidebar-worklist">
-        <div class="worklist-header">
-          <h3 class="worklist-title">Danh sách</h3>
-          @if (sidebarTotalPages() > 1) {
-          <span class="worklist-page-indicator">{{ sidebarPage() }}/{{ sidebarTotalPages() }}</span>
-          }
-        </div>
-        <div class="worklist-scroll">
-          @if (sidebarTodos().length === 0) {
-          <div class="worklist-empty">Chưa có công việc</div>
-          } @else {
-          @for (todo of sidebarTodos(); track todo.id) {
-          <a class="worklist-item" [routerLink]="['/todos', todo.id, 'tree']"
-            [class.completed]="todo.isCompleted">
-            <span class="worklist-check" [class.checked]="todo.isCompleted" (click)="onToggleSidebarTodo($event, todo)" title="Đánh dấu hoàn thành">
-              @if (todo.isCompleted) { ✓ }
-            </span>
-            <span class="worklist-name">{{ todo.title }}</span>
-          </a>
-          }
-          }
-        </div>
-        @if (sidebarTotalPages() > 1) {
-        <div class="worklist-pagination">
-          <button class="worklist-page-btn" (click)="sidebarPrevPage()" [disabled]="sidebarPage() <= 1"
-            title="Trang trước">‹</button>
-          <button class="worklist-page-btn" (click)="sidebarNextPage()"
-            [disabled]="sidebarPage() >= sidebarTotalPages()" title="Trang sau">›</button>
-        </div>
-        }
-      </div>
-    </aside>
+    <div class="zen-body">
+    <app-main-sidebar
+      [pageTitle]="pageTitle()"
+      [categories]="categories()"
+      [activeCategoryMenuId]="activeCategoryMenuId"
+      [sidebarTodos]="sidebarTodos()"
+      [sidebarPage]="sidebarPage()"
+      [sidebarTotalPages]="sidebarTotalPages()"
+      (onCreateCategory)="openCreateCategoryModal()"
+      (onToggleCategoryMenu)="toggleCategoryMenu($event)"
+      (onDeleteCategory)="onDeleteSidebarCategory($event)"
+      (onToggleTodo)="onToggleSidebarTodo($event)"
+      (onPrevPage)="sidebarPrevPage()"
+      (onNextPage)="sidebarNextPage()"
+    />
 
     <main class="content">
       <router-outlet />

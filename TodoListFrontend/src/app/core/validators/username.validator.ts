@@ -10,28 +10,18 @@ export function usernameValidator(): ValidatorFn {
         }
 
         const trimmed = value.trim();
-
-        // 1. Length (3 - 30)
         if (trimmed.length < 3 || trimmed.length > 30) {
             return { usernameLength: true };
         }
-
-        // 2. Allowed characters (no spaces, no diacritics, only a-zA-Z0-9_.)
         if (!/^[a-zA-Z0-9_.]+$/.test(trimmed)) {
             return { usernameChars: true };
         }
-
-        // 3. Prefix / Suffix rules (cannot start/end with _ or .)
         if (trimmed.startsWith('_') || trimmed.startsWith('.') || trimmed.endsWith('_') || trimmed.endsWith('.')) {
             return { usernameEdge: true };
         }
-
-        // 4. Consecutive symbols (no .., __, ._, _.)
         if (trimmed.includes('..') || trimmed.includes('__') || trimmed.includes('._') || trimmed.includes('_.')) {
             return { usernameConsecutive: true };
         }
-
-        // 5. Reserved words
         if (RESERVED_USERNAMES.includes(trimmed.toLowerCase())) {
             return { usernameReserved: true };
         }
@@ -40,7 +30,6 @@ export function usernameValidator(): ValidatorFn {
     };
 }
 
-/** Trả về thông báo lỗi chi tiết cho UI từ errors của FormControl */
 export function getUsernameErrorMessage(errors: ValidationErrors | null | undefined): string {
     if (!errors) return '';
     if (errors['required']) return 'Tên đăng nhập không được để trống.';
@@ -51,3 +40,5 @@ export function getUsernameErrorMessage(errors: ValidationErrors | null | undefi
     if (errors['usernameReserved']) return 'Tên đăng nhập này chứa từ khóa nhạy cảm không được phép sử dụng.';
     return 'Tên đăng nhập không hợp lệ.';
 }
+
+

@@ -41,31 +41,23 @@ export class TodoFormDialogComponent implements OnInit {
   ngOnInit() {
     const t = this.todo();
     if (t) {
-      let formCatId = +t.categoryId;
-      const catName = (t.categoryName || '').replace('#', '').trim().toLowerCase();
-      if (catName.includes('học tập')) formCatId = 1;
-      else if (catName.includes('công việc')) formCatId = 2;
-      else if (catName.includes('khác')) formCatId = 3;
-      else if (formCatId !== 1 && formCatId !== 2 && formCatId !== 3) formCatId = 1;
-
       this.todoForm.patchValue({
         title: t.title,
         description: t.description,
         priority: +t.priority,
         dueDate: t.dueDate.substring(0, 10),
-        categoryId: formCatId,
+        categoryId: t.categoryId,
         isCompleted: t.isCompleted
       });
     } else {
       const today = new Date().toISOString().substring(0, 10);
       let defaultCatId = this.initialCategoryId() || 3;
-      // Nếu trong danh sách categories có mục "Khác", ưu tiên lấy ID của nó nếu chưa có initialCategoryId
       if (!this.initialCategoryId() && this.categories().length > 0) {
         const otherCat = this.categories().find(c => c.name.toLowerCase().includes('khác'));
         if (otherCat) defaultCatId = otherCat.id;
       }
       this.todoForm.patchValue({
-        priority: 2, // Trung bình
+        priority: 2,
         dueDate: today,
         categoryId: defaultCatId
       });

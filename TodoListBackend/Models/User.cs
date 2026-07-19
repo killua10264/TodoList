@@ -21,8 +21,6 @@ namespace TodoListBackend.Models
         public string Theme { get; set; } = "light";
         public string Language { get; set; } = "vi";
         public string FirstDayOfWeek { get; set; } = "Monday";
-
-        //Navigation Property
         public ICollection<Todo> Todos { get; set; } = new List<Todo>();
     }
 }

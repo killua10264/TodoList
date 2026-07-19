@@ -44,13 +44,11 @@ namespace TodoListBackend.Services
 
         public async Task<UserResponseDto> UpdateUserAsync(int userId, UserUpdateDto dto)
         {
-            var existingUser = await _unitOfWork.Users.GetByIdAsync(userId);
+            var existingUser = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true);
             if (existingUser == null)
             {
                 throw new NotFoundException("Tài khoản không tồn tại.");
             }
-
-            // FIX 3.7: Check email uniqueness (ngoại trừ user hiện tại)
             if (!string.IsNullOrWhiteSpace(dto.Email))
             {
                 var newEmail = dto.Email.Trim();
@@ -105,8 +103,6 @@ namespace TodoListBackend.Services
             {
                 existingUser.FirstDayOfWeek = dto.FirstDayOfWeek.Trim();
             }
-
-            // FIX 2.4: Không cần gọi UpdateAsync — Change Tracker tự detect changes
             await _unitOfWork.SaveChangesAsync();
 
             return MapToResponseDto(existingUser);
@@ -114,7 +110,7 @@ namespace TodoListBackend.Services
 
         public async Task ChangePasswordAsync(int userId, ChangePassWordDto dto)
         {
-            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            var user = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true);
             if (user == null)
             {
                 throw new NotFoundException("Tài khoản không tồn tại.");

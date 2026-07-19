@@ -8,7 +8,6 @@
   min-height: 100vh;
 }
 
-/* HEADER SANG TRỌNG TỐI GIẢN (ZEN HEADER) */
 .zen-tree-header {
   display: flex;
   align-items: flex-start;
@@ -130,7 +129,6 @@
   color: #fff;
 }
 
-/* KHU VỰC VƯỜN CÂY DÂY LEO (ORGANIC VINE GARDEN) */
 .organic-vine-garden {
   position: relative;
   display: flex;
@@ -142,7 +140,6 @@
   padding-left: 320px;
 }
 
-/* TRỤ DÂY LEO XOẮN TỰ NHIÊN (VINE COLUMN) */
 .organic-vine-column {
   position: absolute;
   left: 165px;
@@ -150,8 +147,7 @@
   bottom: 0;
   width: 110px;
   z-index: 10;
-  /* ĐÃ SỬA: Đưa thân cây lên lớp cao nhất */
-  pointer-events: none;
+    pointer-events: none;
 }
 
 .twisted-vine-svg {
@@ -163,7 +159,6 @@
   filter: drop-shadow(4px 4px 10px rgba(59, 78, 55, 0.15));
 }
 
-/* DANH SÁCH LÁ CÔNG VIỆC CON (LEAVES FOREST CONTAINER) */
 .leaves-forest-container {
   display: flex;
   flex-direction: column;
@@ -172,8 +167,7 @@
   padding-bottom: 4rem;
   position: relative;
   z-index: 5;
-  /* ĐÃ SỬA: Đưa toàn bộ lá và nhánh chìm xuống dưới thân cây */
-}
+  }
 
 .zen-forest-empty {
   padding: 4rem 2rem;
@@ -186,261 +180,6 @@
   font-size: 1.1rem;
 }
 
-/* TỪNG HÀNG LÁ (LEAF ROW & BRANCH CONNECTOR) */
-.organic-leaf-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-  max-width: 680px;
-  transform-origin: left center;
-  transition: transform 0.35s ease;
-}
-
-.organic-leaf-row:nth-child(5n + 1) {
-  transform: rotate(-3deg);
-}
-
-.organic-leaf-row:nth-child(5n + 2) {
-  transform: rotate(2.5deg);
-}
-
-.organic-leaf-row:nth-child(5n + 3) {
-  transform: rotate(-1.5deg);
-}
-
-.organic-leaf-row:nth-child(5n + 4) {
-  transform: rotate(3.5deg);
-}
-
-.organic-leaf-row:nth-child(5n + 5) {
-  transform: rotate(-2.5deg);
-}
-
-.leaf-branch-connector {
-  position: absolute;
-  /* Kéo dài để đảm bảo chạm tới được các đoạn thân cây cong ra xa nhất */
-  left: -110px;
-  /* Dài hơn left 3px để đầu cắm ngập nhẹ vào lá, xóa sạch mọi khe hở */
-  width: 130px;
-  top: 50%;
-  height: 50px;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.branch-curve-svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* ĐÃ XÓA class .branch-sprout-dot vì mầm nối đã ẩn sau thân cây */
-
-.leaf-stem-base {
-  position: absolute;
-  left: -6px;
-  top: 24px;
-  transform: translateY(-50%);
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #3b4e37;
-  border: 2.2px solid #516c51;
-  z-index: 3;
-  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.15);
-}
-
-/* THẺ LÁ THỰC VẬT DÙNG 3 SVG TỪ THIẾT KẾ & XOAY NGẪU NHIÊN */
-.botanical-leaf-card {
-  width: fit-content;
-  min-width: 320px;
-  max-width: 520px;
-  min-height: 85px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 1.5rem;
-  padding: 1.2rem 4.8rem 1.2rem 2.8rem;
-  background: transparent !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
-  z-index: 2;
-  cursor: pointer;
-  transform-origin: left center;
-}
-
-/* KHI HOVER CHỈ CẦN KHẼ NHÍCH SANG PHẢI VÀ NỘI DUNG TO NHẸ */
-.botanical-leaf-card:hover {
-  transform: translateX(6px) scale(1.02);
-}
-
-/* NỀN SVG LÁ (LEAF SVG BACKGROUND WRAPPER) */
-.leaf-svg-bg-wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  pointer-events: none;
-  filter: drop-shadow(0 6px 14px rgba(58, 91, 55, 0.18));
-  transition: filter 0.3s ease;
-}
-
-.botanical-leaf-card:hover .leaf-svg-bg-wrapper {
-  filter: drop-shadow(0 10px 22px rgba(58, 91, 55, 0.28));
-}
-
-/* TRẠNG THÁI HOÀN THÀNH (IS-DONE) */
-.botanical-leaf-card.is-done .leaf-svg-bg-wrapper {
-  opacity: 0.95;
-}
-
-/* BÔNG HOA VÀNG DÙNG ASSET FLOWER.SVG */
-.blooming-flower-badge {
-  position: absolute;
-  right: 18px;
-  top: -14px;
-  z-index: 10;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.18));
-  animation: flowerBloom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes flowerBloom {
-  0% {
-    transform: scale(0) rotate(-45deg);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1) rotate(0deg);
-    opacity: 1;
-  }
-}
-
-.flower-icon-asset {
-  width: 36px;
-  height: 36px;
-  transition: transform 0.3s ease;
-}
-
-.blooming-flower-badge:hover .flower-icon-asset {
-  transform: rotate(20deg) scale(1.15);
-}
-
-/* NỘI DUNG BÊN TRONG LÁ */
-.leaf-inner-content {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: relative;
-  z-index: 2;
-}
-
-.zen-leaf-checkbox {
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  border: 1.8px solid #3A5B37;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-  background: #a2be99;
-  color: #1c2618;
-  font-size: 0.95rem;
-  font-weight: 800;
-}
-
-.zen-leaf-checkbox.checked {
-  background: #3A5B37;
-  border-color: #3A5B37;
-  color: #ffffff;
-}
-
-.leaf-title-area {
-  flex: 1;
-}
-
-.leaf-title-text {
-  font-family: 'Lora', serif;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1c2618;
-  line-height: 1.35;
-  user-select: none;
-}
-
-.leaf-title-text.strikethrough {
-  text-decoration: line-through;
-  opacity: 0.65;
-}
-
-.zen-leaf-edit-input {
-  width: 100%;
-  padding: 0.35rem 0.6rem;
-  font-family: 'Lora', serif;
-  font-size: 1.15rem;
-  color: #2c3a21;
-  border: 2px solid #3A5B37;
-  border-radius: 6px;
-  outline: none;
-  background: #ffffff;
-}
-
-/* HOVER ACTIONS */
-.leaf-hover-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-left: 0.6rem;
-  padding-right: 0.8rem;
-  position: relative;
-  z-index: 5;
-
-  /* Ẩn hoàn toàn và đẩy lùi về bên trái 15px */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(-15px);
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.botanical-leaf-card:hover .leaf-hover-actions {
-  opacity: 1;
-  transform: translateX(0);
-  visibility: visible;
-}
-
-.btn-leaf-icon {
-  width: 33px;
-  height: 33px;
-  border-radius: 8px;
-  border: 1.2px solid rgba(58, 91, 55, 0.4);
-  background: rgba(255, 255, 255, 0.82);
-  color: #2c3a21;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.btn-leaf-icon:hover {
-  background: #3A5B37;
-  color: #ffffff;
-}
-
-.btn-leaf-icon.delete:hover {
-  background: #ff5252;
-  border-color: #ff5252;
-  color: #ffffff;
-}
-
-/* THANH VIÊN NHỘNG GIEO LÁ MỚI Ở GỐC CÂY */
 .zen-bottom-sprout-area {
   margin-top: auto;
   padding-top: 2rem;
@@ -514,32 +253,24 @@
   cursor: not-allowed;
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .zen-tree-page {
     padding: 1.5rem 1.2rem 4rem 1.2rem;
   }
 
   .organic-vine-garden {
-    /* Tăng khoảng cách để thân cây có không gian lả lướt hơn */
-    padding-left: 85px;
+        padding-left: 85px;
   }
 
   .organic-vine-column {
     left: 15px;
     width: 70px;
-    /* Tăng độ rộng thân cây lên để nét uốn trông tự nhiên hơn */
-  }
+      }
 
-  .leaf-branch-connector {
-    /* Kéo điểm bắt đầu lùi lại, rơi chính xác vào phần ruột giữa 2 dây leo */
-    left: -45px;
 
-    /* Chiều dài cắm ngập vào mặt lá 15px để xóa mọi khe hở */
-    width: 60px;
-  }
 
   .zen-parent-title {
     font-size: 2rem;
   }
 }
+

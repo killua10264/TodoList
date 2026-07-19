@@ -14,8 +14,6 @@ namespace TodoListBackend.Services
         {
             _unitOfWork = unitOfWork;
         }
-
-        // 1. HÀM BỔ SUNG: Phục vụ cho CreatedAtAction trong Controller
         public async Task<SubTaskResponseDto> GetSubTaskByIdAsync(int id, int userId)
         {
             var subTask = await _unitOfWork.SubTasks.GetByIdAsync(id, userId, trackChanges: false);
@@ -28,7 +26,6 @@ namespace TodoListBackend.Services
 
         public async Task<IEnumerable<SubTaskResponseDto>> GetSubTasksByTodoIdAsync(int todoId, int userId)
         {
-            // Tối ưu: Nếu có hàm ExistsAsync thì dùng, không thì tạm thời dùng GetById
             var todo = await _unitOfWork.Todos.GetByIdAsync(todoId, userId, trackChanges: false);
             if (todo == null)
             {
@@ -46,14 +43,11 @@ namespace TodoListBackend.Services
             {
                 throw new NotFoundException($"Không tìm thấy công việc với ID {dto.TodoId}");
             }
-
-            // Lưu ý rủi ro hiệu năng (Over-fetching) tại đây nếu lượng SubTask quá lớn.
-            // Giải pháp triệt để: Viết hàm GetNextSortOrderAsync() dưới Repository để DB tự tính Max().
-            var existingSubTasks = await _unitOfWork.SubTasks.GetByTodoIdAsync(dto.TodoId, userId);
+            int currentCount = await _unitOfWork.SubTasks.GetCountByTodoIdAsync(dto.TodoId);
+            int maxSortOrder = await _unitOfWork.SubTasks.GetMaxSortOrderByTodoIdAsync(dto.TodoId);
             
-            // Logic tính toán hình dáng lá cây rất sáng tạo!
-            int nextSortOrder = existingSubTasks.Any() ? existingSubTasks.Max(s => s.SortOrder) + 1 : 1;
-            int nextLeafShape = existingSubTasks.Count() % 5; 
+            int nextSortOrder = currentCount > 0 ? maxSortOrder + 1 : 1;
+            int nextLeafShape = currentCount % 5;
 
             var subTask = new SubTask
             {
@@ -82,8 +76,6 @@ namespace TodoListBackend.Services
             subTask.Title = dto.Title;
             subTask.IsCompleted = dto.IsCompleted;
             subTask.SortOrder = dto.SortOrder;
-
-            // Vì update nên hàm này bắt buộc Entity phải được Tracking bởi EF Core
             await _unitOfWork.SaveChangesAsync();
 
             return subTask.ToResponseDto()!;

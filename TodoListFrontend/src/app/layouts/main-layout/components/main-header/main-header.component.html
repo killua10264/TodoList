@@ -1,0 +1,39 @@
+<header class="zen-header">
+  <a routerLink="/todos" class="zen-logo">
+    <img src="assets/images/logo.svg" alt="Zen Branch" class="logo-img" />
+    <div class="logo-text">
+      <span class="logo-brand">Zen Branch</span>
+      <span class="logo-tagline">Khu vườn Tĩnh Lặng</span>
+    </div>
+  </a>
+
+    <div class="zen-header-center">
+    <h1 class="header-main-title">{{ pageTitle() }}</h1>
+  </div>
+
+  <div class="zen-actions">
+        <div class="avatar-wrapper">
+      <button class="btn-avatar" (click)="toggleUserMenu($event)" title="Tài khoản">
+        @if (headerAvatarUrl()) {
+          <img [src]="headerAvatarUrl()" alt="Avatar" class="header-avatar-img" />
+        } @else {
+          <span class="header-avatar-initials">{{ headerAvatarInitials() }}</span>
+        }
+      </button>
+      @if (showUserMenu()) {
+      <div class="user-menu-dropdown" (click)="$event.stopPropagation()">
+        <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
+          <span>👤 Hồ sơ cá nhân</span>
+        </a>
+        <a routerLink="/change-password" (click)="closeUserMenu()" class="menu-item">
+          <span>🔐 Đổi mật khẩu</span>
+        </a>
+        <button (click)="handleLogout()" class="menu-item btn-logout-item">
+          <span>🚪 Đăng xuất</span>
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+</header>
+

@@ -37,11 +37,7 @@ namespace TodoListBackend.Controllers
         public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
         {
             int userId = GetCurrentUserId();
-
-            // 1. Upload ảnh lên Cloudinary qua PhotoService
             var avatarUrl = await _photoService.UploadPhotoAsync(file);
-
-            // 2. Cập nhật URL mới vào hồ sơ người dùng trong Database
             var updatedUser = await _userService.UpdateUserAsync(userId, new UserUpdateDto { AvatarUrl = avatarUrl });
 
             return Ok(new { message = "Tải ảnh đại diện thành công!", avatarUrl = avatarUrl, data = updatedUser });

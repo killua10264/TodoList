@@ -83,7 +83,6 @@ namespace TodoListBackend.Services
 
             if (category.Todos != null && category.Todos.Any())
             {
-                // Tìm danh mục "Khác" hoặc danh mục khác để an toàn chuyển giao công việc
                 var allCategories = await _unitOfWork.Categories.GetAllCategoriesAsync(userId);
                 var fallbackCategory = allCategories.FirstOrDefault(c => c.Id != id && c.Name.Equals("Khác", StringComparison.OrdinalIgnoreCase))
                                     ?? allCategories.FirstOrDefault(c => c.Id != id);
@@ -125,3 +124,4 @@ namespace TodoListBackend.Services
         }
     }
 }
+

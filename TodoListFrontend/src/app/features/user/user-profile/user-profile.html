@@ -14,34 +14,18 @@
     }
 
     <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
-      <!-- KHU VỰC 1: THÔNG TIN CƠ BẢN (Public/General Info) -->
-      <section class="profile-section">
+            <section class="profile-section">
         <h3 class="section-title">
           <span>🌿</span> Thông tin định danh cơ bản
         </h3>
         <p class="section-desc">Đây là thông tin công khai và định danh hiển thị trên toàn hệ thống.</p>
 
-        <!-- KHUNG AVATAR -->
-        <div class="avatar-container">
-          <div class="avatar-preview">
-            @if (avatarUrl) {
-              <img [src]="avatarUrl" alt="Avatar" class="avatar-img" />
-            } @else {
-              <div class="avatar-placeholder">{{ getAvatarInitials() }}</div>
-            }
-          </div>
-          <div class="avatar-actions">
-            <label class="btn-avatar-upload">
-              📸 Đổi ảnh đại diện
-              <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
-            </label>
-            @if (avatarUrl) {
-              <button type="button" class="btn-avatar-default" (click)="useDefaultAvatar()">
-                🗑️ Dùng ảnh mặc định
-              </button>
-            }
-          </div>
-        </div>
+        <app-avatar-upload
+          [avatarUrl]="avatarUrl"
+          [avatarInitials]="getAvatarInitials()"
+          (onFileSelected)="onFileSelected($event)"
+          (onUseDefault)="useDefaultAvatar()"
+        />
 
         <div class="form-group">
           <label for="displayName">Tên hiển thị (Display Name)</label>
@@ -77,8 +61,7 @@
         </div>
       </section>
 
-      <!-- KHU VỰC 2: TÙY CHỌN HỆ THỐNG (Preferences) -->
-      <section class="profile-section preferences-section">
+            <section class="profile-section preferences-section">
         <h3 class="section-title">
           <span>⚙️</span> Tùy chọn hệ thống (Preferences)
         </h3>
@@ -151,8 +134,7 @@
         </div>
       </section>
 
-      <!-- NÚT SUBMIT -->
-      <button type="submit" class="btn-submit-profile" [disabled]="isLoading">
+            <button type="submit" class="btn-submit-profile" [disabled]="isLoading">
         @if (isLoading) {
           <span class="btn-loader"></span> Đang lưu các thay đổi...
         } @else {
@@ -162,3 +144,4 @@
     </form>
   }
 </div>
+

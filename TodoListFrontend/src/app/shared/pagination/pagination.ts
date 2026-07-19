@@ -9,8 +9,6 @@ export class PaginationComponent {
     currentPage = input.required<number>();
     totalCount = input.required<number>();
     pageSize = input<number>(20);
-
-    // computed() = giá trị tự động tính lại khi input thay đổi
     totalPages = computed(() => Math.ceil(this.totalCount() / this.pageSize()));
 
     pageChanged = output<number>();
@@ -21,3 +19,4 @@ export class PaginationComponent {
         }
     }
 }
+
