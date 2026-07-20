@@ -6,7 +6,7 @@
 
 **🔗 Trải nghiệm trực tiếp (Live Demo):** [Zen Garden](https://todo-list-git-main-killua7.vercel.app)
 
-![Giao diện chính](image-2.png)
+![Giao diện chính](https://res.cloudinary.com/dvsy4c7hu/image/upload/v1784528864/Demo_yllu1n.png)
 _<center>Màn hình quản lý danh sách công việc</center>_
 
 ## ✨ Tính năng chính (Features)
