@@ -13,12 +13,17 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null)
+        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false)
         {
             var query = _context.Todos
                 .AsNoTracking()
                 .Include(t => t.Category)
                 .Where(t => t.UserId == userId && !t.IsDeleted);
+
+            if (isHidden.HasValue)
+            {
+                query = query.Where(t => t.IsHidden == isHidden.Value);
+            }
 
             if (!string.IsNullOrEmpty(filter))
             {

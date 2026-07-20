@@ -13,12 +13,13 @@ export class TodoService {
     private apiUrl = `${environment.apiUrl}/api/todos`;
 
     refresh$ = new Subject<void>();
+    todoUpdated$ = new Subject<TodoResponse>();
 
     notifyChanged() {
         this.refresh$.next();
     }
 
-    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, categoryId?: number | null, status?: string | null, sortBy?: string | null) {
+    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, categoryId?: number | null, status?: string | null, sortBy?: string | null, isHidden?: boolean | null) {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('pageSize', pageSize.toString());
@@ -27,6 +28,7 @@ export class TodoService {
         if (categoryId && categoryId > 0) params = params.set('categoryId', categoryId.toString());
         if (status && status !== 'all') params = params.set('status', status);
         if (sortBy) params = params.set('sortBy', sortBy);
+        if (isHidden !== null && isHidden !== undefined) params = params.set('isHidden', isHidden.toString());
 
         return this.http.get<PaginatedResponse<TodoResponse>>(this.apiUrl, { params });
     }
@@ -45,6 +47,10 @@ export class TodoService {
         return this.http.put<TodoResponse>(`${this.apiUrl}/${id}`, data).pipe(
             tap(() => this.notifyChanged())
         );
+    }
+
+    updateSilent(id: number, data: TodoUpdateRequest) {
+        return this.http.put<TodoResponse>(`${this.apiUrl}/${id}`, data);
     }
 
     delete(id: number) {

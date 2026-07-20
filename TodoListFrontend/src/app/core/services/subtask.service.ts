@@ -34,9 +34,17 @@ export class SubTaskService {
     );
   }
 
+  updateSilent(id: number, data: SubTaskUpdateDto) {
+    return this.http.put<SubTaskResponse>(`${this.apiUrl}/${id}`, data);
+  }
+
   delete(id: number) {
     return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       tap(() => this.notifyChanged())
     );
+  }
+
+  deleteSilent(id: number) {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

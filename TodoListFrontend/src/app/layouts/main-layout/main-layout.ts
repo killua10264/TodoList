@@ -5,7 +5,6 @@ import { UserService } from '../../core/services/user.service';
 import { CategoryService } from '../../core/services/category.service';
 import { TodoService } from '../../core/services/todo.service';
 import { CategoryResponse } from '../../core/models/category.model';
-import { TodoResponse, PaginatedResponse } from '../../core/models/todo.model';
 import { CategoryFormDialogComponent } from '../../features/category/category-form-dialog/category-form-dialog';
 import { ConfirmDialogComponent } from '../../shared/confirm-dialog/confirm-dialog';
 import { MainHeaderComponent } from './components/main-header/main-header.component';
@@ -40,14 +39,9 @@ export class MainLayoutComponent implements OnInit {
     const name = u.displayName || u.username || 'A';
     return name.charAt(0).toUpperCase();
   });
-  sidebarTodos = signal<TodoResponse[]>([]);
-  sidebarTotalCount = signal(0);
-  sidebarPage = signal(1);
-  sidebarPageSize = 10;
-
-  sidebarTotalPages = computed(() =>
-    Math.max(1, Math.ceil(this.sidebarTotalCount() / this.sidebarPageSize))
-  );
+  userBio = computed(() => {
+    return this.userService.currentUser()?.bio || '';
+  });
   constructor() {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd),
@@ -55,23 +49,18 @@ export class MainLayoutComponent implements OnInit {
     ).subscribe(() => {
       this.updatePageTitle(this.router.url);
       this.loadCategories();
-      this.sidebarPage.set(1);
-      this.loadSidebarTodos();
     });
   }
 
   ngOnInit() {
     this.userService.getProfile().subscribe();
     this.loadCategories();
-    this.loadSidebarTodos();
     this.updatePageTitle(this.router.url);
 
     this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadCategories();
-      this.loadSidebarTodos();
     });
     this.todoService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.loadSidebarTodos();
       this.loadCategories();
     });
   }
@@ -86,57 +75,7 @@ export class MainLayoutComponent implements OnInit {
     });
   }
 
-    loadSidebarTodos() {
-    const url = this.router.url;
-    let urlFilter: string | null = null;
-    let categoryId: number | null = null;
 
-    if (url.includes('filter=today')) urlFilter = 'today';
-    else if (url.includes('filter=upcoming')) urlFilter = 'upcoming';
-
-    const projMatch = url.match(/categoryId=(\d+)/) || url.match(/projectId=(\d+)/);
-    if (projMatch) categoryId = +projMatch[1];
-
-    this.todoService.getAll(
-      this.sidebarPage(), this.sidebarPageSize,
-      urlFilter, categoryId, null, null
-    ).subscribe({
-      next: (res: PaginatedResponse<TodoResponse>) => {
-        this.sidebarTodos.set(res.items);
-        this.sidebarTotalCount.set(res.totalCount);
-      },
-      error: () => { }
-    });
-  }
-
-  onToggleSidebarTodo(event: any) {
-    const e = event.event as Event;
-    const todo = event.todo as TodoResponse;
-    e.stopPropagation();
-    e.preventDefault();
-    this.todoService.update(todo.id, {
-      title: todo.title,
-      description: todo.description,
-      priority: todo.priority,
-      dueDate: todo.dueDate,
-      isCompleted: !todo.isCompleted,
-      categoryId: todo.categoryId
-    }).subscribe();
-  }
-
-  sidebarPrevPage() {
-    if (this.sidebarPage() > 1) {
-      this.sidebarPage.update(p => p - 1);
-      this.loadSidebarTodos();
-    }
-  }
-
-  sidebarNextPage() {
-    if (this.sidebarPage() < this.sidebarTotalPages()) {
-      this.sidebarPage.update(p => p + 1);
-      this.loadSidebarTodos();
-    }
-  }
 
   private updatePageTitle(url: string) {
     if (url.includes('/profile')) {
@@ -242,12 +181,20 @@ export class MainLayoutComponent implements OnInit {
   onDeleteCategoryConfirmed(confirmed: boolean) {
     this.showDeleteCategoryConfirm = false;
     if (confirmed && this.deletingCategory) {
-      this.categoryService.delete(this.deletingCategory.id).subscribe({
+      const idToDelete = this.deletingCategory.id;
+
+      // Optimistic: remove from UI immediately
+      const previousCategories = this.categories();
+      this.categories.update(list => list.filter(c => c.id !== idToDelete));
+
+      this.categoryService.delete(idToDelete).subscribe({
         next: () => {
-          this.loadCategories();
           this.todoService.notifyChanged();
         },
-        error: () => {}
+        error: () => {
+          // Rollback on error
+          this.categories.set(previousCategories);
+        }
       });
     }
     this.deletingCategory = null;

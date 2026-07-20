@@ -80,36 +80,82 @@ export class TodoTreeViewComponent implements OnInit {
     if (!title || !currentTodo || this.isAdding()) return;
 
     this.isAdding.set(true);
+
+    // Optimistic: add a temporary leaf to UI immediately
+    const tempLeaf: SubTaskResponse = {
+      id: -Date.now(),
+      title,
+      isCompleted: false,
+      sortOrder: this.subTasks().length,
+      leafShape: Math.floor(Math.random() * 5),
+      createdAt: new Date().toISOString(),
+      todoId: currentTodo.id
+    };
+    this.subTasks.update(list => [...list, tempLeaf]);
+    this.newLeafTitle.set('');
+
     this.subTaskService.create({
       title: title,
       todoId: currentTodo.id
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
-        this.newLeafTitle.set('');
+      next: (created) => {
+        // Replace temp leaf with real one from server
+        this.subTasks.update(list =>
+          list.map(s => s.id === tempLeaf.id ? created : s)
+        );
         this.isAdding.set(false);
       },
       error: () => {
+        // Rollback: remove temp leaf
+        this.subTasks.update(list => list.filter(s => s.id !== tempLeaf.id));
         this.isAdding.set(false);
       }
     });
   }
   onToggleLeaf(leaf: SubTaskResponse) {
-    this.subTaskService.update(leaf.id, {
-      title: leaf.title,
-      isCompleted: !leaf.isCompleted,
-      sortOrder: leaf.sortOrder
-    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
-  }
-  saveEditingLeaf(leaf: SubTaskResponse, newTitle: string) {
-    if (!newTitle || newTitle === leaf.title) {
-      return;
-    }
+    const newCompleted = !leaf.isCompleted;
 
-    this.subTaskService.update(leaf.id, {
+    // Optimistic: update UI immediately
+    this.subTasks.update(list =>
+      list.map(s => s.id === leaf.id ? { ...s, isCompleted: newCompleted } : s)
+    );
+
+    this.subTaskService.updateSilent(leaf.id, {
+      title: leaf.title,
+      isCompleted: newCompleted,
+      sortOrder: leaf.sortOrder
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      error: () => {
+        // Rollback on error
+        this.subTasks.update(list =>
+          list.map(s => s.id === leaf.id ? { ...s, isCompleted: !newCompleted } : s)
+        );
+      }
+    });
+  }
+
+  saveEditingLeaf(leaf: SubTaskResponse, newTitle: string) {
+    if (!newTitle || newTitle === leaf.title) return;
+
+    const oldTitle = leaf.title;
+
+    // Optimistic: update title in UI immediately
+    this.subTasks.update(list =>
+      list.map(s => s.id === leaf.id ? { ...s, title: newTitle } : s)
+    );
+
+    this.subTaskService.updateSilent(leaf.id, {
       title: newTitle,
       isCompleted: leaf.isCompleted,
       sortOrder: leaf.sortOrder
-    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      error: () => {
+        // Rollback on error
+        this.subTasks.update(list =>
+          list.map(s => s.id === leaf.id ? { ...s, title: oldTitle } : s)
+        );
+      }
+    });
   }
   openDeleteConfirm(type: 'todo' | 'subtask', id: number) {
     this.deleteTargetType.set(type);
@@ -126,7 +172,16 @@ export class TodoTreeViewComponent implements OnInit {
     if (!id) return;
 
     if (type === 'subtask') {
-      this.subTaskService.delete(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+      // Optimistic: remove from UI immediately
+      const previousSubTasks = this.subTasks();
+      this.subTasks.update(list => list.filter(s => s.id !== id));
+
+      this.subTaskService.deleteSilent(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+        error: () => {
+          // Rollback on error
+          this.subTasks.set(previousSubTasks);
+        }
+      });
     } else if (type === 'todo') {
       this.todoService.delete(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
@@ -135,20 +190,27 @@ export class TodoTreeViewComponent implements OnInit {
       });
     }
   }
+
   onToggleParentTodo() {
     const current = this.todo();
     if (!current) return;
 
-    this.todoService.update(current.id, {
+    const newCompleted = !current.isCompleted;
+
+    // Optimistic: update UI immediately
+    this.todo.set({ ...current, isCompleted: newCompleted });
+
+    this.todoService.updateSilent(current.id, {
       title: current.title,
       description: current.description,
       priority: current.priority,
       dueDate: current.dueDate,
-      isCompleted: !current.isCompleted,
+      isCompleted: newCompleted,
       categoryId: current.categoryId
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (updated) => {
-        this.todo.set(updated);
+      error: () => {
+        // Rollback on error
+        this.todo.set({ ...current, isCompleted: !newCompleted });
       }
     });
   }

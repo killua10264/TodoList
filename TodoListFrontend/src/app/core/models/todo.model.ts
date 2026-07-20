@@ -8,6 +8,7 @@ export interface TodoResponse {
   categoryId: number;
   categoryName: string;
   categoryColor: string;
+  isHidden?: boolean;
 }
 
 export interface TodoCreateRequest {
@@ -25,6 +26,7 @@ export interface TodoUpdateRequest {
   dueDate?: string;
   categoryId?: number;
   isCompleted?: boolean;
+  isHidden?: boolean;
 }
 
 export interface PaginatedResponse<T> {

@@ -70,6 +70,17 @@ export class TodoListComponent implements OnInit {
       this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.loadCategories();
       });
+      this.todoService.todoUpdated$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((updated) => {
+        this.todos.update(list => {
+          const exists = list.some(t => t.id === updated.id);
+          if (updated.isHidden) {
+             return list.filter(t => t.id !== updated.id);
+          } else if (!exists) {
+             return [updated, ...list];
+          }
+          return list.map(t => t.id === updated.id ? updated : t);
+        });
+      });
     }
   }
 
@@ -91,7 +102,8 @@ export class TodoListComponent implements OnInit {
       this.urlFilter(),
       this.selectedCategoryId(),
       this.selectedStatus(),
-      this.selectedSort()
+      this.selectedSort(),
+      false // isHidden = false
     ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: PaginatedResponse<TodoResponse>) => {
         this.todos.set(res.items);
@@ -117,19 +129,33 @@ export class TodoListComponent implements OnInit {
   }
 
   onTodoToggled(todo: TodoResponse) {
+    const newCompleted = !todo.isCompleted;
+
+    // Optimistic: update UI immediately
+    this.todos.update(list =>
+      list.map(t => t.id === todo.id ? { ...t, isCompleted: newCompleted } : t)
+    );
+
     const updateReq: TodoUpdateRequest = {
       title: todo.title,
       description: todo.description,
       priority: todo.priority,
       dueDate: todo.dueDate,
       categoryId: todo.categoryId,
-      isCompleted: !todo.isCompleted
+      isCompleted: newCompleted
     };
 
-    this.todoService.update(todo.id, updateReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => {
+    this.todoService.updateSilent(todo.id, updateReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (updated) => {
+        this.todoService.todoUpdated$.next(updated);
       },
-      error: () => this.toast.show('Cập nhật trạng thái thất bại.', 'error')
+      error: () => {
+        // Rollback on error
+        this.todos.update(list =>
+          list.map(t => t.id === todo.id ? { ...t, isCompleted: !newCompleted } : t)
+        );
+        this.toast.show('Cập nhật trạng thái thất bại.', 'error');
+      }
     });
   }
 
@@ -162,14 +188,28 @@ export class TodoListComponent implements OnInit {
   onDeleteConfirmed(confirmed: boolean) {
     this.showDeleteConfirm = false;
     if (confirmed && this.deletingTodoId) {
-      this.todoService.delete(this.deletingTodoId).subscribe({
+      const idToDelete = this.deletingTodoId;
+
+      // Optimistic: remove from UI immediately
+      const previousTodos = this.todos();
+      const previousTotal = this.totalCount();
+      this.todos.update(list => list.filter(t => t.id !== idToDelete));
+      this.totalCount.update(c => Math.max(0, c - 1));
+
+      this.todoService.delete(idToDelete).subscribe({
         next: () => {
           this.toast.show('Xóa công việc thành công!', 'success');
-          if (this.todos().length === 1 && this.currentPage() > 1) {
+          if (previousTodos.length === 1 && this.currentPage() > 1) {
             this.currentPage.update(p => p - 1);
+            this.loadTodos();
           }
         },
-        error: () => this.toast.show('Xóa thất bại.', 'error')
+        error: () => {
+          // Rollback on error
+          this.todos.set(previousTodos);
+          this.totalCount.set(previousTotal);
+          this.toast.show('Xóa thất bại.', 'error');
+        }
       });
     }
     this.deletingTodoId = null;

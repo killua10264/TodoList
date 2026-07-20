@@ -12,6 +12,7 @@ export class MainHeaderComponent {
   pageTitle = input.required<string>();
   headerAvatarUrl = input<string | null>(null);
   headerAvatarInitials = input<string>('AVT');
+  userBio = input<string>('');
 
   onLogout = output<void>();
 

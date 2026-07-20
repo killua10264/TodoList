@@ -1,8 +1,7 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CategoryResponse } from '../../../../core/models/category.model';
-import { TodoResponse } from '../../../../core/models/todo.model';
 
 @Component({
   selector: 'app-main-sidebar',
@@ -16,16 +15,9 @@ export class MainSidebarComponent {
   categories = input.required<CategoryResponse[]>();
   activeCategoryMenuId = input<number | null>(null);
 
-  sidebarTodos = input.required<TodoResponse[]>();
-  sidebarPage = input.required<number>();
-  sidebarTotalPages = input.required<number>();
-
   onCreateCategory = output<void>();
   onToggleCategoryMenu = output<{ event: Event, cat: CategoryResponse }>();
   onDeleteCategory = output<{ event: Event, cat: CategoryResponse }>();
-  onToggleTodo = output<{ event: Event, todo: TodoResponse }>();
-  onPrevPage = output<void>();
-  onNextPage = output<void>();
 
   private mainTabs = ['Tất cả công việc', 'Hôm nay', 'Sắp tới', 'Khu vườn Danh mục'];
   
@@ -57,17 +49,5 @@ export class MainSidebarComponent {
 
   handleDeleteCategory(event: Event, cat: CategoryResponse) {
     this.onDeleteCategory.emit({ event, cat });
-  }
-
-  handleToggleTodo(event: Event, todo: TodoResponse) {
-    this.onToggleTodo.emit({ event, todo });
-  }
-
-  handlePrevPage() {
-    this.onPrevPage.emit();
-  }
-
-  handleNextPage() {
-    this.onNextPage.emit();
   }
 }

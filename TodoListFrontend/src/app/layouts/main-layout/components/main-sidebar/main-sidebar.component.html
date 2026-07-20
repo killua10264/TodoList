@@ -56,38 +56,6 @@
     </div>
   </div>
 
-    <div class="sidebar-divider"></div>
-
-    <div class="sidebar-worklist">
-    <div class="worklist-header">
-      <h3 class="worklist-title">Danh sách</h3>
-      @if (sidebarTotalPages() > 1) {
-      <span class="worklist-page-indicator">{{ sidebarPage() }}/{{ sidebarTotalPages() }}</span>
-      }
-    </div>
-    <div class="worklist-scroll">
-      @if (sidebarTodos().length === 0) {
-      <div class="worklist-empty">Chưa có công việc</div>
-      } @else {
-      @for (todo of sidebarTodos(); track todo.id) {
-      <a class="worklist-item" [routerLink]="['/todos', todo.id, 'tree']"
-        [class.completed]="todo.isCompleted">
-        <span class="worklist-check" [class.checked]="todo.isCompleted" (click)="handleToggleTodo($event, todo)" title="Đánh dấu hoàn thành">
-          @if (todo.isCompleted) { ✓ }
-        </span>
-        <span class="worklist-name">{{ todo.title }}</span>
-      </a>
-      }
-      }
-    </div>
-    @if (sidebarTotalPages() > 1) {
-    <div class="worklist-pagination">
-      <button class="worklist-page-btn" (click)="handlePrevPage()" [disabled]="sidebarPage() <= 1"
-        title="Trang trước">‹</button>
-      <button class="worklist-page-btn" (click)="handleNextPage()"
-        [disabled]="sidebarPage() >= sidebarTotalPages()" title="Trang sau">›</button>
-    </div>
-    }
-  </div>
 </aside>
+
 

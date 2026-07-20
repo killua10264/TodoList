@@ -28,6 +28,34 @@
   gap: 0.6rem;
 }
 
+
+.profile-section {
+  background: #ffffff;
+  border: 1.5px solid #e0e8d8;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(59, 78, 55, 0.04);
+}
+
+.section-title {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #263a23;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-desc {
+  font-size: 0.9rem;
+  color: #6a7c66;
+  margin-bottom: 1.8rem;
+  line-height: 1.5;
+}
+
 .loading-spinner {
   display: flex;
   flex-direction: column;

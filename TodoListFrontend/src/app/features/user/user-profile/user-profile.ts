@@ -43,7 +43,6 @@ export class UserProfileComponent implements OnInit {
 
   profileForm = new FormGroup({
     username: new FormControl('', [Validators.required, usernameValidator()]),
-    displayName: new FormControl('', [Validators.maxLength(100)]),
     email: new FormControl({ value: '', disabled: true }), // Read-only
     bio: new FormControl('', [Validators.maxLength(300)]),
     timezone: new FormControl('Asia/Ho_Chi_Minh'),
@@ -87,7 +86,6 @@ export class UserProfileComponent implements OnInit {
     this.avatarUrl = user.avatarUrl || null;
     this.profileForm.patchValue({
       username: user.username,
-      displayName: user.displayName || user.username,
       email: user.email,
       bio: user.bio || '',
       timezone: user.timezone || 'Asia/Ho_Chi_Minh',
@@ -98,7 +96,7 @@ export class UserProfileComponent implements OnInit {
   }
 
     getAvatarInitials(): string {
-    const name = this.profileForm.get('displayName')?.value || this.profileForm.get('username')?.value || 'U';
+    const name = this.profileForm.get('username')?.value || 'U';
     return name.charAt(0).toUpperCase();
   }
 
@@ -167,7 +165,6 @@ export class UserProfileComponent implements OnInit {
     const payload = {
       username: rawValue.username || undefined,
       email: rawValue.email || undefined,
-      displayName: rawValue.displayName || undefined,
       bio: rawValue.bio || undefined,
       avatarUrl: this.avatarUrl || undefined,
       timezone: rawValue.timezone || undefined,

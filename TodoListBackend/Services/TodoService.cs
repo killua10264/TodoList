@@ -16,14 +16,14 @@ namespace TodoListBackend.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null)
+        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false)
         {
             if (categoryId.HasValue && categoryId.Value > 0)
             {
                 categoryId = await ResolveCategoryIdAsync(categoryId.Value, userId);
             }
 
-            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy);
+            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy, isHidden);
             return new PaginatedResponse<TodoResponseDto>
             {
                 Items = todos.Select(t => t.ToResponseDto()!),
@@ -60,6 +60,7 @@ namespace TodoListBackend.Services
                 UserId = userId,
                 CategoryId = dto.CategoryId,
                 IsCompleted = false,
+                IsHidden = false,
                 IsDeleted = false
             };
 
@@ -94,6 +95,7 @@ namespace TodoListBackend.Services
             existingTodo.Priority = dto.Priority ?? existingTodo.Priority;
             existingTodo.DueDate = dto.DueDate.HasValue ? DateTime.SpecifyKind(dto.DueDate.Value, DateTimeKind.Utc) : existingTodo.DueDate;
             existingTodo.IsCompleted = dto.IsCompleted ?? existingTodo.IsCompleted;
+            existingTodo.IsHidden = dto.IsHidden ?? existingTodo.IsHidden;
             
             if (dto.CategoryId.HasValue)
             {

@@ -3,6 +3,7 @@
     [pageTitle]="pageTitle()"
     [headerAvatarUrl]="headerAvatarUrl()"
     [headerAvatarInitials]="headerAvatarInitials()"
+    [userBio]="userBio()"
     (onLogout)="onLogout()"
   />
 
@@ -11,15 +12,9 @@
       [pageTitle]="pageTitle()"
       [categories]="categories()"
       [activeCategoryMenuId]="activeCategoryMenuId"
-      [sidebarTodos]="sidebarTodos()"
-      [sidebarPage]="sidebarPage()"
-      [sidebarTotalPages]="sidebarTotalPages()"
       (onCreateCategory)="openCreateCategoryModal()"
       (onToggleCategoryMenu)="toggleCategoryMenu($event)"
       (onDeleteCategory)="onDeleteSidebarCategory($event)"
-      (onToggleTodo)="onToggleSidebarTodo($event)"
-      (onPrevPage)="sidebarPrevPage()"
-      (onNextPage)="sidebarNextPage()"
     />
 
     <main class="content">
