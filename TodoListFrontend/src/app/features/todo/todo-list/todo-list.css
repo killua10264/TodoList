@@ -13,8 +13,8 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   padding: 0.75rem 1.25rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
+  background: rgba(232, 236, 224, 0.45);
+  border: 1px solid rgba(168, 181, 69, 0.25);
   border-radius: 20px;
   backdrop-filter: blur(8px);
 }
@@ -52,7 +52,7 @@
 
 .zen-select:focus {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px var(--shadow-color);
+  box-shadow: 0 0 0 3px rgba(168, 181, 69, 0.2);
 }
 
 .sort-select {
@@ -99,4 +99,14 @@
   font-family: 'Lora', serif;
   font-size: 1.3rem;
   color: var(--accent-secondary);
+}
+
+/* Dark Mode Overrides */
+:host-context([data-theme="dark"]) .filter-toolbar {
+  background: transparent;
+  border: 1px solid var(--border-color);
+}
+:host-context([data-theme="dark"]) .zen-select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--shadow-color);
 }

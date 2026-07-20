@@ -15,7 +15,7 @@
 }
 
 .dialog {
-  background: var(--bg-surface);
+  background: #f6f4ed;
   border-radius: 28px;
   padding: 2.2rem 2.8rem;
   width: 100%;
@@ -48,7 +48,7 @@
   font-family: 'Lora', serif;
   font-size: 1.6rem;
   font-weight: 600;
-  color: var(--text-main);
+  color: #1c2613;
   margin: 0;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: var(--accent-primary);
+  border-color: #8a9a5b;
   box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
 }
 
@@ -118,7 +118,7 @@
 .form-checkbox {
   width: 20px;
   height: 20px;
-  accent-color: var(--accent-primary);
+  accent-color: #6a7c64;
   cursor: pointer;
 }
 
@@ -144,9 +144,9 @@
 .btn-delete {
   padding: 0.75rem 1.4rem;
   border-radius: 50px;
-  border: 1.5px solid var(--error-color);
+  border: 1.5px solid #dca4a4;
   background: transparent;
-  color: var(--error-color);
+  color: #a84c4c;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -154,15 +154,15 @@
 }
 
 .btn-delete:hover {
-  background: rgba(229, 115, 115, 0.1);
-  border-color: var(--error-color);
-  color: var(--error-color);
+  background: #fff0f0;
+  border-color: #c94a4a;
+  color: #c94a4a;
 }
 
 .btn-cancel {
   padding: 0.75rem 1.6rem;
   border-radius: 50px;
-  border: 1.5px solid var(--border-color);
+  border: 1.5px solid #c2c9bf;
   background: transparent;
   color: var(--text-main);
   font-weight: 600;
@@ -172,15 +172,15 @@
 }
 
 .btn-cancel:hover {
-  background: var(--bg-surface-hover);
-  border-color: var(--accent-primary);
+  background: #e8ece0;
+  border-color: #8a9a5b;
 }
 
 .btn-submit {
   padding: 0.75rem 2rem;
   border-radius: 50px;
   border: none;
-  background: var(--accent-primary);
+  background: #54664c;
   color: var(--bg-surface);
   font-weight: 600;
   font-size: 0.95rem;
@@ -190,7 +190,7 @@
 }
 
 .btn-submit:hover:not([disabled]) {
-  background: var(--accent-primary-hover);
+  background: #46563f;
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(84, 102, 76, 0.35);
 }
@@ -203,12 +203,12 @@
 .form-input.ng-invalid.ng-touched,
 .form-textarea.ng-invalid.ng-touched,
 .form-select.ng-invalid.ng-touched {
-  border-color: var(--error-color);
-  background: rgba(229, 115, 115, 0.05);
+  border-color: #dc3545;
+  background: #fff8f8;
 }
 
 .error {
-  color: var(--error-color);
+  color: #dc3545;
   font-size: 0.85rem;
   font-weight: 500;
   margin-top: 0.2rem;
@@ -218,3 +218,18 @@
   gap: 0.3rem;
   animation: fadeIn 0.2s ease;
 }
+
+/* Dark Mode Overrides */
+:host-context([data-theme="dark"]) .overlay { background: rgba(0, 0, 0, 0.45); }
+:host-context([data-theme="dark"]) .dialog { background: var(--bg-surface); }
+:host-context([data-theme="dark"]) .dialog-title { color: var(--text-main); }
+:host-context([data-theme="dark"]) .form-input:focus, :host-context([data-theme="dark"]) .form-textarea:focus, :host-context([data-theme="dark"]) .form-select:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--shadow-color); }
+:host-context([data-theme="dark"]) .form-checkbox { accent-color: var(--accent-primary); }
+:host-context([data-theme="dark"]) .btn-delete { border: 1.5px solid var(--error-color); color: var(--error-color); }
+:host-context([data-theme="dark"]) .btn-delete:hover { background: rgba(229, 115, 115, 0.1); border-color: var(--error-color); color: var(--error-color); }
+:host-context([data-theme="dark"]) .btn-cancel { border: 1.5px solid var(--border-color); color: var(--text-main); }
+:host-context([data-theme="dark"]) .btn-cancel:hover { background: var(--bg-surface-hover); border-color: var(--accent-primary); }
+:host-context([data-theme="dark"]) .btn-submit { background: var(--accent-primary); }
+:host-context([data-theme="dark"]) .btn-submit:hover:not([disabled]) { background: var(--accent-primary-hover); }
+:host-context([data-theme="dark"]) .form-input.ng-invalid.ng-touched, :host-context([data-theme="dark"]) .form-textarea.ng-invalid.ng-touched, :host-context([data-theme="dark"]) .form-select.ng-invalid.ng-touched { border-color: var(--error-color); background: rgba(229, 115, 115, 0.05); }
+:host-context([data-theme="dark"]) .error { color: var(--error-color); }

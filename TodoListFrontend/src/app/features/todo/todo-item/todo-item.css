@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--bg-surface);
+  background: #e8ece0;
   cursor: pointer;
   transition: all 0.25s ease;
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.02);
@@ -18,7 +18,7 @@
 }
 
 .todo-card.completed {
-  background: var(--bg-surface-hover);
+  background: #6a7c64;
 }
 
 .flower-badge {
@@ -58,7 +58,7 @@
   padding: 0.15rem 0.6rem;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.65);
-  border: 1px solid var(--border-color);
+  border: 1px solid #d8dec8;
   font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-main);
@@ -98,7 +98,7 @@
   border-radius: 8px;
   border: none;
   background: rgba(138, 133, 112, 0.15);
-  color: var(--text-main);
+  color: #6b6655;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,13 +114,13 @@
 }
 
 .btn-card-edit:hover {
-  background: var(--accent-primary);
+  background: #54664c;
   color: var(--bg-surface);
   transform: scale(1.12);
 }
 
 .btn-card-delete:hover {
-  background: var(--error-color);
+  background: #c94a4a;
   color: var(--bg-surface);
   transform: scale(1.12);
 }
@@ -133,15 +133,15 @@
 }
 
 .todo-card.completed .btn-card-edit:hover {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
+  background: #54664c;
+  border-color: #54664c;
   color: var(--bg-surface);
   transform: scale(1.12);
 }
 
 .todo-card.completed .btn-card-delete:hover {
-  background: var(--error-color);
-  border-color: var(--error-color);
+  background: #c94a4a;
+  border-color: #c94a4a;
   color: var(--bg-surface);
   transform: scale(1.12);
 }
@@ -149,7 +149,7 @@
 .card-checkbox {
   width: 22px;
   height: 22px;
-  border: 2px solid var(--accent-primary);
+  border: 2px solid #a8b545;
   border-radius: 5px;
   display: flex;
   align-items: center;
@@ -161,12 +161,12 @@
 
 .card-checkbox:hover {
   transform: scale(1.1);
-  border-color: var(--accent-primary-hover);
+  border-color: #7b8832;
 }
 
 .todo-card.completed .card-checkbox {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
+  background: #9dae4a;
+  border-color: #9dae4a;
 }
 
 .check-mark {
@@ -174,3 +174,19 @@
   font-weight: 800;
   font-size: 0.95rem;
 }
+
+/* Dark Mode Overrides */
+:host-context([data-theme="dark"]) .todo-card { background: var(--bg-surface); }
+:host-context([data-theme="dark"]) .todo-card:hover { box-shadow: 0 6px 18px var(--shadow-color); }
+:host-context([data-theme="dark"]) .todo-card.completed { background: var(--bg-surface-hover); }
+:host-context([data-theme="dark"]) .todo-category-badge { background: var(--bg-surface-hover); border: 1px solid var(--border-color); }
+:host-context([data-theme="dark"]) .completed-badge { background: transparent; border-color: var(--border-color); }
+:host-context([data-theme="dark"]) .btn-card-edit, :host-context([data-theme="dark"]) .btn-card-delete { background: transparent; color: var(--text-main); }
+:host-context([data-theme="dark"]) .btn-card-edit:hover { background: var(--accent-primary); }
+:host-context([data-theme="dark"]) .btn-card-delete:hover { background: var(--error-color); }
+:host-context([data-theme="dark"]) .todo-card.completed .btn-card-edit, :host-context([data-theme="dark"]) .todo-card.completed .btn-card-delete { border: 1.5px solid var(--border-color); }
+:host-context([data-theme="dark"]) .todo-card.completed .btn-card-edit:hover { border-color: var(--accent-primary); }
+:host-context([data-theme="dark"]) .todo-card.completed .btn-card-delete:hover { border-color: var(--error-color); }
+:host-context([data-theme="dark"]) .card-checkbox { border: 2px solid var(--accent-primary); }
+:host-context([data-theme="dark"]) .card-checkbox:hover { border-color: var(--accent-primary-hover); }
+:host-context([data-theme="dark"]) .todo-card.completed .card-checkbox { background: var(--accent-primary); border-color: var(--accent-primary); }
