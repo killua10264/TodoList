@@ -31,8 +31,8 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #3b4e37;
-  border: 2.2px solid #516c51;
+  background: var(--accent-primary-hover);
+  border: 2.2px solid var(--accent-primary);
   z-index: 3;
   box-shadow: -2px 0 4px rgba(0, 0, 0, 0.15);
 }
@@ -125,21 +125,21 @@
   width: 22px;
   height: 22px;
   border-radius: 5px;
-  border: 1.8px solid #3A5B37;
+  border: 1.8px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   transition: all 0.2s ease;
-  background: #a2be99;
-  color: #1c2618;
+  background: transparent;
+  color: var(--text-main);
   font-size: 0.95rem;
   font-weight: 800;
 }
 
 .zen-leaf-checkbox.checked {
-  background: #3A5B37;
-  border-color: #3A5B37;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
   color: var(--bg-surface);
 }
 
@@ -151,7 +151,7 @@
   font-family: 'Lora', serif;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1c2618;
+  color: var(--text-main);
   line-height: 1.35;
   user-select: none;
 }
@@ -166,8 +166,8 @@
   padding: 0.35rem 0.6rem;
   font-family: 'Lora', serif;
   font-size: 1.15rem;
-  color: #2c3a21;
-  border: 2px solid #3A5B37;
+  color: var(--text-main);
+  border: 2px solid var(--accent-primary);
   border-radius: 6px;
   outline: none;
   background: var(--bg-surface);
@@ -200,7 +200,7 @@
   border-radius: 8px;
   border: 1.2px solid rgba(58, 91, 55, 0.4);
   background: rgba(255, 255, 255, 0.82);
-  color: #2c3a21;
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,13 +210,13 @@
 }
 
 .btn-leaf-icon:hover {
-  background: #3A5B37;
+  background: var(--accent-primary);
   color: var(--bg-surface);
 }
 
 .btn-leaf-icon.delete:hover {
-  background: #ff5252;
-  border-color: #ff5252;
+  background: var(--error-color);
+  border-color: var(--error-color);
   color: var(--bg-surface);
 }
 

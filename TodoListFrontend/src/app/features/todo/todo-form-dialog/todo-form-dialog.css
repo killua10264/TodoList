@@ -15,7 +15,7 @@
 }
 
 .dialog {
-  background: #f6f4ed;
+  background: var(--bg-surface);
   border-radius: 28px;
   padding: 2.2rem 2.8rem;
   width: 100%;
@@ -48,7 +48,7 @@
   font-family: 'Lora', serif;
   font-size: 1.6rem;
   font-weight: 600;
-  color: #1c2613;
+  color: var(--text-main);
   margin: 0;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: #8a9a5b;
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(138, 154, 91, 0.18);
 }
 
@@ -118,7 +118,7 @@
 .form-checkbox {
   width: 20px;
   height: 20px;
-  accent-color: #6a7c64;
+  accent-color: var(--accent-primary);
   cursor: pointer;
 }
 
@@ -144,9 +144,9 @@
 .btn-delete {
   padding: 0.75rem 1.4rem;
   border-radius: 50px;
-  border: 1.5px solid #dca4a4;
+  border: 1.5px solid var(--error-color);
   background: transparent;
-  color: #a84c4c;
+  color: var(--error-color);
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -154,15 +154,15 @@
 }
 
 .btn-delete:hover {
-  background: #fff0f0;
-  border-color: #c94a4a;
-  color: #c94a4a;
+  background: rgba(229, 115, 115, 0.1);
+  border-color: var(--error-color);
+  color: var(--error-color);
 }
 
 .btn-cancel {
   padding: 0.75rem 1.6rem;
   border-radius: 50px;
-  border: 1.5px solid #c2c9bf;
+  border: 1.5px solid var(--border-color);
   background: transparent;
   color: var(--text-main);
   font-weight: 600;
@@ -172,15 +172,15 @@
 }
 
 .btn-cancel:hover {
-  background: #e8ece0;
-  border-color: #8a9a5b;
+  background: var(--bg-surface-hover);
+  border-color: var(--accent-primary);
 }
 
 .btn-submit {
   padding: 0.75rem 2rem;
   border-radius: 50px;
   border: none;
-  background: #54664c;
+  background: var(--accent-primary);
   color: var(--bg-surface);
   font-weight: 600;
   font-size: 0.95rem;
@@ -190,7 +190,7 @@
 }
 
 .btn-submit:hover:not([disabled]) {
-  background: #46563f;
+  background: var(--accent-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(84, 102, 76, 0.35);
 }
@@ -203,12 +203,12 @@
 .form-input.ng-invalid.ng-touched,
 .form-textarea.ng-invalid.ng-touched,
 .form-select.ng-invalid.ng-touched {
-  border-color: #dc3545;
-  background: #fff8f8;
+  border-color: var(--error-color);
+  background: rgba(229, 115, 115, 0.05);
 }
 
 .error {
-  color: #dc3545;
+  color: var(--error-color);
   font-size: 0.85rem;
   font-weight: 500;
   margin-top: 0.2rem;

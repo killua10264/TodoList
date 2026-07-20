@@ -3,8 +3,8 @@
   max-width: 1050px;
   margin: 0 auto;
   font-family: 'Outfit', sans-serif;
-  color: #2c3a21;
-  background-color: #faf8f2;
+  color: var(--text-main);
+  background-color: var(--bg-body);
   min-height: 100vh;
 }
 
@@ -29,7 +29,7 @@
   gap: 0.4rem;
   padding: 0.4rem 0.8rem;
   background: rgba(107, 122, 69, 0.1);
-  color: #516c51;
+  color: var(--accent-primary);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -39,7 +39,7 @@
 }
 
 .btn-zen-back:hover {
-  background: #516c51;
+  background: var(--accent-primary);
   color: #fff;
   transform: translateX(-3px);
 }
@@ -52,7 +52,7 @@
   font-family: 'Lora', serif;
   font-size: 2.6rem;
   font-weight: 700;
-  color: #1c2618;
+  color: var(--text-main);
   margin: 0;
   line-height: 1.2;
 }
@@ -90,10 +90,10 @@
 
 .btn-zen-toggle-root {
   padding: 0.45rem 1.1rem;
-  background: #f1f4ea;
-  border: 1.5px solid #c8d1bd;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
   border-radius: 20px;
-  color: #516c51;
+  color: var(--accent-primary);
   font-weight: 600;
   font-size: 0.88rem;
   cursor: pointer;
@@ -101,12 +101,12 @@
 }
 
 .btn-zen-toggle-root:hover {
-  background: #e2e8da;
+  background: var(--bg-surface-hover);
 }
 
 .btn-zen-toggle-root.is-completed {
-  background: #516c51;
-  border-color: #516c51;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
   color: var(--bg-surface);
 }
 
@@ -114,9 +114,9 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  border: 1.5px solid #fce8e6;
-  background: #fff5f4;
-  color: #d9534f;
+  border: 1.5px solid var(--error-color);
+  background: transparent;
+  color: var(--error-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,7 +125,7 @@
 }
 
 .btn-zen-delete:hover {
-  background: #d9534f;
+  background: var(--error-color);
   color: #fff;
 }
 
@@ -173,7 +173,7 @@
   padding: 4rem 2rem;
   text-align: center;
   background: rgba(255, 255, 255, 0.65);
-  border: 1.5px dashed #c8d1bd;
+  border: 1.5px dashed var(--border-color);
   border-radius: 16px;
   color: var(--accent-secondary);
   font-style: italic;
@@ -195,7 +195,7 @@
   gap: 1rem;
   width: 100%;
   max-width: 680px;
-  background: #516c51;
+  background: var(--accent-primary);
   border-radius: 50px;
   padding: 0.8rem 1.6rem;
   box-shadow: 0 8px 24px rgba(81, 108, 81, 0.28);
@@ -244,7 +244,7 @@
 
 .btn-pill-submit:hover:not(:disabled) {
   background: var(--bg-surface);
-  color: #516c51;
+  color: var(--accent-primary);
   transform: scale(1.1);
 }
 
