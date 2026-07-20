@@ -14,7 +14,7 @@
 }
 
 .modal-content {
-  background-color: var(--card-bg, #ffffff);
+  background-color: var(--card-bg, var(--bg-surface));
   border-radius: 16px;
   width: 90%;
   max-width: 480px;
@@ -36,7 +36,7 @@
 .modal-title {
   font-size: 1.35rem;
   font-weight: 700;
-  color: var(--primary-color, #4a5a3a);
+  color: var(--primary-color, var(--text-main));
   margin: 0;
 }
 
@@ -44,7 +44,7 @@
   background: none;
   border: none;
   font-size: 1.6rem;
-  color: #8a8570;
+  color: var(--text-muted);
   cursor: pointer;
   line-height: 1;
   padding: 0 0.4rem;
@@ -85,7 +85,7 @@
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary-color, #4a5a3a);
+  border-color: var(--primary-color, var(--text-main));
   box-shadow: 0 0 0 3px rgba(74, 90, 58, 0.15);
 }
 
@@ -120,7 +120,7 @@
 }
 
 .check-icon {
-  color: #ffffff;
+  color: var(--bg-surface);
   font-weight: 800;
   font-size: 1.1rem;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -165,7 +165,7 @@
 .btn-save {
   padding: 0.65rem 1.5rem;
   border: none;
-  background-color: var(--primary-color, #4a5a3a);
+  background-color: var(--primary-color, var(--text-main));
   color: white;
   border-radius: 10px;
   font-weight: 600;

@@ -1,10 +1,11 @@
-import { Component, inject, OnInit, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { UserResponse } from '../../../core/models/user.model';
 import { isPlatformBrowser } from '@angular/common';
 import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
+import { ThemeService, ThemeMode } from '../../../core/services/theme.service';
 
 import { AvatarUploadComponent } from './components/avatar-upload/avatar-upload.component';
 
@@ -14,11 +15,12 @@ import { AvatarUploadComponent } from './components/avatar-upload/avatar-upload.
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css'
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent implements OnInit, OnDestroy {
   private userService = inject(UserService);
   private toast = inject(ToastService);
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
+  private themeService = inject(ThemeService);
 
   isLoading = false;
   isFetching = true;
@@ -93,6 +95,7 @@ export class UserProfileComponent implements OnInit {
       language: user.language || 'vi',
       firstDayOfWeek: user.firstDayOfWeek || 'Monday'
     });
+    this.themeService.setTheme((user.theme || 'system') as ThemeMode);
   }
 
     getAvatarInitials(): string {
@@ -129,6 +132,7 @@ export class UserProfileComponent implements OnInit {
 
   setTheme(themeValue: string) {
     this.profileForm.get('theme')?.setValue(themeValue);
+    this.themeService.setTheme(themeValue as ThemeMode);
   }
 
   setFirstDayOfWeek(dayValue: string) {
@@ -186,6 +190,13 @@ export class UserProfileComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  ngOnDestroy() {
+    if (isPlatformBrowser(this.platformId)) {
+      const cachedUser = this.userService.currentUser();
+      this.themeService.setTheme((cachedUser?.theme || 'system') as ThemeMode);
+    }
   }
 }
 

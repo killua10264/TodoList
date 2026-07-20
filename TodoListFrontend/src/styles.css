@@ -2,6 +2,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
+:root {
+  --bg-body: #f5f1eb;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f3efe6;
+  --bg-input: #ffffff;
+  --text-main: #263a23;
+  --text-muted: #6a7c66;
+  --accent-primary: #466642;
+  --accent-primary-hover: #3b5238;
+  --accent-secondary: #6b7a45;
+  --border-color: #e0e8d8;
+  --shadow-color: rgba(59, 78, 55, 0.08);
+  --error-color: #d34e36;
+  --footer-bg: #263a23;
+  --footer-text: #c8c8b8;
+  --footer-title: #ffffff;
+  --footer-link: #a8a898;
+}
+
+[data-theme="dark"] {
+  --bg-body: #161a14;
+  --bg-surface: #1e241c;
+  --bg-surface-hover: #293026;
+  --bg-input: #232a20;
+  --text-main: #e6ebe4;
+  --text-muted: #a3b39d;
+  --accent-primary: #6c9a63;
+  --accent-primary-hover: #83b579;
+  --accent-secondary: #8c9e60;
+  --border-color: #354030;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --error-color: #e57373;
+  --footer-bg: #1a1e18;
+  --footer-text: #95a391;
+  --footer-title: #e6ebe4;
+  --footer-link: #95a391;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -10,7 +48,7 @@
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #f5f1eb;
-    color: #3a3a2e;
+    background-color: var(--bg-body);
+    color: var(--text-main);
     min-height: 100vh;
 }

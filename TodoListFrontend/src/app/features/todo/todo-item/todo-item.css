@@ -40,14 +40,14 @@
 .todo-title {
   font-family: 'Lora', serif;
   font-size: 1.1rem;
-  color: #2e3a22;
+  color: var(--text-main);
   font-weight: 500;
   line-height: 1.35;
   display: block;
 }
 
 .completed-title {
-  color: #1a2214;
+  color: var(--text-main);
 }
 
 .todo-category-badge {
@@ -61,7 +61,7 @@
   border: 1px solid #d8dec8;
   font-size: 0.76rem;
   font-weight: 600;
-  color: #3a4a2e;
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
@@ -69,7 +69,7 @@
 .completed-badge {
   background: rgba(255, 255, 255, 0.35);
   border-color: rgba(255, 255, 255, 0.5);
-  color: #1a2214;
+  color: var(--text-main);
 }
 
 .cat-mini-dot {
@@ -115,13 +115,13 @@
 
 .btn-card-edit:hover {
   background: #54664c;
-  color: #ffffff;
+  color: var(--bg-surface);
   transform: scale(1.12);
 }
 
 .btn-card-delete:hover {
   background: #c94a4a;
-  color: #ffffff;
+  color: var(--bg-surface);
   transform: scale(1.12);
 }
 
@@ -129,20 +129,20 @@
 .todo-card.completed .btn-card-delete {
   border: 1.5px solid rgba(255, 255, 255, 0.9);
   background: transparent;
-  color: #ffffff;
+  color: var(--bg-surface);
 }
 
 .todo-card.completed .btn-card-edit:hover {
   background: #54664c;
   border-color: #54664c;
-  color: #ffffff;
+  color: var(--bg-surface);
   transform: scale(1.12);
 }
 
 .todo-card.completed .btn-card-delete:hover {
   background: #c94a4a;
   border-color: #c94a4a;
-  color: #ffffff;
+  color: var(--bg-surface);
   transform: scale(1.12);
 }
 
@@ -170,7 +170,7 @@
 }
 
 .check-mark {
-  color: #2e3a22;
+  color: var(--text-main);
   font-weight: 800;
   font-size: 0.95rem;
 }

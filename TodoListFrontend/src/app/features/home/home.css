@@ -21,7 +21,7 @@
   font-style: italic;
   font-size: 3.2rem;
   font-weight: 700;
-  color: #3a3a2e;
+  color: var(--text-main);
   line-height: 1.2;
   margin-bottom: 2rem;
 }
@@ -30,17 +30,17 @@
   width: 100%;
   max-width: 420px;
   padding: 1rem 1.5rem;
-  background: #ede9df;
-  border: 1.5px solid #c5c0a8;
+  background: var(--bg-surface-hover);
+  border: 1.5px solid var(--border-color);
   border-radius: 50px 20px 50px 20px;
   font-size: 0.95rem;
-  color: #3a3a2e;
+  color: var(--text-main);
   outline: none;
   transition: all 0.3s;
 }
 
 .hero__input::placeholder {
-  color: #8a8570;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -62,14 +62,17 @@
   height: auto;
   max-height: 520px;
   object-fit: contain;
-  filter: drop-shadow(0 12px 24px rgba(74, 90, 58, 0.08));
+  filter: drop-shadow(0 12px 24px var(--shadow-color));
+  transition: all 0.3s;
 }
+
+
 
 .features {
   padding: 3rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  border-top: 1px solid #e8e4d8;
+  border-top: 1px solid var(--border-color);
 }
 
 .features__inner {
@@ -87,7 +90,7 @@
 .feature-card__icon {
   width: 48px;
   height: 48px;
-  background: #f0ece2;
+  background: var(--bg-surface-hover);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -99,13 +102,13 @@
 .feature-card h3 {
   font-size: 1rem;
   font-weight: 700;
-  color: #3a3a2e;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
 }
 
 .feature-card p {
   font-size: 0.85rem;
-  color: #6b6b5a;
+  color: var(--text-muted);
   line-height: 1.5;
 }
 
@@ -120,12 +123,12 @@
   font-family: 'Playfair Display', serif;
   font-style: italic;
   font-size: 2rem;
-  color: #3a3a2e;
+  color: var(--text-main);
   margin-bottom: 1rem;
 }
 
 .templates__subtitle {
-  color: #6b6b5a;
+  color: var(--text-muted);
   max-width: 500px;
   margin: 0 auto 2rem;
   line-height: 1.6;
@@ -140,10 +143,10 @@
 
 .tab {
   padding: 0.5rem 1.5rem;
-  border: 1.5px solid #c5c0a8;
+  border: 1.5px solid var(--border-color);
   border-radius: 50px;
   background: transparent;
-  color: #5a5a4a;
+  color: var(--text-muted);
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s;
@@ -151,9 +154,9 @@
 
 .tab.active,
 .tab:hover {
-  background: #4a5a3a;
-  color: white;
-  border-color: #4a5a3a;
+  background: var(--text-main);
+  color: var(--bg-body);
+  border-color: var(--text-main);
 }
 
 .templates__grid {
@@ -164,8 +167,8 @@
 }
 
 .template-card {
-  background: #faf8f4;
-  border: 1px solid #e0dcd4;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 1.5rem;
 }
@@ -177,12 +180,12 @@
 
 .template-card h4 {
   font-size: 1rem;
-  color: #3a3a2e;
+  color: var(--text-main);
   margin-bottom: 0.5rem;
 }
 
 .template-card p {
   font-size: 0.85rem;
-  color: #6b6b5a;
+  color: var(--text-muted);
   line-height: 1.5;
 }

@@ -21,7 +21,7 @@
 .header-main-title {
   font-family: 'Lora', serif;
   font-size: 2.6rem;
-  color: #1a2214;
+  color: var(--text-main);
   font-weight: 500;
   margin: 0;
   letter-spacing: -0.5px;
@@ -42,7 +42,7 @@
 .logo-brand {
   font-family: 'Playfair Display', serif;
   font-size: 1.45rem;
-  color: #4a5a3a;
+  color: var(--text-main);
   font-weight: 600;
   line-height: 1.1;
   display: block;
@@ -51,7 +51,7 @@
 .logo-tagline {
   display: block;
   font-size: 0.7rem;
-  color: #8a8570;
+  color: var(--text-muted);
   letter-spacing: 0.5px;
   margin-top: 2px;
 }
@@ -71,9 +71,9 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  border: 2px solid #ffffff;
-  background: #d4dad6;
-  color: #3a4a2e;
+  border: 2px solid var(--bg-surface);
+  background: var(--border-color);
+  color: var(--text-main);
   font-weight: 700;
   font-size: 1.05rem;
   display: flex;
@@ -93,7 +93,7 @@
 }
 
 .btn-avatar:hover {
-  background: #c5ccc8;
+  background: var(--bg-surface-hover);
   transform: scale(1.06);
   box-shadow: 0 4px 12px rgba(59, 82, 56, 0.2);
 }
@@ -102,8 +102,8 @@
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  background: #ffffff;
-  border: 1px solid #e2ded4;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(46, 58, 34, 0.12);
   min-width: 190px;
@@ -121,7 +121,7 @@
   padding: 0.75rem 1rem;
   border-radius: 10px;
   text-decoration: none;
-  color: #3a4a2e;
+  color: var(--text-main);
   font-size: 0.9rem;
   font-weight: 500;
   background: transparent;
@@ -133,8 +133,8 @@
 }
 
 .menu-item:hover {
-  background: #f3efe6;
-  color: #2e3a22;
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
 }
 
 .btn-logout-item:hover {
@@ -152,7 +152,7 @@
 
 .header-bio {
   font-size: 0.95rem;
-  color: #6a7c66;
+  color: var(--text-muted);
   font-style: italic;
   font-family: 'Outfit', sans-serif;
   letter-spacing: 0.2px;

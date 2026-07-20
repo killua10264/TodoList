@@ -67,7 +67,7 @@
   flex-wrap: wrap;
   gap: 1.2rem;
   font-size: 0.95rem;
-  color: #6b7a45;
+  color: var(--accent-secondary);
   margin-top: 0.6rem;
   font-weight: 500;
 }
@@ -84,7 +84,7 @@
   border-radius: 20px;
   font-weight: 600;
   font-size: 0.88rem;
-  color: #ffffff;
+  color: var(--bg-surface);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -107,7 +107,7 @@
 .btn-zen-toggle-root.is-completed {
   background: #516c51;
   border-color: #516c51;
-  color: #ffffff;
+  color: var(--bg-surface);
 }
 
 .btn-zen-delete {
@@ -175,7 +175,7 @@
   background: rgba(255, 255, 255, 0.65);
   border: 1.5px dashed #c8d1bd;
   border-radius: 16px;
-  color: #6b7a45;
+  color: var(--accent-secondary);
   font-style: italic;
   font-size: 1.1rem;
 }
@@ -220,7 +220,7 @@
   outline: none;
   font-family: 'Lora', serif;
   font-size: 1.2rem;
-  color: #ffffff;
+  color: var(--bg-surface);
 }
 
 .pill-input-field::placeholder {
@@ -234,7 +234,7 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: #ffffff;
+  color: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -243,7 +243,7 @@
 }
 
 .btn-pill-submit:hover:not(:disabled) {
-  background: #ffffff;
+  background: var(--bg-surface);
   color: #516c51;
   transform: scale(1.1);
 }

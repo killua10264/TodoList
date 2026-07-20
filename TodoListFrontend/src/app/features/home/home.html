@@ -10,7 +10,7 @@
         </div>
 
         <div class="hero__illustration">
-            <img src="assets/images/task_tree.svg" alt="Plant illustration" />
+            <img [src]="themeService.activeMode() === 'dark' ? 'assets/images/task_tree_dark.svg' : 'assets/images/task_tree.svg'" alt="Plant illustration" />
         </div>
     </div>
 </section>

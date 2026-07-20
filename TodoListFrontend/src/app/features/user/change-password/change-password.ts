@@ -16,6 +16,7 @@ import { checkPasswordStatus, passwordRequirementsValidator } from '../../../cor
 export class ChangePasswordComponent {
   private userService = inject(UserService);
   private toast = inject(ToastService);
+  // trigger recompile for CSS cache issue
 
   isLoading = false;
   errorMessage = '';

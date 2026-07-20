@@ -2,9 +2,9 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #f6f4ed;
+  background: var(--bg-body);
   font-family: 'Inter', sans-serif;
-  color: #2e3a22;
+  color: var(--text-main);
 }
 
 .zen-body {
@@ -42,12 +42,12 @@
 }
 
 .menu-item:hover {
-  background: #f3efe6;
-  color: #2e3a22;
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
 }
 
 .btn-logout-item:hover {
-  background: #fff0f0;
+  background: rgba(211, 78, 54, 0.1);
   transform: scale(1.1);
 }
 
@@ -55,10 +55,10 @@
   position: absolute;
   top: 100%;
   right: 4px;
-  background: #ffffff;
-  border: 1px solid #d0d8c2;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(46, 58, 34, 0.15);
+  box-shadow: 0 4px 16px var(--shadow-color);
   padding: 0.3rem;
   z-index: 100;
   min-width: 140px;
@@ -90,7 +90,7 @@
   border-radius: 6px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #3a4a2e;
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
   cursor: pointer;
   text-align: left;
@@ -98,13 +98,13 @@
 }
 
 .cat-option-btn:hover {
-  background: #f2f5eb;
-  color: #1a2214;
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
 }
 
 .cat-option-btn.delete-option:hover {
-  background: #fee8e8;
-  color: #c94a4a;
+  background: rgba(211, 78, 54, 0.1);
+  color: var(--error-color);
 }
 
 .categories-header-link {
@@ -124,9 +124,9 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    #c2c9bf 20%,
-    #a8b569 50%,
-    #c2c9bf 80%,
+    var(--border-color) 20%,
+    var(--accent-secondary) 50%,
+    var(--border-color) 80%,
     transparent 100%
   );
   opacity: 0.6;
@@ -150,14 +150,14 @@
   font-family: 'Lora', serif;
   font-size: 1rem;
   font-weight: 700;
-  color: #1c2613;
+  color: var(--text-main);
   margin: 0;
   letter-spacing: -0.2px;
 }
 
 .worklist-page-indicator {
   font-size: 0.75rem;
-  color: #8a8570;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
@@ -179,12 +179,12 @@
 }
 
 .worklist-scroll::-webkit-scrollbar-thumb {
-  background: #c2c9bf;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 .worklist-scroll::-webkit-scrollbar-thumb:hover {
-  background: #8a9a5b;
+  background: var(--accent-primary);
 }
 
 .worklist-item {
@@ -193,7 +193,7 @@
   gap: 0.6rem;
   padding: 0.4rem 0.6rem 0.4rem 1.1rem;
   text-decoration: none;
-  color: #2e3a22;
+  color: var(--text-main);
   font-family: 'Lora', serif;
   font-size: 0.95rem;
   font-weight: 500;
@@ -203,11 +203,11 @@
 }
 
 .worklist-item:hover {
-  background: rgba(138, 154, 91, 0.1);
+  background: var(--bg-surface-hover);
 }
 
 .worklist-item.completed {
-  color: #8a8570;
+  color: var(--text-muted);
 }
 
 .worklist-item.completed .worklist-name {
@@ -220,7 +220,7 @@
   height: 18px;
   min-width: 18px;
   border-radius: 5px;
-  border: 2px solid #c2c9bf;
+  border: 2px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,9 +232,9 @@
 }
 
 .worklist-check.checked {
-  background: #54664c;
-  border-color: #54664c;
-  color: #ffffff;
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-surface);
 }
 
 .worklist-name {
@@ -248,7 +248,7 @@
   padding: 1rem 2rem;
   font-family: 'Lora', serif;
   font-size: 0.9rem;
-  color: #8a8570;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -264,9 +264,9 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: 1.5px solid #c2c9bf;
+  border: 1.5px solid var(--border-color);
   background: transparent;
-  color: #2e3a22;
+  color: var(--text-main);
   font-size: 1.1rem;
   font-weight: 700;
   display: flex;
@@ -278,9 +278,9 @@
 }
 
 .worklist-page-btn:hover:not(:disabled) {
-  background: #6b7a45;
-  color: #ffffff;
-  border-color: #6b7a45;
+  background: var(--accent-secondary);
+  color: var(--bg-surface);
+  border-color: var(--accent-secondary);
 }
 
 .worklist-page-btn:disabled {

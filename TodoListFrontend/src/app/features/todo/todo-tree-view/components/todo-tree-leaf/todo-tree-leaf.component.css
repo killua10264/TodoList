@@ -140,7 +140,7 @@
 .zen-leaf-checkbox.checked {
   background: #3A5B37;
   border-color: #3A5B37;
-  color: #ffffff;
+  color: var(--bg-surface);
 }
 
 .leaf-title-area {
@@ -170,7 +170,7 @@
   border: 2px solid #3A5B37;
   border-radius: 6px;
   outline: none;
-  background: #ffffff;
+  background: var(--bg-surface);
 }
 
 .leaf-hover-actions {
@@ -211,13 +211,13 @@
 
 .btn-leaf-icon:hover {
   background: #3A5B37;
-  color: #ffffff;
+  color: var(--bg-surface);
 }
 
 .btn-leaf-icon.delete:hover {
   background: #ff5252;
   border-color: #ff5252;
-  color: #ffffff;
+  color: var(--bg-surface);
 }
 
 @media (max-width: 768px) {

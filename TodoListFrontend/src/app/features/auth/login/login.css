@@ -11,7 +11,7 @@ form {
     font-style: italic;
     font-weight: 700;
     font-size: 2rem;
-    color: #4a5a3a;
+    color: var(--text-main);
     margin-bottom: 0.5rem;
 }
 
@@ -24,37 +24,37 @@ form {
 .leaf-field label {
     font-size: 0.95rem;
     font-weight: 600;
-    color: #4a5a3a;
+    color: var(--text-main);
     margin-left: 0.5rem;
 }
 
 .leaf-field input {
     width: 100%;
     padding: 0.95rem 1.5rem;
-    background: #ede9df;
-    border: 1.5px solid #c5c0a8;
+    background: var(--bg-surface-hover);
+    border: 1.5px solid var(--border-color);
     border-radius: 50px 20px 50px 20px;
     font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
-    color: #3a3a2e;
+    color: var(--text-main);
     outline: none;
     transition: all 0.3s ease;
 }
 
 .leaf-field input::placeholder {
-    color: #8a8570;
+    color: var(--text-muted);
     font-style: italic;
 }
 
 .leaf-field input:focus {
-    border-color: #a8b545;
-    background: #f0eddf;
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
     box-shadow: 0 2px 12px rgba(168, 181, 69, 0.2);
 }
 
 .leaf-field input.ng-invalid.ng-touched {
-    border-color: #dc3545;
-    background: #fff8f8;
+    border-color: var(--error-color);
+    background: rgba(211, 78, 54, 0.1);
 }
 
 .password-input-wrapper {
@@ -75,7 +75,7 @@ form {
     border: none;
     cursor: pointer;
     font-size: 1.1rem;
-    color: #6b7a45;
+    color: var(--accent-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -90,7 +90,7 @@ form {
 
 
 .error {
-    color: #dc3545;
+    color: var(--error-color);
     font-size: 0.85rem;
     font-weight: 500;
     margin-left: 0.75rem;
@@ -104,8 +104,8 @@ form {
     padding: 1rem;
     margin-top: 0.5rem;
 
-    background: #4a5a3a;
-    color: #ffffff;
+    background: var(--text-main);
+    color: var(--bg-surface);
 
     border: none;
     border-radius: 50px;
@@ -119,7 +119,7 @@ form {
 }
 
 .btn-login:hover:not(:disabled) {
-    background: #3d4d30;
+    background: var(--accent-primary-hover);
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(74, 90, 58, 0.3);
 }
@@ -129,7 +129,7 @@ form {
 }
 
 .btn-login:disabled {
-    background: #a8a898;
+    background: var(--border-color);
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
@@ -139,17 +139,25 @@ form {
     text-align: center;
     margin-top: 0.5rem;
     font-size: 0.95rem;
-    color: #8a8570;
+    color: var(--text-muted);
 }
 
 .auth-switch a {
-    color: #6b7a45;
+    color: var(--accent-secondary);
     font-weight: 600;
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .auth-switch a:hover {
-    color: #4a5a3a;
+    color: var(--text-main);
     text-decoration: underline;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px var(--bg-surface-hover) inset !important;
+    -webkit-text-fill-color: var(--text-main) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }

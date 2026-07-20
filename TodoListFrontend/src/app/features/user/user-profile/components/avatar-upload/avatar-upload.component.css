@@ -5,7 +5,7 @@
   margin-bottom: 2rem;
   padding: 1.25rem;
   background: rgba(255, 255, 255, 0.6);
-  border: 1px dashed #c2c9bf;
+  border: 1px dashed var(--border-color);
   border-radius: 12px;
 }
 
@@ -14,10 +14,10 @@
   height: 90px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid #ffffff;
+  border: 3px solid var(--bg-surface);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   flex-shrink: 0;
-  background: #f1f5ee;
+  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -32,7 +32,7 @@
 .avatar-placeholder {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #6b7a45;
+  color: var(--accent-secondary);
   font-family: 'Playfair Display', serif;
 }
 
@@ -46,27 +46,27 @@
 .btn-avatar-upload {
   display: inline-block;
   padding: 0.6rem 1rem;
-  background: #6b7a45;
-  color: #ffffff;
+  background: var(--accent-secondary);
+  color: var(--bg-surface);
   font-weight: 600;
   font-size: 0.9rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
-  border: 1px solid #6b7a45;
+  border: 1px solid var(--accent-secondary);
 }
 
 .btn-avatar-upload:hover {
-  background: #55604a;
+  background: var(--accent-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(107, 122, 69, 0.3);
 }
 
 .btn-avatar-default {
   background: transparent;
-  border: 1px solid #d93848;
-  color: #d93848;
+  border: 1px solid var(--error-color);
+  color: var(--error-color);
   padding: 0.5rem 1rem;
   font-weight: 600;
   font-size: 0.85rem;
@@ -76,7 +76,7 @@
 }
 
 .btn-avatar-default:hover {
-  background: #fff0f0;
+  background: rgba(211, 78, 54, 0.1);
 }
 
 @media (max-width: 768px) {

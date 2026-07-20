@@ -2,8 +2,8 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    background: #faf8f4;
-    border-bottom: 1px solid #e8e4d8;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header__inner {
@@ -29,13 +29,13 @@
 .header__brand {
     font-family: 'Playfair Display', serif;
     font-size: 1.2rem;
-    color: #4a5a3a;
+    color: var(--text-main);
 }
 
 .header__tagline {
     display: block;
     font-size: 0.7rem;
-    color: #8a8570;
+    color: var(--text-muted);
 }
 
 .header__nav {
@@ -45,14 +45,14 @@
 
 .header__nav a {
     text-decoration: none;
-    color: #5a5a4a;
+    color: var(--text-muted);
     font-size: 0.95rem;
     transition: color 0.2s;
 }
 
 .header__nav a:hover,
 .header__nav a.active {
-    color: #4a5a3a;
+    color: var(--text-main);
     font-weight: 600;
 }
 
@@ -63,24 +63,24 @@
 
 .btn-outline {
     padding: 0.5rem 1.25rem;
-    border: 1.5px solid #4a5a3a;
+    border: 1.5px solid var(--text-main);
     border-radius: 8px;
     background: transparent;
-    color: #4a5a3a;
+    color: var(--text-main);
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.2s;
 }
 
 .btn-outline:hover {
-    background: #4a5a3a;
+    background: var(--text-main);
     color: white;
 }
 
 .btn-solid {
     padding: 0.5rem 1.25rem;
-    background: #4a5a3a;
-    color: white;
+    background: var(--text-main);
+    color: var(--bg-body);
     border: none;
     border-radius: 8px;
     text-decoration: none;
@@ -89,12 +89,13 @@
 }
 
 .btn-solid:hover {
-    background: #3d4d30;
+    background: var(--accent-primary-hover);
+    color: white;
 }
 
 .footer {
-  background: #3a4a2e; 
-  color: #c8c8b8;
+  background: var(--footer-bg); 
+  color: var(--footer-text);
   padding: 3rem 2rem 0;
   margin-top: 4rem;
 }
@@ -109,7 +110,7 @@
 .footer__brand-name {
   font-family: 'Playfair Display', serif;
   font-size: 1.2rem;
-  color: white;
+  color: var(--footer-title);
   display: block;
   margin: 0.5rem 0;
 }
@@ -117,14 +118,14 @@
 .footer__brand img { height: 40px; filter: brightness(10); }
 
 .footer__links { display: flex; flex-direction: column; gap: 0.5rem; }
-.footer__links h4 { color: white; font-size: 0.95rem; margin-bottom: 0.5rem; }
+.footer__links h4 { color: var(--footer-title); font-size: 0.95rem; margin-bottom: 0.5rem; }
 .footer__links a {
-  color: #a8a898;
+  color: var(--footer-link);
   text-decoration: none;
   font-size: 0.85rem;
   transition: color 0.2s;
 }
-.footer__links a:hover { color: white; }
+.footer__links a:hover { color: var(--footer-title); }
 
 .footer__bottom {
   border-top: 1px solid #4a5a3e;

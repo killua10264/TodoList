@@ -29,9 +29,9 @@
 .zen-select {
   padding: 0.55rem 2.2rem 0.55rem 1rem;
   border-radius: 50px;
-  border: 1.5px solid #c2c9bf;
-  background: #ffffff;
-  color: #2e3a22;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-main);
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 600;
@@ -46,18 +46,18 @@
 }
 
 .zen-select:hover {
-  border-color: #8a9a5b;
+  border-color: var(--accent-primary);
   box-shadow: 0 2px 8px rgba(84, 102, 76, 0.12);
 }
 
 .zen-select:focus {
-  border-color: #54664c;
+  border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(168, 181, 69, 0.2);
 }
 
 .sort-select {
-  background-color: #f6f8f3;
-  color: #4a5a3a;
+  background-color: var(--bg-surface-hover);
+  color: var(--text-main);
 }
 
 .todo-grid {
@@ -76,8 +76,8 @@
   height: 50px;
   border-radius: 50%;
   border: none;
-  background: #54664c;
-  color: #ffffff;
+  background: var(--accent-primary);
+  color: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,7 +88,7 @@
 }
 
 .btn-fab-add:hover {
-  background: #3d4e36;
+  background: var(--accent-primary-hover);
   transform: scale(1.12) rotate(90deg);
   box-shadow: 0 6px 24px rgba(84, 102, 76, 0.45);
 }
@@ -98,5 +98,5 @@
   padding: 4rem 1rem;
   font-family: 'Lora', serif;
   font-size: 1.3rem;
-  color: #6b7a45;
+  color: var(--accent-secondary);
 }

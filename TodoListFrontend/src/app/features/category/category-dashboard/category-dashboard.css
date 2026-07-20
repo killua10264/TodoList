@@ -4,15 +4,15 @@
   gap: 2.2rem;
   padding: 0.5rem 1rem 3rem 0.5rem;
   font-family: 'Inter', sans-serif;
-  color: #2e3a22;
+  color: var(--text-main);
 }
 
 .garden-banner {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.85) 0%, rgba(246, 244, 237, 0.95) 100%);
-  border: 1px solid #e2ded4;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 2rem 2.5rem;
-  box-shadow: 0 10px 30px rgba(46, 58, 34, 0.06);
+  box-shadow: 0 10px 30px var(--shadow-color);
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
@@ -31,14 +31,14 @@
   font-family: 'Lora', serif;
   font-size: 1.9rem;
   font-weight: 700;
-  color: #1a2214;
+  color: var(--text-main);
   margin: 0;
   letter-spacing: -0.5px;
 }
 
 .banner-subtitle {
   font-size: 0.95rem;
-  color: #6b7a45;
+  color: var(--accent-secondary);
   margin: 0.3rem 0 0;
 }
 
@@ -46,8 +46,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #6b7a45;
-  color: #ffffff;
+  background: var(--accent-secondary);
+  color: var(--bg-surface);
   border: none;
   padding: 0.75rem 1.4rem;
   border-radius: 12px;
@@ -60,7 +60,7 @@
 }
 
 .btn-create-garden:hover {
-  background: #54664c;
+  background: var(--accent-primary-hover);
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(107, 122, 69, 0.4);
 }
@@ -78,8 +78,8 @@
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #eae6de;
+  background: var(--bg-surface-hover);
+  border: 1px solid var(--border-color);
   border-radius: 14px;
   padding: 1.1rem 1.3rem;
   display: flex;
@@ -90,7 +90,7 @@
 .stat-label {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #8a8570;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -99,17 +99,17 @@
   font-family: 'Lora', serif;
   font-size: 1.6rem;
   font-weight: 700;
-  color: #1c2613;
+  color: var(--text-main);
 }
 
 .stat-value small {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #8a8570;
+  color: var(--text-muted);
 }
 
 .completed-val {
-  color: #4a5a3a;
+  color: var(--text-main);
 }
 
 .stat-progress-card {
@@ -127,13 +127,13 @@
   font-family: 'Lora', serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: #6b7a45;
+  color: var(--accent-secondary);
 }
 
 .progress-track {
   width: 100%;
   height: 8px;
-  background: #e2ded4;
+  background: var(--border-color);
   border-radius: 6px;
   overflow: hidden;
   margin-top: 0.3rem;
@@ -153,8 +153,8 @@
 }
 
 .category-card {
-  background: #ffffff;
-  border: 1.5px solid #eae6de;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-color);
   border-left: 6px solid var(--cat-color);
   border-radius: 18px;
   padding: 1.4rem;
@@ -200,7 +200,7 @@
   font-family: 'Lora', serif;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1a2214;
+  color: var(--text-main);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -228,23 +228,23 @@
 }
 
 .btn-action.edit:hover {
-  background: #f3efe6;
-  border-color: #d8d2c4;
+  background: var(--bg-surface-hover);
+  border-color: var(--border-color);
 }
 
 .btn-action.delete:hover {
-  background: #fff0f0;
-  border-color: #f5c6cb;
+  background: rgba(211, 78, 54, 0.1);
+  border-color: var(--error-color);
 }
 
 .card-middle {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
-  background: #fcfbf9;
+  background: var(--bg-surface-hover);
   padding: 1rem;
   border-radius: 12px;
-  border: 1px solid #f2eee6;
+  border: 1px solid var(--border-color);
 }
 
 .stats-row {
@@ -255,8 +255,8 @@
 }
 
 .stat-pill {
-  background: #eef1e8;
-  color: #3a4a2e;
+  background: var(--bg-surface);
+  color: var(--text-main);
   font-size: 0.82rem;
   padding: 0.3rem 0.65rem;
   border-radius: 8px;
@@ -264,8 +264,8 @@
 }
 
 .stat-pill.completed {
-  background: #f3efe6;
-  color: #6b7a45;
+  background: var(--bg-surface-hover);
+  color: var(--accent-secondary);
 }
 
 .cat-progress {
@@ -278,18 +278,18 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.8rem;
-  color: #717d65;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
 .percent-text {
   font-weight: 700;
-  color: #1c2613;
+  color: var(--text-main);
 }
 
 .progress-track.sm {
   height: 6px;
-  background: #e2ded4;
+  background: var(--border-color);
   border-radius: 4px;
 }
 
@@ -303,8 +303,8 @@
 
 .btn-add-todo {
   background: transparent;
-  color: #54664c;
-  border: 1.5px dashed #a8b569;
+  color: var(--accent-primary);
+  border: 1.5px dashed var(--accent-primary);
   padding: 0.5rem 0.9rem;
   border-radius: 10px;
   font-family: 'Inter', sans-serif;
@@ -315,15 +315,15 @@
 }
 
 .btn-add-todo:hover {
-  background: #6b7a45;
-  color: #ffffff;
+  background: var(--accent-secondary);
+  color: var(--bg-surface);
   border-style: solid;
 }
 
 .btn-view-detail {
   text-decoration: none;
-  background: #2e3a22;
-  color: #ffffff;
+  background: var(--text-main);
+  color: var(--bg-surface);
   padding: 0.55rem 1.1rem;
   border-radius: 10px;
   font-family: 'Lora', serif;
@@ -333,7 +333,7 @@
 }
 
 .btn-view-detail:hover {
-  background: #4a5a3a;
+  background: var(--text-main);
   transform: translateX(3px);
 }
 
@@ -345,7 +345,7 @@
 
 .empty-garden {
   background: rgba(255, 255, 255, 0.8);
-  border: 2px dashed #d8d2c4;
+  border: 2px dashed var(--border-color);
   border-radius: 20px;
   padding: 4rem 2rem;
   text-align: center;
@@ -362,13 +362,13 @@
 .empty-title {
   font-family: 'Lora', serif;
   font-size: 1.5rem;
-  color: #1c2613;
+  color: var(--text-main);
   margin: 0;
 }
 
 .empty-desc {
   font-size: 0.95rem;
-  color: #8a8570;
+  color: var(--text-muted);
   max-width: 450px;
   line-height: 1.5;
   margin: 0;

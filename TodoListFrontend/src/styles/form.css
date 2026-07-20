@@ -8,7 +8,7 @@
 .form-group label {
   font-size: 0.95rem;
   font-weight: 600;
-  color: #364832;
+  color: var(--text-main);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -20,9 +20,9 @@
   width: 100%;
   padding: 0.85rem 1.15rem;
   font-size: 0.98rem;
-  color: #2c4228;
-  background: #fafcf8;
-  border: 1.8px solid #cdd8c5;
+  color: var(--text-main);
+  background: var(--bg-surface);
+  border: 1.8px solid var(--border-color);
   border-radius: 14px;
   outline: none;
   transition: all 0.25s ease;
@@ -37,39 +37,39 @@
 .form-group input:hover:not([readonly]),
 .form-group select:hover,
 .form-group textarea:hover {
-  border-color: #a3baa0;
-  background: #ffffff;
+  border-color: var(--accent-primary);
+  background: var(--bg-surface);
 }
 
 .form-group input:focus:not([readonly]),
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #466642;
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(70, 102, 66, 0.12);
+  border-color: var(--accent-primary);
+  background: var(--bg-surface);
+  box-shadow: 0 0 0 4px var(--shadow-color);
 }
 
 .form-group input[readonly] {
-  background: #f1f5ee;
-  color: #6a7c66;
-  border-color: #dde4d8;
+  background: var(--bg-surface-hover);
+  color: var(--text-muted);
+  border-color: var(--border-color);
   cursor: not-allowed;
 }
 
 .help-text {
   font-size: 0.83rem;
-  color: #71846c;
+  color: var(--text-muted);
   line-height: 1.4;
   margin-top: 0.15rem;
 }
 
 .error {
   font-size: 0.85rem;
-  color: #d34e36;
-  background: #fdf3f2;
+  color: var(--error-color);
+  background: var(--bg-surface);
   padding: 0.4rem 0.8rem;
   border-radius: 8px;
-  border-left: 3px solid #d34e36;
+  border-left: 3px solid var(--error-color);
   margin-top: 0.25rem;
   font-weight: 500;
   animation: fadeInError 0.2s ease;
@@ -80,3 +80,12 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px var(--bg-surface) inset !important;
+    -webkit-text-fill-color: var(--text-main) !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
