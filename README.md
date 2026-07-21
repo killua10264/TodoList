@@ -16,7 +16,7 @@ _<center>Màn hình quản lý danh sách công việc</center>_
 - **Trạng thái & Tiến độ:** Đánh dấu hoàn thành công việc nhanh chóng.
 - **Phân loại & Lọc:** Lọc công việc theo trạng thái (Đã hoàn thành, Chưa hoàn thành), theo ngày hạn (Due Date).
 - **Xác thực & Bảo mật:** Đăng nhập, đăng ký tài khoản an toàn.
-- **Giao diện hiện đại (UI/UX):** Hỗ trợ chuyển đổi Light/Dark Mode theo tùy chọn người dùng, thiết kế Responsive hiển thị mượt mà trên cả máy tính và điện thoại.
+- **Giao diện hiện đại (UI/UX):** Giao diện phong cách khu vườn.
 
 ## 🛠 Công nghệ sử dụng (Tech Stack)
 
@@ -51,7 +51,7 @@ Làm theo các bước dưới đây để clone và chạy dự án trên máy 
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/TodoList.git
+git clone https://github.com/killua10264/TodoList.git
 
 # Di chuyển vào thư mục Backend
 cd TodoList/TodoListBackend
