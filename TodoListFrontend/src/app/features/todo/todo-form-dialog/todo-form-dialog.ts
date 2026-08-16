@@ -5,6 +5,8 @@ import { ToastService } from '../../../core/services/toast.service';
 import { TodoResponse } from '../../../core/models/todo.model';
 import { CategoryResponse } from '../../../core/models/category.model';
 
+import { LanguageService } from '../../../core/services/language.service';
+
 @Component({
   selector: 'app-todo-form-dialog',
   imports: [ReactiveFormsModule],
@@ -12,6 +14,7 @@ import { CategoryResponse } from '../../../core/models/category.model';
   styleUrl: './todo-form-dialog.css'
 })
 export class TodoFormDialogComponent implements OnInit {
+  langService = inject(LanguageService);
   private todoService = inject(TodoService);
   private toast = inject(ToastService);
 

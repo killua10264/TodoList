@@ -7,14 +7,17 @@ import { usernameValidator, getUsernameErrorMessage } from '../../../core/valida
 import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
 import { finalize } from 'rxjs/operators';
 
+import { LanguageService } from '../../../core/services/language.service';
+
 @Component({
-    selector: 'app-register',
-    imports: [ReactiveFormsModule, RouterLink],
-    templateUrl: './register.html',
-    styleUrl: './register.css'
+  selector: 'app-register',
+  imports: [ReactiveFormsModule, RouterLink],
+  templateUrl: './register.html',
+  styleUrl: './register.css'
 })
 export class RegisterComponent {
-    private authService = inject(AuthService);
+  langService = inject(LanguageService);
+  private authService = inject(AuthService);
     private router = inject(Router);
     private toast = inject(ToastService);
 

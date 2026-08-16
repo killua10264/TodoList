@@ -6,6 +6,7 @@ import { UserResponse } from '../../../core/models/user.model';
 import { isPlatformBrowser } from '@angular/common';
 import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
 import { ThemeService, ThemeMode } from '../../../core/services/theme.service';
+import { LanguageService, SupportedLanguage } from '../../../core/services/language.service';
 
 import { AvatarUploadComponent } from './components/avatar-upload/avatar-upload.component';
 
@@ -21,11 +22,20 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private cdr = inject(ChangeDetectorRef);
   private themeService = inject(ThemeService);
+  langService = inject(LanguageService);
 
   isLoading = false;
   isFetching = true;
   avatarUrl: string | null = null;
   errorMessage = '';
+
+  onLanguageChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const val = select.value;
+    if (val === 'vi' || val === 'en') {
+      this.langService.setLanguage(val);
+    }
+  }
 
   getUsernameError() {
     return getUsernameErrorMessage(this.profileForm.get('username')?.errors);
@@ -86,16 +96,18 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   private patchUserData(user: UserResponse) {
     this.avatarUrl = user.avatarUrl || null;
+    const userLang = (user.language || 'vi') as SupportedLanguage;
     this.profileForm.patchValue({
       username: user.username,
       email: user.email,
       bio: user.bio || '',
       timezone: user.timezone || 'Asia/Ho_Chi_Minh',
       theme: user.theme || 'light',
-      language: user.language || 'vi',
+      language: userLang,
       firstDayOfWeek: user.firstDayOfWeek || 'Monday'
     });
     this.themeService.setTheme((user.theme || 'system') as ThemeMode);
+    this.langService.setLanguage(userLang);
   }
 
     getAvatarInitials(): string {
@@ -180,6 +192,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.userService.updateProfile(payload).subscribe({
       next: (res) => {
         this.isLoading = false;
+        if (rawValue.language) {
+          this.langService.setLanguage(rawValue.language as SupportedLanguage);
+        }
         this.toast.show(res?.message || 'Cập nhật hồ sơ thành công!', 'success');
         this.cdr.detectChanges();
       },
@@ -195,7 +210,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (isPlatformBrowser(this.platformId)) {
       const cachedUser = this.userService.currentUser();
-      this.themeService.setTheme((cachedUser?.theme || 'system') as ThemeMode);
+      this.themeService.setTheme((cachedUser?.theme || 'light') as ThemeMode);
     }
   }
 }

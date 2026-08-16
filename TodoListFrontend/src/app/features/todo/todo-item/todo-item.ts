@@ -1,5 +1,6 @@
 import { Component, input, output, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { LanguageService } from '../../../core/services/language.service';
 import { TodoResponse } from '../../../core/models/todo.model';
 
 @Component({
@@ -10,11 +11,14 @@ import { TodoResponse } from '../../../core/models/todo.model';
 })
 export class TodoItemComponent {
   private router = inject(Router);
+  langService = inject(LanguageService);
   todo = input.required<TodoResponse>();
 
   toggled = output<TodoResponse>();
   edited = output<TodoResponse>();
   deleted = output<number>();
+  restored = output<number>();
+  hardDeleted = output<number>();
 
   onToggle(event: Event) {
     event.stopPropagation();
@@ -33,5 +37,15 @@ export class TodoItemComponent {
   onDelete(event: Event) {
     event.stopPropagation();
     this.deleted.emit(this.todo().id);
+  }
+
+  onRestore(event: Event) {
+    event.stopPropagation();
+    this.restored.emit(this.todo().id);
+  }
+
+  onHardDelete(event: Event) {
+    event.stopPropagation();
+    this.hardDeleted.emit(this.todo().id);
   }
 }

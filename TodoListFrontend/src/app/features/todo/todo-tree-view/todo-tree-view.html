@@ -1,13 +1,13 @@
 <div class="zen-tree-page">
   <header class="zen-tree-header">
     <div class="header-left-nav">
-      <a routerLink="/todos" class="btn-zen-back" title="Quay lại danh sách">
+      <a routerLink="/todos" class="btn-zen-back" [title]="langService.translate('tree.back_list_title')">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
           stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
-        <span>Danh sách</span>
+        <span>{{ langService.translate('tree.back_list') }}</span>
       </a>
 
       @if (todo()) {
@@ -16,7 +16,7 @@
         @if (todo()?.description || todo()?.dueDate) {
         <div class="zen-parent-meta">
           @if (todo()?.dueDate) {
-          <span>🕒 Hạn chót: {{ todo()?.dueDate | date:'dd/MM/yyyy' }}</span>
+          <span>{{ langService.translate('tree.due_date') }}{{ todo()?.dueDate | date:'dd/MM/yyyy' }}</span>
           }
           @if (todo()?.description) {
           <span>• {{ todo()?.description }}</span>
@@ -30,16 +30,16 @@
     @if (todo()) {
     <div class="header-right-actions">
       <div class="zen-category-pill" [style.backgroundColor]="todo()?.categoryColor || '#4a6148'">
-        <span>{{ todo()?.categoryName || 'Công việc chung' }}</span>
+        <span>{{ todo()?.categoryName || langService.translate('tree.general_task') }}</span>
       </div>
 
       <button type="button" class="btn-zen-toggle-root" [class.is-completed]="todo()?.isCompleted"
-        (click)="onToggleParentTodo()" title="Đánh dấu hoàn thành toàn bộ cây">
-        <span>{{ todo()?.isCompleted ? '✓ Cây đã trọn vẹn' : '🌱 Đang nuôi dưỡng' }}</span>
+        (click)="onToggleParentTodo()" [title]="langService.translate('tree.toggle_complete_tree')">
+        <span>{{ todo()?.isCompleted ? langService.translate('tree.tree_completed') : langService.translate('tree.tree_sprouting') }}</span>
       </button>
 
       <button type="button" class="btn-zen-delete" (click)="openDeleteConfirm('todo', todo()!.id)"
-        title="Xóa toàn bộ cây công việc này">
+        [title]="langService.translate('tree.delete_tree_title')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"></polyline>
@@ -89,7 +89,7 @@
       />
       } @empty {
       <div class="zen-forest-empty">
-        <p>🍃 Vườn lá đang chờ chồi non! Hãy nhập nhánh lá mới ở dưới gốc cây để nuôi dưỡng công việc này.</p>
+        <p>{{ langService.translate('tree.empty_forest') }}</p>
       </div>
       }
     </div>
@@ -97,10 +97,10 @@
     <div class="zen-bottom-sprout-area">
       <div class="capsule-sprout-pill">
         <span class="pill-leaf-icon">🌿</span>
-        <input type="text" [(ngModel)]="newLeafTitle" (keyup.enter)="onAddLeaf()" placeholder="Thêm một lá cây mới..."
+        <input type="text" [(ngModel)]="newLeafTitle" (keyup.enter)="onAddLeaf()" [placeholder]="langService.translate('tree.placeholder_add_leaf')"
           [disabled]="isAdding()" class="pill-input-field" />
         <button type="button" class="btn-pill-submit" (click)="onAddLeaf()" [disabled]="!newLeafTitle() || isAdding()"
-          title="Gieo lá mới">
+          [title]="langService.translate('tree.title_sow_leaf')">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
             stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -114,6 +114,6 @@
   }
 
   <app-confirm-dialog [visible]="showDeleteConfirm()"
-    [message]="deleteTargetType() === 'todo' ? 'Bạn có chắc chắn muốn xóa toàn bộ cây công việc này?' : 'Bạn có muốn lặt nhánh lá công việc con này không?'"
+    [message]="deleteTargetType() === 'todo' ? langService.translate('tree.confirm_delete_tree') : langService.translate('tree.confirm_delete_leaf')"
     (confirmed)="onDeleteConfirmed($event)" />
 </div>

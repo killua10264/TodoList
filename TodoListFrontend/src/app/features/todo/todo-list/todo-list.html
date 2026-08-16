@@ -1,24 +1,34 @@
 <div class="todo-list-page">
+  <div class="search-bar">
+    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="text" class="search-input" [placeholder]="langService.translate('search.placeholder')" (input)="onSearchInput($event)" />
+  </div>
+
   <div class="filter-toolbar">
     <div class="filter-group">
       <select [ngModel]="selectedCategoryId()" (ngModelChange)="selectedCategoryId.set($event); onFilterChanged()" class="zen-select">
-        <option [ngValue]="null">Tất cả danh mục</option>
+        <option [ngValue]="null">{{ langService.translate('filter.all_categories') }}</option>
         @for (proj of categories(); track proj.id) {
         <option [ngValue]="proj.id">{{ proj.name }}</option>
         }
       </select>
 
       <select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event); onFilterChanged()" class="zen-select">
-        <option value="all">Tất cả trạng thái</option>
-        <option value="pending">Đang ươm mầm (Chưa xong)</option>
-        <option value="completed">Đã nở hoa (Hoàn thành)</option>
+        <option value="all">{{ langService.translate('filter.all_statuses') }}</option>
+        <option value="pending">{{ langService.translate('filter.pending') }}</option>
+        <option value="completed">{{ langService.translate('filter.completed') }}</option>
+        <option value="hidden">{{ langService.translate('filter.hidden') }}</option>
+        <option value="trash">{{ langService.translate('filter.trash') }}</option>
       </select>
     </div>
 
     <div class="sort-group">
       <select [ngModel]="selectedSort()" (ngModelChange)="selectedSort.set($event); onFilterChanged()" class="zen-select sort-select">
-        <option value="dueDate">Hạn chót gần nhất</option>
-        <option value="priorityDesc">Ưu tiên cao nhất</option>
+        <option value="dueDate">{{ langService.translate('sort.dueDate') }}</option>
+        <option value="priorityDesc">{{ langService.translate('sort.priorityDesc') }}</option>
       </select>
     </div>
   </div>
@@ -27,13 +37,13 @@
   <app-loading-spinner />
   } @else if (todos().length === 0) {
   <div class="empty-state">
-    <p>📭 Chưa có công việc nào. Hãy gieo hạt giống đầu tiên!</p>
+    <p>{{ langService.translate('empty.todos') }}</p>
   </div>
   } @else {
   <div class="todo-grid">
     @for (todo of todos(); track todo.id) {
     <app-todo-item [todo]="todo" (toggled)="onTodoToggled($event)" (edited)="openEditForm($event)"
-      (deleted)="onDeleteRequested($event)" />
+      (deleted)="onDeleteRequested($event)" (restored)="onRestoreTodo($event)" (hardDeleted)="onHardDeleteTodo($event)" />
     }
   </div>
 
@@ -43,7 +53,7 @@
   }
   }
 
-  <button class="btn-fab-add" (click)="openCreateForm()" title="Thêm một hạt giống mới">
+  <button class="btn-fab-add" (click)="openCreateForm()" [title]="langService.translate('todo.add_seed')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
       <line x1="12" y1="5" x2="12" y2="19"></line>
       <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -59,6 +69,6 @@
   <app-category-form-dialog (saved)="onCategoryFormSaved()" (cancelled)="showCategoryForm = false" />
   }
 
-  <app-confirm-dialog [visible]="showDeleteConfirm" message="Bạn có chắc muốn xóa công việc này?"
+  <app-confirm-dialog [visible]="showDeleteConfirm" [message]="langService.translate('dialog.confirm_delete')"
     (confirmed)="onDeleteConfirmed($event)" />
 </div>

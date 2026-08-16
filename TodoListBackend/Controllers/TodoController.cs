@@ -15,10 +15,10 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? filter = null, [FromQuery] int? categoryId = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null, [FromQuery] bool? isHidden = false)
+        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? filter = null, [FromQuery] int? categoryId = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null, [FromQuery] bool? isHidden = false, [FromQuery] string? search = null, [FromQuery] bool? isDeleted = false)
         {
             int userId = GetCurrentUserId();
-            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy, isHidden);
+            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy, isHidden, search, isDeleted);
 
             return Ok(paginatedTodos);
         }
@@ -60,6 +60,22 @@ namespace TodoListBackend.Controllers
 
             await _todoService.DeleteTodoAsync(id, userId);
 
+            return NoContent();
+        }
+
+        [HttpPost("{id}/restore")]
+        public async Task<IActionResult> RestoreTodo(int id)
+        {
+            int userId = GetCurrentUserId();
+            await _todoService.RestoreTodoAsync(id, userId);
+            return Ok(new { message = "Khôi phục công việc thành công." });
+        }
+
+        [HttpDelete("{id}/hard")]
+        public async Task<IActionResult> HardDeleteTodo(int id)
+        {
+            int userId = GetCurrentUserId();
+            await _todoService.HardDeleteTodoAsync(id, userId);
             return NoContent();
         }
     }

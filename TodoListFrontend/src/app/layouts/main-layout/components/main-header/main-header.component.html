@@ -3,7 +3,7 @@
     <img src="assets/images/logo.svg" alt="Zen Branch" class="logo-img" />
     <div class="logo-text">
       <span class="logo-brand">Zen Branch</span>
-      <span class="logo-tagline">Khu vườn Tĩnh Lặng</span>
+      <span class="logo-tagline">{{ langService.translate('header.logo_tagline') }}</span>
     </div>
   </a>
 
@@ -18,7 +18,7 @@
 
   <div class="zen-actions">
         <div class="avatar-wrapper">
-      <button class="btn-avatar" (click)="toggleUserMenu($event)" title="Tài khoản">
+      <button class="btn-avatar" (click)="toggleUserMenu($event)" [title]="langService.translate('header.account')">
         @if (headerAvatarUrl()) {
           <img [src]="headerAvatarUrl()" alt="Avatar" class="header-avatar-img" />
         } @else {
@@ -28,13 +28,13 @@
       @if (showUserMenu()) {
       <div class="user-menu-dropdown" (click)="$event.stopPropagation()">
         <a routerLink="/profile" (click)="closeUserMenu()" class="menu-item">
-          <span>👤 Hồ sơ cá nhân</span>
+          <span>{{ langService.translate('header.profile') }}</span>
         </a>
         <a routerLink="/change-password" (click)="closeUserMenu()" class="menu-item">
-          <span>🔐 Đổi mật khẩu</span>
+          <span>{{ langService.translate('header.change_password') }}</span>
         </a>
         <button (click)="handleLogout()" class="menu-item btn-logout-item">
-          <span>🚪 Đăng xuất</span>
+          <span>{{ langService.translate('header.logout') }}</span>
         </button>
       </div>
       }

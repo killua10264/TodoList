@@ -5,14 +5,17 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { finalize } from 'rxjs/operators';
 
+import { LanguageService } from '../../../core/services/language.service';
+
 @Component({
-    selector: 'app-login',
-    imports: [ReactiveFormsModule, RouterLink],
-    templateUrl: './login.html',
-    styleUrl: './login.css'
+  selector: 'app-login',
+  imports: [ReactiveFormsModule, RouterLink],
+  templateUrl: './login.html',
+  styleUrl: './login.css'
 })
 export class LoginComponent {
-    private authService = inject(AuthService);
+  langService = inject(LanguageService);
+  private authService = inject(AuthService);
     private router = inject(Router);
     private toast = inject(ToastService);
 

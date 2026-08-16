@@ -11,6 +11,8 @@ import { LoadingSpinnerComponent } from '../../../shared/loading-spinner/loading
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog';
 import { TodoTreeLeafComponent } from './components/todo-tree-leaf/todo-tree-leaf.component';
 
+import { LanguageService } from '../../../core/services/language.service';
+
 @Component({
   selector: 'app-todo-tree-view',
   imports: [CommonModule, RouterLink, FormsModule, LoadingSpinnerComponent, ConfirmDialogComponent, TodoTreeLeafComponent],
@@ -18,6 +20,7 @@ import { TodoTreeLeafComponent } from './components/todo-tree-leaf/todo-tree-lea
   styleUrl: './todo-tree-view.css'
 })
 export class TodoTreeViewComponent implements OnInit {
+  langService = inject(LanguageService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private todoService = inject(TodoService);

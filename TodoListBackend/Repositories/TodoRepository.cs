@@ -13,12 +13,21 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false)
+        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false, string? search = null, bool? isDeleted = false)
         {
             var query = _context.Todos
                 .AsNoTracking()
                 .Include(t => t.Category)
-                .Where(t => t.UserId == userId && !t.IsDeleted);
+                .Where(t => t.UserId == userId);
+
+            if (isDeleted.HasValue)
+            {
+                query = query.Where(t => t.IsDeleted == isDeleted.Value);
+            }
+            else
+            {
+                query = query.Where(t => !t.IsDeleted);
+            }
 
             if (isHidden.HasValue)
             {
@@ -36,6 +45,16 @@ namespace TodoListBackend.Repositories
                 {
                     query = query.Where(t => t.DueDate.Date > today);
                 }
+            }
+
+            // Tìm kiếm theo từ khóa trong Title và Description
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchLower = search.Trim().ToLower();
+                query = query.Where(t =>
+                    t.Title.ToLower().Contains(searchLower) ||
+                    t.Description.ToLower().Contains(searchLower)
+                );
             }
 
             if (categoryId.HasValue && categoryId.Value > 0)
@@ -85,7 +104,7 @@ namespace TodoListBackend.Repositories
             return (items, totalCount);
         }
 
-        public async Task<Todo?> GetByIdAsync(int id, int userId, bool trackChanges = false)
+        public async Task<Todo?> GetByIdAsync(int id, int userId, bool trackChanges = false, bool includeDeleted = false)
         {
             var query = _context.Todos.AsQueryable();
             
@@ -93,9 +112,14 @@ namespace TodoListBackend.Repositories
                 query = query.AsNoTracking();
             }
 
-            return await query
-                .Include(t => t.Category)
-                .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId && !t.IsDeleted);
+            query = query.Include(t => t.Category).Where(t => t.Id == id && t.UserId == userId);
+
+            if (!includeDeleted)
+            {
+                query = query.Where(t => !t.IsDeleted);
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task AddAsync(Todo todo)
@@ -103,5 +127,9 @@ namespace TodoListBackend.Repositories
             await _context.Todos.AddAsync(todo);
         }
 
+        public void Remove(Todo todo)
+        {
+            _context.Todos.Remove(todo);
+        }
     }
 }

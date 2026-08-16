@@ -7,6 +7,7 @@ namespace TodoListBackend.DTOs.Todo
         public string Description { get; set; } = string.Empty;
         public bool IsCompleted { get; set; }
         public bool IsHidden { get; set; }
+        public bool IsDeleted { get; set; }
         public int Priority { get; set; }
         public DateTime DueDate { get; set; }
         public int CategoryId { get; set; }

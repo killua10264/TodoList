@@ -3,34 +3,34 @@
     <img src="assets/images/vine-separator.svg" alt="separator" class="vine-img" />
   </div>
 
-    <a routerLink="/todos" [class.active]="pageTitle() === 'Tất cả công việc'" class="nav-item">
+    <a routerLink="/todos" [class.active]="pageTitle() === langService.translate('nav.all_tasks') || pageTitle() === 'Tất cả công việc'" class="nav-item">
     <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-    <span class="nav-text">Tất cả công việc</span>
+    <span class="nav-text">{{ langService.translate('nav.all_todos') }}</span>
   </a>
 
-    <a routerLink="/todos" [queryParams]="{filter: 'today'}" [class.active]="pageTitle() === 'Hôm nay'"
+    <a routerLink="/todos" [queryParams]="{filter: 'today'}" [class.active]="pageTitle() === langService.translate('nav.today') || pageTitle() === 'Hôm nay'"
     class="nav-item">
     <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-    <span class="nav-text">Hôm nay</span>
+    <span class="nav-text">{{ langService.translate('nav.today') }}</span>
   </a>
 
-    <a routerLink="/todos" [queryParams]="{filter: 'upcoming'}" [class.active]="pageTitle() === 'Sắp tới'"
+    <a routerLink="/todos" [queryParams]="{filter: 'upcoming'}" [class.active]="pageTitle() === langService.translate('nav.upcoming') || pageTitle() === 'Sắp tới'"
     class="nav-item">
     <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-    <span class="nav-text">Sắp tới</span>
+    <span class="nav-text">{{ langService.translate('nav.upcoming') }}</span>
   </a>
 
-    <a routerLink="/categories" [class.active]="pageTitle() === 'Khu vườn Danh mục' || pageTitle() === 'Báo cáo' || pageTitle() === 'Danh mục'" class="nav-item">
+    <a routerLink="/categories" [class.active]="pageTitle() === langService.translate('nav.categories') || pageTitle() === 'Khu vườn Danh mục'" class="nav-item">
     <img src="assets/images/leaf.svg" alt="" class="leaf-icon-img" />
-    <span class="nav-text">Khu vườn Danh mục</span>
+    <span class="nav-text">{{ langService.translate('nav.categories') }}</span>
   </a>
 
     <div class="sidebar-categories">
     <div class="categories-header">
-      <a routerLink="/categories" class="categories-header-link" title="Mở trang quản lý toàn bộ Khu vườn Danh mục">
-        <h3 class="categories-title">Danh mục</h3>
+      <a routerLink="/categories" class="categories-header-link" [title]="langService.translate('nav.categories')">
+        <h3 class="categories-title">{{ langService.translate('nav.sidebar_categories') }}</h3>
       </a>
-      <button type="button" class="btn-add-category" (click)="handleCreateCategory()" title="Thêm danh mục mới">+</button>
+      <button type="button" class="btn-add-category" (click)="handleCreateCategory()" [title]="langService.translate('nav.add_category_title')">+</button>
     </div>
     <div class="categories-list">
       @for (cat of categories(); track cat.id) {
@@ -42,12 +42,15 @@
           <span class="category-badge">{{ cat.todoCount }}</span>
           }
         </a>
-        <button type="button" class="btn-cat-more-actions" (click)="handleToggleCategoryMenu($event, cat)" title="Tùy chọn danh mục...">···</button>
+        <button type="button" class="btn-cat-more-actions" (click)="handleToggleCategoryMenu($event, cat)" title="···">···</button>
 
         @if (activeCategoryMenuId() === cat.id) {
         <div class="category-options-menu" (click)="$event.stopPropagation()">
+          <button type="button" class="cat-option-btn edit-option" (click)="handleEditCategory($event, cat)">
+            {{ langService.translate('nav.edit_category') }}
+          </button>
           <button type="button" class="cat-option-btn delete-option" (click)="handleDeleteCategory($event, cat)">
-            🗑️ Xóa danh mục
+            {{ langService.translate('nav.delete_category') }}
           </button>
         </div>
         }

@@ -38,14 +38,18 @@
 
 .avatar-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
   flex: 1;
+  flex-wrap: wrap;
 }
 
 .btn-avatar-upload {
-  display: inline-block;
-  padding: 0.6rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1.1rem;
   background: var(--accent-secondary);
   color: var(--bg-surface);
   font-weight: 600;
@@ -64,10 +68,13 @@
 }
 
 .btn-avatar-default {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
-  border: 1px solid var(--error-color);
-  color: var(--error-color);
-  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.6rem 1.1rem;
   font-weight: 600;
   font-size: 0.85rem;
   border-radius: 8px;
@@ -75,8 +82,18 @@
   transition: all 0.2s ease;
 }
 
-.btn-avatar-default:hover {
+.btn-avatar-default:hover:not(:disabled) {
   background: rgba(211, 78, 54, 0.1);
+  color: var(--error-color);
+  border-color: var(--error-color);
+  transform: translateY(-2px);
+}
+
+.btn-avatar-default:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--border-color);
+  color: var(--text-muted);
 }
 
 @media (max-width: 768px) {

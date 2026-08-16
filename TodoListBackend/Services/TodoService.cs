@@ -16,14 +16,14 @@ namespace TodoListBackend.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false)
+        public async Task<PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false, string? search = null, bool? isDeleted = false)
         {
             if (categoryId.HasValue && categoryId.Value > 0)
             {
                 categoryId = await ResolveCategoryIdAsync(categoryId.Value, userId);
             }
 
-            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy, isHidden);
+            var (todos, totalCount) = await _unitOfWork.Todos.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy, isHidden, search, isDeleted);
             return new PaginatedResponse<TodoResponseDto>
             {
                 Items = todos.Select(t => t.ToResponseDto()!),
@@ -81,6 +81,28 @@ namespace TodoListBackend.Services
             todo.IsDeleted = true;
             todo.UpdatedAt = DateTime.UtcNow;
 
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task RestoreTodoAsync(int id, int userId)
+        {
+            var todo = await _unitOfWork.Todos.GetByIdAsync(id, userId, trackChanges: true, includeDeleted: true);
+            if (todo == null)
+                throw new NotFoundException($"Không tìm thấy công việc có ID = {id}.");
+
+            todo.IsDeleted = false;
+            todo.UpdatedAt = DateTime.UtcNow;
+
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task HardDeleteTodoAsync(int id, int userId)
+        {
+            var todo = await _unitOfWork.Todos.GetByIdAsync(id, userId, trackChanges: true, includeDeleted: true);
+            if (todo == null)
+                throw new NotFoundException($"Không tìm thấy công việc có ID = {id}.");
+
+            _unitOfWork.Todos.Remove(todo);
             await _unitOfWork.SaveChangesAsync();
         }
 

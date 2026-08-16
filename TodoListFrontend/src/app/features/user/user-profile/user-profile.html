@@ -1,10 +1,10 @@
 <div class="profile-page">
-  <h2>👤 Hồ sơ & Cài đặt cá nhân</h2>
+  <h2>{{ langService.translate('profile.main_title') }}</h2>
 
   @if (isFetching) {
     <div class="loading-spinner">
       <div class="spinner"></div>
-      <span>Đang tải thông tin cá nhân...</span>
+      <span>{{ langService.translate('profile.loading') }}</span>
     </div>
   } @else {
     @if (errorMessage) {
@@ -16,9 +16,9 @@
     <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
             <section class="profile-section">
         <h3 class="section-title">
-          <span>🌿</span> Thông tin định danh cơ bản
+          {{ langService.translate('profile.section_identity') }}
         </h3>
-        <p class="section-desc">Đây là thông tin công khai và định danh hiển thị trên toàn hệ thống.</p>
+        <p class="section-desc">{{ langService.translate('profile.section_identity_desc') }}</p>
 
         <app-avatar-upload
           [avatarUrl]="avatarUrl"
@@ -28,8 +28,8 @@
         />
 
         <div class="form-group">
-          <label for="username">Tên đăng nhập (Username)</label>
-          <input id="username" formControlName="username" placeholder="Nhập tên đăng nhập (VD: quocbao_99)..." />
+          <label for="username">{{ langService.translate('profile.label_username') }}</label>
+          <input id="username" formControlName="username" [placeholder]="langService.translate('profile.placeholder_username')" />
           @if (profileForm.get('username')?.touched && profileForm.get('username')?.invalid) {
             <span class="error">{{ getUsernameError() }}</span>
           }
@@ -37,15 +37,15 @@
 
         <div class="form-group">
           <label for="email">
-            Email đăng nhập
+            {{ langService.translate('profile.label_email') }}
           </label>
           <input id="email" type="email" formControlName="email" readonly />
-          <small class="help-text">💡 Email đăng nhập được khóa bảo mật. Vui lòng liên hệ quản trị viên nếu bạn cần đổi email.</small>
+          <small class="help-text">{{ langService.translate('profile.help_email') }}</small>
         </div>
 
         <div class="form-group">
-          <label for="bio">Dòng trạng thái / Mục tiêu (Bio & Status)</label>
-          <textarea id="bio" formControlName="bio" rows="2" placeholder="Chia sẻ cảm hứng hoặc mục tiêu hiện tại của bạn (VD: Đang tập trung ôn thi)..."></textarea>
+          <label for="bio">{{ langService.translate('profile.label_bio') }}</label>
+          <textarea id="bio" formControlName="bio" rows="2" [placeholder]="langService.translate('profile.placeholder_bio')"></textarea>
           @if (profileForm.get('bio')?.touched && profileForm.get('bio')?.hasError('maxlength')) {
             <span class="error">Dòng trạng thái tối đa 300 ký tự.</span>
           }
@@ -54,62 +54,62 @@
 
             <section class="profile-section preferences-section">
         <h3 class="section-title">
-          <span>⚙️</span> Tùy chọn hệ thống (Preferences)
+          {{ langService.translate('profile.section_preferences') }}
         </h3>
-        <p class="section-desc">Các cài đặt ảnh hưởng trực tiếp đến trải nghiệm cá nhân hóa và thông báo của bạn.</p>
+        <p class="section-desc">{{ langService.translate('profile.section_pref_desc') }}</p>
 
         <div class="form-group">
-          <label for="timezone">Múi giờ (Timezone)</label>
+          <label for="timezone">{{ langService.translate('profile.label_timezone') }}</label>
           <select id="timezone" formControlName="timezone">
             @for (tz of timezones; track tz.value) {
               <option [value]="tz.value">{{ tz.label }}</option>
             }
           </select>
-          <small class="help-text">⏰ Múi giờ chính xác giúp hệ thống gửi thông báo nhắc việc và tính hạn chót (due date) chuẩn xác nhất.</small>
+          <small class="help-text">{{ langService.translate('profile.help_timezone') }}</small>
         </div>
 
         <div class="form-group">
-          <label>Chế độ hiển thị (Theme)</label>
+          <label>{{ langService.translate('profile.label_theme') }}</label>
           <div class="theme-selector-grid">
             <div class="theme-card"
                  [class.active]="profileForm.get('theme')?.value === 'light'"
                  (click)="setTheme('light')">
               <span class="theme-icon">☀️</span>
-              <span class="theme-name">Sáng (Light)</span>
+              <span class="theme-name">{{ langService.translate('profile.theme_light') }}</span>
             </div>
             <div class="theme-card"
                  [class.active]="profileForm.get('theme')?.value === 'dark'"
                  (click)="setTheme('dark')">
               <span class="theme-icon">🌙</span>
-              <span class="theme-name">Tối (Dark)</span>
+              <span class="theme-name">{{ langService.translate('profile.theme_dark') }}</span>
             </div>
             <div class="theme-card"
                  [class.active]="profileForm.get('theme')?.value === 'system'"
                  (click)="setTheme('system')">
               <span class="theme-icon">💻</span>
-              <span class="theme-name">Hệ thống</span>
+              <span class="theme-name">{{ langService.translate('profile.theme_system') }}</span>
             </div>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="language">Ngôn ngữ giao diện (Language)</label>
-          <select id="language" formControlName="language">
-            <option value="vi">🇻🇳 Tiếng Việt (vi)</option>
-            <option value="en">🇬🇧 English (en)</option>
+          <label for="language">{{ langService.translate('profile.label_language') }}</label>
+          <select id="language" formControlName="language" (change)="onLanguageChange($event)">
+            <option value="vi">{{ langService.translate('lang.vi') }}</option>
+            <option value="en">{{ langService.translate('lang.en') }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Ngày bắt đầu của tuần (First Day of Week)</label>
+          <label>{{ langService.translate('profile.label_first_day') }}</label>
           <div class="day-selector-grid">
             <div class="day-card"
                  [class.active]="profileForm.get('firstDayOfWeek')?.value === 'Monday'"
                  (click)="setFirstDayOfWeek('Monday')">
               <span class="day-icon">📅</span>
               <div class="day-info">
-                <strong>Thứ Hai (Monday)</strong>
-                <small>Chuẩn lịch công việc ISO</small>
+                <strong>{{ langService.translate('profile.day_monday') }}</strong>
+                <small>{{ langService.translate('profile.day_monday_sub') }}</small>
               </div>
             </div>
             <div class="day-card"
@@ -117,8 +117,8 @@
                  (click)="setFirstDayOfWeek('Sunday')">
               <span class="day-icon">📆</span>
               <div class="day-info">
-                <strong>Chủ Nhật (Sunday)</strong>
-                <small>Chuẩn lịch Mỹ / Nhật Bản</small>
+                <strong>{{ langService.translate('profile.day_sunday') }}</strong>
+                <small>{{ langService.translate('profile.day_sunday_sub') }}</small>
               </div>
             </div>
           </div>
@@ -127,9 +127,9 @@
 
             <button type="submit" class="btn-submit-profile" [disabled]="isLoading">
         @if (isLoading) {
-          <span class="btn-loader"></span> Đang lưu các thay đổi...
+          <span class="btn-loader"></span> {{ langService.translate('profile.btn_submitting') }}
         } @else {
-          💾 Cập nhật thông tin & cài đặt
+          {{ langService.translate('profile.btn_submit') }}
         }
       </button>
     </form>

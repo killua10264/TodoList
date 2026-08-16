@@ -12,6 +12,8 @@ import { MainSidebarComponent } from './components/main-sidebar/main-sidebar.com
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { LanguageService } from '../../core/services/language.service';
+
 @Component({
   selector: 'app-main-layout',
   imports: [RouterOutlet, CategoryFormDialogComponent, ConfirmDialogComponent, MainHeaderComponent, MainSidebarComponent],
@@ -25,13 +27,15 @@ export class MainLayoutComponent implements OnInit {
   private todoService = inject(TodoService);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  langService = inject(LanguageService);
 
   showCategoryModal = false;
   showDeleteCategoryConfirm = false;
   activeCategoryMenuId: number | null = null;
   deletingCategory: CategoryResponse | null = null;
+  editingCategory: CategoryResponse | null = null;
   categories = signal<CategoryResponse[]>([]);
-  pageTitle = signal<string>('Tất cả công việc');
+  pageTitle = signal<string>('');
   headerAvatarUrl = computed(() => this.userService.currentUser()?.avatarUrl || null);
   headerAvatarInitials = computed(() => {
     const u = this.userService.currentUser();
@@ -79,11 +83,11 @@ export class MainLayoutComponent implements OnInit {
 
   private updatePageTitle(url: string) {
     if (url.includes('/profile')) {
-      this.pageTitle.set('Hồ sơ cá nhân');
+      this.pageTitle.set(this.langService.translate('nav.profile'));
       return;
     }
     if (url.includes('/change-password')) {
-      this.pageTitle.set('Đổi mật khẩu');
+      this.pageTitle.set(this.langService.translate('nav.change_password'));
       return;
     }
     if (url.includes('/categories')) {
@@ -94,10 +98,10 @@ export class MainLayoutComponent implements OnInit {
         if (proj) {
           this.pageTitle.set(proj.name);
         } else {
-          this.pageTitle.set('Chi tiết danh mục');
+          this.pageTitle.set(this.langService.translate('cat.detail_title'));
         }
       } else {
-        this.pageTitle.set('Khu vườn Danh mục');
+        this.pageTitle.set(this.langService.translate('nav.categories'));
       }
       return;
     }
@@ -108,12 +112,12 @@ export class MainLayoutComponent implements OnInit {
       if (proj) {
         this.pageTitle.set(proj.name);
       } else {
-        this.pageTitle.set('Chi tiết danh mục');
+        this.pageTitle.set(this.langService.translate('cat.detail_title'));
       }
     } else if (url.includes('filter=today')) {
-      this.pageTitle.set('Hôm nay');
+      this.pageTitle.set(this.langService.translate('nav.today'));
     } else if (url.includes('filter=upcoming')) {
-      this.pageTitle.set('Sắp tới');
+      this.pageTitle.set(this.langService.translate('nav.upcoming'));
     } else if (url.includes('categoryId=') || url.includes('projectId=')) {
       const match = url.match(/categoryId=(\d+)/) || url.match(/projectId=(\d+)/);
       if (match) {
@@ -122,28 +126,30 @@ export class MainLayoutComponent implements OnInit {
         if (proj) {
           this.pageTitle.set(proj.name);
         } else if (id === 1) {
-          this.pageTitle.set('Học tập');
+          this.pageTitle.set(this.langService.translate('cat.study'));
         } else if (id === 2) {
-          this.pageTitle.set('Công việc');
+          this.pageTitle.set(this.langService.translate('cat.work'));
         } else if (id === 3) {
-          this.pageTitle.set('Khác');
+          this.pageTitle.set(this.langService.translate('cat.other'));
         } else {
-          this.pageTitle.set('Tất cả công việc');
+          this.pageTitle.set(this.langService.translate('nav.all_tasks'));
         }
       } else {
-        this.pageTitle.set('Tất cả công việc');
+        this.pageTitle.set(this.langService.translate('nav.all_tasks'));
       }
     } else {
-      this.pageTitle.set('Tất cả công việc');
+      this.pageTitle.set(this.langService.translate('nav.all_tasks'));
     }
   }
 
   openCreateCategoryModal() {
+    this.editingCategory = null;
     this.showCategoryModal = true;
   }
 
   onCategoryCreated() {
     this.showCategoryModal = false;
+    this.editingCategory = null;
     this.loadCategories();
   }
 
@@ -167,6 +173,15 @@ export class MainLayoutComponent implements OnInit {
 
   closeCategoryMenu() {
     this.activeCategoryMenuId = null;
+  }
+
+  onEditSidebarCategory(event: any) {
+    const e = event.event as Event;
+    e.stopPropagation();
+    e.preventDefault();
+    this.closeCategoryMenu();
+    this.editingCategory = event.cat;
+    this.showCategoryModal = true;
   }
 
   onDeleteSidebarCategory(event: any) {

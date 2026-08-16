@@ -344,7 +344,7 @@
 }
 
 .empty-garden {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--bg-surface);
   border: 2px dashed var(--border-color);
   border-radius: 20px;
   padding: 4rem 2rem;

@@ -13,6 +13,8 @@ interface CategoryViewMode extends CategoryResponse {
   progressPercent: number;
 }
 
+import { LanguageService } from '../../../core/services/language.service';
+
 @Component({
   selector: 'app-category-dashboard',
   imports: [
@@ -26,6 +28,7 @@ interface CategoryViewMode extends CategoryResponse {
   styleUrl: './category-dashboard.css'
 })
 export class CategoryDashboardComponent implements OnInit {
+  langService = inject(LanguageService);
   private categoryService = inject(CategoryService);
   private todoService = inject(TodoService);
   private toast = inject(ToastService);
@@ -102,6 +105,14 @@ export class CategoryDashboardComponent implements OnInit {
   onCategoryFormSaved(): void {
     this.showCategoryForm.set(false);
     this.editingCategory.set(null);
+  }
+
+  onCategoryFormDeleted(categoryId: number): void {
+    this.showCategoryForm.set(false);
+    const cat = this.categories().find(c => c.id === categoryId);
+    if (cat) {
+      this.openDeleteCategoryConfirm(cat);
+    }
   }
 
   openCreateTodoForCategory(categoryId: number): void {

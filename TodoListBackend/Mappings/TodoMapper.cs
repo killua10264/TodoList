@@ -16,6 +16,7 @@ namespace TodoListBackend.Mappings
                 Description = todoModel.Description,
                 IsCompleted = todoModel.IsCompleted,
                 IsHidden = todoModel.IsHidden,
+                IsDeleted = todoModel.IsDeleted,
                 Priority = todoModel.Priority,
                 DueDate = todoModel.DueDate,
                 CategoryId = todoModel.CategoryId,

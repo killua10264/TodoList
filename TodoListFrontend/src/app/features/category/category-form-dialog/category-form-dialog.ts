@@ -4,6 +4,8 @@ import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CategoryResponse } from '../../../core/models/category.model';
 
+import { LanguageService } from '../../../core/services/language.service';
+
 @Component({
   selector: 'app-category-form-dialog',
   imports: [ReactiveFormsModule],
@@ -11,6 +13,7 @@ import { CategoryResponse } from '../../../core/models/category.model';
   styleUrl: './category-form-dialog.css'
 })
 export class CategoryFormDialogComponent implements OnInit {
+  langService = inject(LanguageService);
   private categoryService = inject(CategoryService);
   private toast = inject(ToastService);
 

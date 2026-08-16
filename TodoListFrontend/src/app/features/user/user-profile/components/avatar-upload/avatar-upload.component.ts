@@ -1,5 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { LanguageService } from '../../../../../core/services/language.service';
 
 @Component({
   selector: 'app-avatar-upload',
@@ -8,6 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './avatar-upload.component.css'
 })
 export class AvatarUploadComponent {
+  langService = inject(LanguageService);
   avatarUrl = input<string | null>(null);
   avatarInitials = input<string>('U');
 

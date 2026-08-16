@@ -19,7 +19,7 @@ export class TodoService {
         this.refresh$.next();
     }
 
-    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, categoryId?: number | null, status?: string | null, sortBy?: string | null, isHidden?: boolean | null) {
+    getAll(page: number = 1, pageSize: number = 20, filter?: string | null, categoryId?: number | null, status?: string | null, sortBy?: string | null, isHidden?: boolean | null, search?: string | null, isDeleted?: boolean | null) {
         let params = new HttpParams()
             .set('page', page.toString())
             .set('pageSize', pageSize.toString());
@@ -29,6 +29,8 @@ export class TodoService {
         if (status && status !== 'all') params = params.set('status', status);
         if (sortBy) params = params.set('sortBy', sortBy);
         if (isHidden !== null && isHidden !== undefined) params = params.set('isHidden', isHidden.toString());
+        if (search && search.trim()) params = params.set('search', search.trim());
+        if (isDeleted !== null && isDeleted !== undefined) params = params.set('isDeleted', isDeleted.toString());
 
         return this.http.get<PaginatedResponse<TodoResponse>>(this.apiUrl, { params });
     }
@@ -55,6 +57,18 @@ export class TodoService {
 
     delete(id: number) {
         return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+            tap(() => this.notifyChanged())
+        );
+    }
+
+    restore(id: number) {
+        return this.http.post(`${this.apiUrl}/${id}/restore`, {}).pipe(
+            tap(() => this.notifyChanged())
+        );
+    }
+
+    hardDelete(id: number) {
+        return this.http.delete(`${this.apiUrl}/${id}/hard`).pipe(
             tap(() => this.notifyChanged())
         );
     }

@@ -9,7 +9,7 @@ export class ThemeService {
   private mediaQueryList: MediaQueryList | null = null;
   
   // Trạng thái lưu trữ UI (Sáng, Tối, hoặc Hệ thống)
-  currentTheme = signal<ThemeMode>('system');
+  currentTheme = signal<ThemeMode>('light');
   
   // Trạng thái thực tế đang áp dụng lên thẻ HTML (Sáng hoặc Tối)
   activeMode = signal<'light' | 'dark'>('light');
@@ -23,10 +23,10 @@ export class ThemeService {
 
   // Khởi tạo từ bộ nhớ tạm (Cache) để chống FOUC
   initTheme(cachedTheme: string) {
-    if (cachedTheme === 'light' || cachedTheme === 'dark' || cachedTheme === 'system') {
-      this.setTheme(cachedTheme as ThemeMode, false);
+    if (cachedTheme === 'dark') {
+      this.setTheme('dark', false);
     } else {
-      this.setTheme('system', false);
+      this.setTheme('light', false);
     }
   }
 
@@ -50,10 +50,10 @@ export class ThemeService {
     let modeToApply: 'light' | 'dark' = 'light';
     const theme = this.currentTheme();
 
-    if (theme === 'system') {
-      modeToApply = this.mediaQueryList?.matches ? 'dark' : 'light';
+    if (theme === 'dark') {
+      modeToApply = 'dark';
     } else {
-      modeToApply = theme;
+      modeToApply = 'light';
     }
 
     this.activeMode.set(modeToApply);

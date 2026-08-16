@@ -179,6 +179,7 @@
 :host-context([data-theme="dark"]) .todo-card { background: var(--bg-surface); }
 :host-context([data-theme="dark"]) .todo-card:hover { box-shadow: 0 6px 18px var(--shadow-color); }
 :host-context([data-theme="dark"]) .todo-card.completed { background: var(--bg-surface-hover); }
+:host-context([data-theme="dark"]) .todo-card.completed .completed-title { color: var(--text-muted); text-decoration: line-through; }
 :host-context([data-theme="dark"]) .todo-category-badge { background: var(--bg-surface-hover); border: 1px solid var(--border-color); }
 :host-context([data-theme="dark"]) .completed-badge { background: transparent; border-color: var(--border-color); }
 :host-context([data-theme="dark"]) .btn-card-edit, :host-context([data-theme="dark"]) .btn-card-delete { background: transparent; color: var(--text-main); }

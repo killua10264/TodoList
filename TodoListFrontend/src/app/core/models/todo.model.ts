@@ -9,6 +9,7 @@ export interface TodoResponse {
   categoryName: string;
   categoryColor: string;
   isHidden?: boolean;
+  isDeleted?: boolean;
 }
 
 export interface TodoCreateRequest {

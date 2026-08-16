@@ -106,7 +106,8 @@
   border: 1px solid var(--border-color);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(46, 58, 34, 0.12);
-  min-width: 190px;
+  min-width: 220px;
+  width: max-content;
   padding: 0.5rem;
   z-index: 200;
   display: flex;
@@ -128,6 +129,7 @@
   border: none;
   width: 100%;
   text-align: left;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }

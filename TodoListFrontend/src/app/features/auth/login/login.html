@@ -1,8 +1,8 @@
 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <h1 class="login-title">Đăng nhập</h1>
+    <h1 class="login-title">{{ langService.translate('auth.login_title') }}</h1>
     <div class="leaf-field">
-        <label for="usernameOrEmail">Tên đăng nhập hoặc Email</label>
-        <input id="usernameOrEmail" type="text" formControlName="usernameOrEmail" placeholder="Nhập tên đăng nhập hoặc email...." />
+        <label for="usernameOrEmail">{{ langService.translate('auth.username_or_email') }}</label>
+        <input id="usernameOrEmail" type="text" formControlName="usernameOrEmail" [placeholder]="langService.translate('auth.placeholder_username_or_email')" />
         @if (loginForm.get('usernameOrEmail')?.touched && loginForm.get('usernameOrEmail')?.invalid) {
         <span class="error">
             Vui lòng nhập Tên đăng nhập hoặc Email.
@@ -11,9 +11,9 @@
     </div>
 
     <div class="leaf-field">
-        <label for="password">Mật khẩu</label>
+        <label for="password">{{ langService.translate('auth.password') }}</label>
         <div class="password-input-wrapper">
-            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Nhập mật khẩu...." />
+            <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password" [placeholder]="langService.translate('auth.placeholder_password')" />
             <button type="button" class="btn-toggle-password" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'">
                 {{ showPassword ? '👁️' : '🔒' }}
             </button>
@@ -30,12 +30,12 @@
     </div>
 
     <button type="submit" class="btn-login" [disabled]="isLoading">
-        @if (isLoading) { Đang xử lý... } @else { 🌱 Đăng nhập }
+        @if (isLoading) { {{ langService.translate('auth.processing') }} } @else { {{ langService.translate('auth.btn_login') }} }
     </button>
 
     <p class="auth-switch">
-        <a routerLink="/forget-password">Quên mật khẩu?</a>
+        <a routerLink="/forget-password">{{ langService.translate('auth.forget_password') }}</a>
         <br>
-        Chưa có tài khoản? <a routerLink="/register">Đăng ký</a>
+        {{ langService.translate('auth.no_account') }} <a routerLink="/register">{{ langService.translate('auth.register_now') }}</a>
     </p>
 </form>

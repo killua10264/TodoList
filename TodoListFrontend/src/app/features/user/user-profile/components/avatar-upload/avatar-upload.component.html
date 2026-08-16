@@ -8,13 +8,11 @@
   </div>
   <div class="avatar-actions">
     <label class="btn-avatar-upload">
-      📸 Đổi ảnh đại diện
+      {{ langService.translate('profile.change_avatar') }}
       <input type="file" accept="image/*" (change)="handleFileSelected($event)" hidden />
     </label>
-    @if (avatarUrl()) {
-      <button type="button" class="btn-avatar-default" (click)="handleUseDefault()">
-        🗑️ Dùng ảnh mặc định
-      </button>
-    }
+    <button type="button" class="btn-avatar-default" [disabled]="!avatarUrl()" (click)="handleUseDefault()">
+      {{ langService.translate('profile.use_default_avatar') }}
+    </button>
   </div>
 </div>

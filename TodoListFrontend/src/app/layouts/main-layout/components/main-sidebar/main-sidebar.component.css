@@ -525,3 +525,7 @@
   background: var(--accent-secondary);
   border-color: var(--accent-secondary);
 }
+
+.cat-option-btn.edit-option:hover {
+  background: rgba(107, 122, 69, 0.12);
+}

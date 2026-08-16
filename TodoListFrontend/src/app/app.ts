@@ -17,8 +17,12 @@ export class App implements OnInit {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      const cachedTheme = localStorage.getItem('user_theme') || 'system';
-      this.themeService.initTheme(cachedTheme);
+      const cachedTheme = localStorage.getItem('user_theme');
+      if (cachedTheme === 'dark') {
+        this.themeService.initTheme('dark');
+      } else {
+        this.themeService.initTheme('light');
+      }
     }
   }
 }

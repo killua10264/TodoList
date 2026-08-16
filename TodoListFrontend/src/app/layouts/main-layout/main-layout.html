@@ -15,6 +15,7 @@
       (onCreateCategory)="openCreateCategoryModal()"
       (onToggleCategoryMenu)="toggleCategoryMenu($event)"
       (onDeleteCategory)="onDeleteSidebarCategory($event)"
+      (onEditCategory)="onEditSidebarCategory($event)"
     />
 
     <main class="content">
@@ -24,7 +25,7 @@
 </div>
 
 @if (showCategoryModal) {
-<app-category-form-dialog (saved)="onCategoryCreated()" (cancelled)="showCategoryModal = false" />
+<app-category-form-dialog [category]="editingCategory" (saved)="onCategoryCreated()" (cancelled)="showCategoryModal = false" />
 }
 
 @if (showDeleteCategoryConfirm) {
