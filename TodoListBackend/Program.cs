@@ -12,15 +12,85 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.RateLimiting;
+using TodoListBackend.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "ConnectionStrings:DefaultConnection is required. Configure it with user secrets or the ConnectionStrings__DefaultConnection environment variable.");
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddControllers();
+    options.UseNpgsql(connectionString));
+builder.Services.AddProblemDetails();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = actionContext =>
+        {
+            var problemDetails = new ValidationProblemDetails(actionContext.ModelState)
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Dữ liệu đầu vào không hợp lệ",
+                Detail = "Một hoặc nhiều trường dữ liệu không hợp lệ.",
+                Instance = actionContext.HttpContext.Request.Path
+            };
+
+            problemDetails.Extensions["code"] = "validation_failed";
+            problemDetails.Extensions["traceId"] = actionContext.HttpContext.TraceIdentifier;
+            problemDetails.Extensions["message"] = problemDetails.Detail;
+
+            return new BadRequestObjectResult(problemDetails)
+            {
+                ContentTypes = { "application/problem+json" }
+            };
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddOptions<JwtSettings>()
+    .Bind(builder.Configuration.GetSection(JwtSettings.SectionName))
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.Key), "Jwt:Key is required.")
+    .Validate(settings => Encoding.UTF8.GetByteCount(settings.Key) >= 32, "Jwt:Key must contain at least 32 bytes.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.Issuer), "Jwt:Issuer is required.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.Audience), "Jwt:Audience is required.")
+    .Validate(settings => settings.AccessTokenMinutes is >= 5 and <= 60, "Jwt:AccessTokenMinutes must be between 5 and 60.")
+    .ValidateOnStart();
+
+builder.Services.AddOptions<CloudinarySettings>()
+    .Bind(builder.Configuration.GetSection(CloudinarySettings.SectionName))
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.CloudName), "CloudinarySettings:CloudName is required.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.ApiKey), "CloudinarySettings:ApiKey is required.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.ApiSecret), "CloudinarySettings:ApiSecret is required.")
+    .ValidateOnStart();
+
+var corsSettings = builder.Configuration
+    .GetSection(CorsSettings.SectionName)
+    .Get<CorsSettings>() ?? new CorsSettings();
+
+var allowedOrigins = corsSettings.AllowedOrigins
+    .Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .Select(origin => origin.Trim().TrimEnd('/'))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
+
+if (allowedOrigins.Any(origin =>
+        !Uri.TryCreate(origin, UriKind.Absolute, out var uri) ||
+        (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)))
+{
+    throw new InvalidOperationException("Every Cors:AllowedOrigins value must be an absolute HTTP or HTTPS origin.");
+}
+
+if (!builder.Environment.IsDevelopment() && allowedOrigins.Length == 0)
+{
+    throw new InvalidOperationException("Cors:AllowedOrigins must contain at least one trusted production origin.");
+}
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<TodoCreateDtoValidator>();
@@ -36,7 +106,6 @@ builder.Services.AddScoped<ISubTaskRepository, SubTaskRepository>();
 builder.Services.AddScoped<ISubTaskService, SubTaskService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 builder.Services.AddRateLimiter(options =>
@@ -55,15 +124,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFE", policy =>
     {
-        var allowedOrigins = builder.Configuration
-            .GetSection("Cors:AllowedOrigins").Get<string[]>() 
-            ?? Array.Empty<string>();
-
-        policy.SetIsOriginAllowed(origin =>
-            allowedOrigins.Contains(origin) ||
-            new Uri(origin).Host == "localhost")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -72,22 +135,24 @@ builder.Services.AddAuthentication(options =>
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters{
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(
-                builder.Configuration["Jwt:Key"] 
-                    ?? throw new InvalidOperationException(
-                        "JWT signing key is not configured. Use 'dotnet user-secrets set Jwt:Key <your-secret>' or set environment variable 'Jwt__Key'.")))
-    };
-});
+.AddJwtBearer();
+
+builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+    .Configure<Microsoft.Extensions.Options.IOptions<JwtSettings>>((options, jwtOptions) =>
+    {
+        var settings = jwtOptions.Value;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = settings.Issuer,
+            ValidAudience = settings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.Key)),
+            ClockSkew = TimeSpan.FromSeconds(30)
+        };
+    });
 
 var app = builder.Build();
 

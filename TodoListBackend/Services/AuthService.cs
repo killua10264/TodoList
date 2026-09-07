@@ -7,18 +7,20 @@ using TodoListBackend.DTOs.Auth;
 using TodoListBackend.Models;
 using TodoListBackend.Repositories;
 using TodoListBackend.Security;
+using TodoListBackend.Options;
+using Microsoft.Extensions.Options;
 
 namespace TodoListBackend.Services
 {
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IConfiguration _configuration;
+        private readonly JwtSettings _jwtSettings;
 
-        public AuthService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AuthService(IUnitOfWork unitOfWork, IOptions<JwtSettings> jwtOptions)
         {
             _unitOfWork = unitOfWork;
-            _configuration = configuration;
+            _jwtSettings = jwtOptions.Value;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -134,17 +136,14 @@ namespace TodoListBackend.Services
                 new Claim(ClaimTypes.Role, user.Role.ToString())
             };
 
-            var keyString = _configuration["Jwt:Key"]
-                ?? throw new InvalidOperationException("JWT signing key is not configured. Set 'Jwt:Key' in environment variables or user secrets.");
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(15),
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenMinutes),
                 signingCredentials: credentials
             );
 
