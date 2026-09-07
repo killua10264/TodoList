@@ -11,11 +11,6 @@ export interface RegisterRequest {
   password: string;
 }
 
-export interface TokenRequest {
-  refreshToken: string;
-}
-
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
 }

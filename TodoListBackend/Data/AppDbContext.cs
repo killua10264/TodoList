@@ -11,6 +11,7 @@ namespace TodoListBackend.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<SubTask> SubTasks => Set<SubTask>();
+        public DbSet<RefreshTokenSession> RefreshTokenSessions => Set<RefreshTokenSession>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -83,6 +84,31 @@ namespace TodoListBackend.Data
                 entity.Property(u => u.FirstDayOfWeek)
                     .HasMaxLength(20)
                     .HasDefaultValue("Monday");
+            });
+
+            modelBuilder.Entity<RefreshTokenSession>(entity =>
+            {
+                entity.HasKey(session => session.Id);
+                entity.Property(session => session.TokenHash)
+                    .HasMaxLength(64)
+                    .IsRequired();
+                entity.Property(session => session.UserAgent)
+                    .HasMaxLength(512);
+                entity.Property(session => session.IpAddress)
+                    .HasMaxLength(45);
+                entity.Property(session => session.ConcurrencyToken)
+                    .IsConcurrencyToken();
+
+                entity.HasIndex(session => session.TokenHash)
+                    .IsUnique()
+                    .HasDatabaseName("IX_RefreshTokenSessions_TokenHash");
+                entity.HasIndex(session => new { session.UserId, session.RevokedAt })
+                    .HasDatabaseName("IX_RefreshTokenSessions_UserId_RevokedAt");
+
+                entity.HasOne(session => session.User)
+                    .WithMany(user => user.RefreshTokenSessions)
+                    .HasForeignKey(session => session.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Category>(entity =>

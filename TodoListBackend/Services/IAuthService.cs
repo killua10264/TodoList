@@ -4,9 +4,9 @@ namespace TodoListBackend.Services
 {
     public interface IAuthService
     {
-        Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
-        Task<AuthResponseDto> LoginAsync(LoginDto dto);
-        Task<AuthResponseDto> RefreshTokenAsync(string refreshToken);
-        Task LogoutAsync(int userId);
+        Task<AuthTokenResult> RegisterAsync(RegisterDto dto, AuthSessionContext sessionContext);
+        Task<AuthTokenResult> LoginAsync(LoginDto dto, AuthSessionContext sessionContext);
+        Task<AuthTokenResult> RefreshTokenAsync(string? refreshToken, AuthSessionContext sessionContext);
+        Task LogoutAsync(string? refreshToken, int? userId);
     }
 }

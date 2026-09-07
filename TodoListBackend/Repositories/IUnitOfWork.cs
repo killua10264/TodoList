@@ -6,6 +6,7 @@ namespace TodoListBackend.Repositories
         ICategoryRepository Categories { get; }
         IUserRepository Users { get; }
         ISubTaskRepository SubTasks { get; }
+        IRefreshTokenSessionRepository RefreshTokenSessions { get; }
         Task<int> SaveChangesAsync();
     }
 }

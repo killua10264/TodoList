@@ -10,19 +10,22 @@ namespace TodoListBackend.Repositories
         public ICategoryRepository Categories { get; }
         public IUserRepository Users { get; }
         public ISubTaskRepository SubTasks { get; }
+        public IRefreshTokenSessionRepository RefreshTokenSessions { get; }
 
         public UnitOfWork(
             AppDbContext context,
             ITodoRepository todoRepository,
             ICategoryRepository categoryRepository,
             IUserRepository userRepository,
-            ISubTaskRepository subTaskRepository)
+            ISubTaskRepository subTaskRepository,
+            IRefreshTokenSessionRepository refreshTokenSessionRepository)
         {
             _context = context;
             Todos = todoRepository;
             Categories = categoryRepository;
             Users = userRepository;
             SubTasks = subTaskRepository;
+            RefreshTokenSessions = refreshTokenSessionRepository;
         }
 
         public async Task<int> SaveChangesAsync()

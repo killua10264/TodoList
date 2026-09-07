@@ -70,6 +70,16 @@ builder.Services.AddOptions<CloudinarySettings>()
     .Validate(settings => !string.IsNullOrWhiteSpace(settings.ApiSecret), "CloudinarySettings:ApiSecret is required.")
     .ValidateOnStart();
 
+builder.Services.AddOptions<RefreshTokenSettings>()
+    .Bind(builder.Configuration.GetSection(RefreshTokenSettings.SectionName))
+    .Validate(settings => settings.ExpiryDays is >= 1 and <= 30, "RefreshToken:ExpiryDays must be between 1 and 30.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.CookieName), "RefreshToken:CookieName is required.")
+    .Validate(settings => !settings.CookieName.Contains(';'), "RefreshToken:CookieName cannot contain ';'.")
+    .Validate(settings => !string.IsNullOrWhiteSpace(settings.CookiePath) && settings.CookiePath.StartsWith('/'), "RefreshToken:CookiePath must start with '/'.")
+    .Validate(settings => settings.SameSite is "Strict" or "Lax" or "None", "RefreshToken:SameSite must be Strict, Lax or None.")
+    .Validate(settings => settings.SameSite != "None" || settings.Secure, "RefreshToken:Secure must be true when SameSite is None.")
+    .ValidateOnStart();
+
 var corsSettings = builder.Configuration
     .GetSection(CorsSettings.SectionName)
     .Get<CorsSettings>() ?? new CorsSettings();
@@ -105,6 +115,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ISubTaskRepository, SubTaskRepository>();
 builder.Services.AddScoped<ISubTaskService, SubTaskService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IRefreshTokenSessionRepository, RefreshTokenSessionRepository>();
 
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
@@ -126,7 +137,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 

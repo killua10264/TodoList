@@ -10,7 +10,9 @@ namespace TodoListBackend.Models
 
         public UserRole Role { get; set; } = UserRole.User;
 
-        public string? RefreshToken { get; set; } 
+        // Legacy fields remain during the migration window so existing data can be
+        // upgraded without losing users or silently deleting stored token hashes.
+        public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
         public string? AvatarUrl { get; set; }
@@ -22,5 +24,6 @@ namespace TodoListBackend.Models
         public string Language { get; set; } = "vi";
         public string FirstDayOfWeek { get; set; } = "Monday";
         public ICollection<Todo> Todos { get; set; } = new List<Todo>();
+        public ICollection<RefreshTokenSession> RefreshTokenSessions { get; set; } = new List<RefreshTokenSession>();
     }
 }
