@@ -9,11 +9,13 @@ using FluentValidation.AspNetCore;
 using TodoListBackend.Validators;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.RateLimiting;
+using System.Security.Claims;
 using TodoListBackend.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +80,9 @@ builder.Services.AddOptions<RefreshTokenSettings>()
     .Validate(settings => !string.IsNullOrWhiteSpace(settings.CookiePath) && settings.CookiePath.StartsWith('/'), "RefreshToken:CookiePath must start with '/'.")
     .Validate(settings => settings.SameSite is "Strict" or "Lax" or "None", "RefreshToken:SameSite must be Strict, Lax or None.")
     .Validate(settings => settings.SameSite != "None" || settings.Secure, "RefreshToken:Secure must be true when SameSite is None.")
+    .Validate(settings => !settings.CookieName.StartsWith("__Host-", StringComparison.Ordinal) ||
+        (settings.Secure && settings.CookiePath == "/" && string.IsNullOrWhiteSpace(settings.Domain)),
+        "A __Host- refresh cookie must be Secure, use Path=/ and omit Domain.")
     .ValidateOnStart();
 
 var corsSettings = builder.Configuration
@@ -121,15 +126,70 @@ builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 builder.Services.AddRateLimiter(options =>
 {
-    options.AddFixedWindowLimiter("AuthLimit", opt =>
-    {
-        opt.PermitLimit = 5; // Tối đa 5 request
-        opt.Window = TimeSpan.FromMinutes(1); // trong vòng 1 phút
-        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        opt.QueueLimit = 0;
-    });
+    options.AddPolicy("LoginLimit", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            GetClientIp(context),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("RefreshLimit", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            GetClientIp(context),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("RegisterLimit", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            GetClientIp(context),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("AvatarLimit", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            GetAuthenticatedUserOrClientIp(context),
+            _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(10),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+static string GetClientIp(HttpContext context) =>
+    context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+static string GetAuthenticatedUserOrClientIp(HttpContext context)
+{
+    var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+    return string.IsNullOrWhiteSpace(userId)
+        ? $"ip:{GetClientIp(context)}"
+        : $"user:{userId}";
+}
 
 builder.Services.AddCors(options =>
 {
@@ -180,9 +240,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFE");
 
-app.UseRateLimiter();
-
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapControllers();

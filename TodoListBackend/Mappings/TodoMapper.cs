@@ -21,7 +21,8 @@ namespace TodoListBackend.Mappings
                 DueDate = todoModel.DueDate,
                 CategoryId = todoModel.CategoryId,
                 CategoryName = todoModel.Category?.Name ?? string.Empty,
-                CategoryColor = todoModel.Category?.Color ?? string.Empty
+                CategoryColor = todoModel.Category?.Color ?? string.Empty,
+                Version = todoModel.Version
             };
         }
     }

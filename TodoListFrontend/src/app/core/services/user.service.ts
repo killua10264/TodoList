@@ -43,6 +43,16 @@ export class UserService {
         );
     }
 
+    deleteAvatar() {
+        return this.http.delete<{ message: string; data: UserResponse }>(`${this.apiUrl}/profile/avatar`).pipe(
+            tap(res => {
+                if (res.data) {
+                    this.currentUser.set(res.data);
+                }
+            })
+        );
+    }
+
     changePassword(data: ChangePasswordRequest) {
         return this.http.put(`${this.apiUrl}/change-password`, data);
     }

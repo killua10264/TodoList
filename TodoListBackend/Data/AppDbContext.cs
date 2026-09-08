@@ -25,6 +25,15 @@ namespace TodoListBackend.Data
                 entity.Property(t => t.Description)
                     .HasMaxLength(1000);
 
+                entity.Property(t => t.Version)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
+                entity.Property(t => t.DueDate)
+                    .HasColumnType("date");
+
+                entity.HasQueryFilter(t => !t.IsDeleted);
+
                 entity.HasIndex(t => new { t.UserId, t.IsDeleted })
                       .HasDatabaseName("IX_Todos_UserId_IsDeleted");
 
@@ -40,6 +49,10 @@ namespace TodoListBackend.Data
                     .HasMaxLength(200)
                     .IsRequired();
 
+                entity.Property(s => s.Version)
+                    .IsRowVersion()
+                    .IsConcurrencyToken();
+
                 entity.HasOne(s => s.Todo)
                     .WithMany(t => t.SubTasks)
                     .HasForeignKey(s => s.TodoId)
@@ -47,12 +60,14 @@ namespace TodoListBackend.Data
 
                 entity.HasIndex(s => s.TodoId)
                       .HasDatabaseName("IX_SubTasks_TodoId");
+
+                entity.HasQueryFilter(s => !s.Todo.IsDeleted);
             });
 
             modelBuilder.Entity<User>(entity =>
             {
                 entity.Property(u => u.Username)
-                    .HasMaxLength(50)
+                    .HasMaxLength(30)
                     .IsRequired();
                 entity.Property(u => u.Email)
                     .HasMaxLength(150)
@@ -70,6 +85,8 @@ namespace TodoListBackend.Data
                     .HasDatabaseName("IX_Users_RefreshToken");
                 entity.Property(u => u.DisplayName)
                     .HasMaxLength(100);
+                entity.Property(u => u.AvatarPublicId)
+                    .HasMaxLength(255);
                 entity.Property(u => u.Bio)
                     .HasMaxLength(300);
                 entity.Property(u => u.Timezone)
@@ -96,6 +113,8 @@ namespace TodoListBackend.Data
                     .HasMaxLength(512);
                 entity.Property(session => session.IpAddress)
                     .HasMaxLength(45);
+                entity.Property(session => session.RevocationReason)
+                    .HasMaxLength(100);
                 entity.Property(session => session.ConcurrencyToken)
                     .IsConcurrencyToken();
 

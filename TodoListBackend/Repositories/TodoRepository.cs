@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TodoListBackend.Data;
 using TodoListBackend.Models;
+using TodoListBackend.DTOs.Todo;
 
 namespace TodoListBackend.Repositories
 {
@@ -13,62 +14,69 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false, string? search = null, bool? isDeleted = false)
+        public async Task<(IEnumerable<Todo> Items, int TotalCount)> GetAllTodosAsync(int userId, TodoQueryDto queryOptions)
         {
             var query = _context.Todos
-                .AsNoTracking()
+                .AsNoTracking();
+
+            if (queryOptions.IsDeleted == true)
+            {
+                query = query.IgnoreQueryFilters();
+            }
+
+            query = query
                 .Include(t => t.Category)
                 .Where(t => t.UserId == userId);
 
-            if (isDeleted.HasValue)
+            if (queryOptions.IsDeleted.HasValue)
             {
-                query = query.Where(t => t.IsDeleted == isDeleted.Value);
+                query = query.Where(t => t.IsDeleted == queryOptions.IsDeleted.Value);
             }
             else
             {
                 query = query.Where(t => !t.IsDeleted);
             }
 
-            if (isHidden.HasValue)
+            if (queryOptions.IsHidden.HasValue)
             {
-                query = query.Where(t => t.IsHidden == isHidden.Value);
+                query = query.Where(t => t.IsHidden == queryOptions.IsHidden.Value);
             }
 
-            if (!string.IsNullOrEmpty(filter))
+            if (queryOptions.Filter.HasValue)
             {
-                var today = DateTime.UtcNow.Date;
-                if (filter.ToLower() == "today")
+                var today = DateOnly.FromDateTime(DateTime.UtcNow);
+                if (queryOptions.Filter == TodoFilter.Today)
                 {
-                    query = query.Where(t => t.DueDate.Date == today);
+                    query = query.Where(t => t.DueDate == today);
                 }
-                else if (filter.ToLower() == "upcoming")
+                else if (queryOptions.Filter == TodoFilter.Upcoming)
                 {
-                    query = query.Where(t => t.DueDate.Date > today);
+                    query = query.Where(t => t.DueDate > today);
                 }
             }
 
             // Tìm kiếm theo từ khóa trong Title và Description
-            if (!string.IsNullOrWhiteSpace(search))
+            if (!string.IsNullOrWhiteSpace(queryOptions.Search))
             {
-                var searchLower = search.Trim().ToLower();
+                var searchLower = queryOptions.Search.Trim().ToLower();
                 query = query.Where(t =>
                     t.Title.ToLower().Contains(searchLower) ||
                     t.Description.ToLower().Contains(searchLower)
                 );
             }
 
-            if (categoryId.HasValue && categoryId.Value > 0)
+            if (queryOptions.CategoryId.HasValue && queryOptions.CategoryId.Value > 0)
             {
-                query = query.Where(t => t.CategoryId == categoryId.Value);
+                query = query.Where(t => t.CategoryId == queryOptions.CategoryId.Value);
             }
 
-            if (!string.IsNullOrEmpty(status) && status.ToLower() != "all")
+            if (queryOptions.Status.HasValue && queryOptions.Status != TodoStatus.All)
             {
-                if (status.ToLower() == "pending")
+                if (queryOptions.Status == TodoStatus.Pending)
                 {
                     query = query.Where(t => !t.IsCompleted);
                 }
-                else if (status.ToLower() == "completed")
+                else if (queryOptions.Status == TodoStatus.Completed)
                 {
                     query = query.Where(t => t.IsCompleted);
                 }
@@ -76,13 +84,13 @@ namespace TodoListBackend.Repositories
 
             var totalCount = await query.CountAsync();
 
-            if (!string.IsNullOrEmpty(sortBy))
+            if (queryOptions.SortBy.HasValue)
             {
-                if (sortBy.ToLower() == "duedate")
+                if (queryOptions.SortBy == TodoSortBy.DueDate)
                 {
                     query = query.OrderBy(t => t.DueDate).ThenByDescending(t => t.CreatedAt);
                 }
-                else if (sortBy.ToLower() == "prioritydesc")
+                else if (queryOptions.SortBy == TodoSortBy.PriorityDesc)
                 {
                     query = query.OrderByDescending(t => t.Priority).ThenByDescending(t => t.CreatedAt);
                 }
@@ -97,8 +105,8 @@ namespace TodoListBackend.Repositories
             }
 
             var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((queryOptions.Page - 1) * queryOptions.PageSize)
+                .Take(queryOptions.PageSize)
                 .ToListAsync();
 
             return (items, totalCount);
@@ -107,6 +115,11 @@ namespace TodoListBackend.Repositories
         public async Task<Todo?> GetByIdAsync(int id, int userId, bool trackChanges = false, bool includeDeleted = false)
         {
             var query = _context.Todos.AsQueryable();
+
+            if (includeDeleted)
+            {
+                query = query.IgnoreQueryFilters();
+            }
             
             if (!trackChanges) {
                 query = query.AsNoTracking();

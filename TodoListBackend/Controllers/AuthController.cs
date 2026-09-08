@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using System.Security.Claims;
 using TodoListBackend.DTOs.Auth;
+using TodoListBackend.Exceptions;
 using TodoListBackend.Options;
 using TodoListBackend.Services;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace TodoListBackend.Controllers
 {
@@ -28,39 +27,41 @@ namespace TodoListBackend.Controllers
         }
         [HttpPost("register")]
         [AllowAnonymous]
-        [EnableRateLimiting("AuthLimit")]
+        [EnableRateLimiting("RegisterLimit")]
         public async Task<IActionResult> Register([FromBody] RegisterDto request)
         {
             var result = await _authService.RegisterAsync(request, GetSessionContext());
             SetRefreshTokenCookie(result.RefreshToken);
-            return StatusCode(201, new AuthResponseDto { AccessToken = result.AccessToken });
+            return StatusCode(201, ToResponse(result));
         }
         [HttpPost("login")]
         [AllowAnonymous]
-        [EnableRateLimiting("AuthLimit")]
+        [EnableRateLimiting("LoginLimit")]
         public async Task<IActionResult> Login([FromBody] LoginDto request)
         {
             var result = await _authService.LoginAsync(request, GetSessionContext());
             SetRefreshTokenCookie(result.RefreshToken);
-            return Ok(new AuthResponseDto { AccessToken = result.AccessToken });
+            return Ok(ToResponse(result));
         }
 
         [HttpPost("refresh-token")]
         [AllowAnonymous]
-        public async Task<IActionResult> RefreshToken(
-            [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] TokenDto? request)
+        [EnableRateLimiting("RefreshLimit")]
+        public async Task<IActionResult> RefreshToken()
         {
-            var refreshToken = Request.Cookies[_refreshTokenSettings.CookieName]
-                ?? request?.RefreshToken;
+            RequireCsrfHeader();
+            var refreshToken = Request.Cookies[_refreshTokenSettings.CookieName];
             var result = await _authService.RefreshTokenAsync(refreshToken, GetSessionContext());
             SetRefreshTokenCookie(result.RefreshToken);
-            return Ok(new AuthResponseDto { AccessToken = result.AccessToken });
+            return Ok(ToResponse(result));
         }
 
         [HttpPost("logout")]
         [AllowAnonymous]
+        [EnableRateLimiting("RefreshLimit")]
         public async Task<IActionResult> Logout()
         {
+            RequireCsrfHeader();
             int? userId = User.Identity?.IsAuthenticated == true ? GetCurrentUserId() : null;
             await _authService.LogoutAsync(
                 Request.Cookies[_refreshTokenSettings.CookieName],
@@ -68,6 +69,34 @@ namespace TodoListBackend.Controllers
             Response.Cookies.Delete(_refreshTokenSettings.CookieName, BuildCookieOptions());
             return NoContent();
         }
+
+        [HttpPost("logout-all")]
+        [EnableRateLimiting("RefreshLimit")]
+        public async Task<IActionResult> LogoutAll()
+        {
+            RequireCsrfHeader();
+            await _authService.LogoutAllAsync(GetCurrentUserId());
+            Response.Cookies.Delete(_refreshTokenSettings.CookieName, BuildCookieOptions());
+            return NoContent();
+        }
+
+        private void RequireCsrfHeader()
+        {
+            if (!Request.Headers.TryGetValue("X-CSRF-Protection", out var value) || value != "1")
+            {
+                throw new BusinessException(
+                    "Thiếu header bảo vệ CSRF.",
+                    StatusCodes.Status403Forbidden,
+                    "csrf_header_required");
+            }
+        }
+
+        private static AuthResponseDto ToResponse(AuthTokenResult result) => new()
+        {
+            AccessToken = result.AccessToken,
+            ExpiresAt = result.ExpiresAt,
+            User = result.User
+        };
 
         private AuthSessionContext GetSessionContext() => new(
             Request.Headers.UserAgent.ToString(),

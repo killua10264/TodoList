@@ -13,15 +13,20 @@ namespace TodoListBackend.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<SubTask>> GetByTodoIdAsync(int todoId, int userId)
+        public async Task<IEnumerable<SubTask>> GetByTodoIdAsync(int todoId, int userId, bool trackChanges = false)
         {
-            return await _context.SubTasks
-                .AsNoTracking()
+            IQueryable<SubTask> query = _context.SubTasks
                 .Include(s => s.Todo)
                 .Where(s => s.TodoId == todoId && s.Todo.UserId == userId && !s.Todo.IsDeleted)
                 .OrderBy(s => s.SortOrder)
-                .ThenBy(s => s.CreatedAt)
-                .ToListAsync();
+                .ThenBy(s => s.CreatedAt);
+
+            if (!trackChanges)
+            {
+                query = query.AsNoTracking();
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<int> GetCountByTodoIdAsync(int todoId)

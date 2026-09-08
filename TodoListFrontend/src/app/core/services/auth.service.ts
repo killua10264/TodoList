@@ -1,5 +1,5 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
@@ -28,7 +28,10 @@ export class AuthService {
     }
 
     refreshToken() {
-        return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, null, { withCredentials: true }).pipe(
+        return this.http.post<AuthResponse>(`${this.apiUrl}/refresh-token`, null, {
+            withCredentials: true,
+            headers: this.csrfHeaders()
+        }).pipe(
             tap(response => this.saveTokens(response))
         );
     }
@@ -60,12 +63,31 @@ export class AuthService {
     }
 
     logout() {
-        return this.http.post(`${this.apiUrl}/logout`, null, { withCredentials: true }).pipe(
+        return this.http.post(`${this.apiUrl}/logout`, null, {
+            withCredentials: true,
+            headers: this.csrfHeaders()
+        }).pipe(
             finalize(() => {
                 this.clearTokens();
                 this.router.navigate(['/login']);
             })
         );
+    }
+
+    logoutAll() {
+        return this.http.post(`${this.apiUrl}/logout-all`, null, {
+            withCredentials: true,
+            headers: this.csrfHeaders()
+        }).pipe(
+            finalize(() => {
+                this.clearTokens();
+                this.router.navigate(['/login']);
+            })
+        );
+    }
+
+    private csrfHeaders(): HttpHeaders {
+        return new HttpHeaders({ 'X-CSRF-Protection': '1' });
     }
 
     private saveTokens(response: AuthResponse): void {

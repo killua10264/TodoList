@@ -4,6 +4,6 @@ namespace TodoListBackend.DTOs.SubTask
     {
         public string Title { get; set; } = string.Empty;
         public bool IsCompleted { get; set; }
-        public int SortOrder { get; set; }
+        public uint? Version { get; set; }
     }
 }

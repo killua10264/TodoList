@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoListBackend.DTOs.SubTask;
 using TodoListBackend.Services;
 
@@ -49,11 +50,18 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSubTask(int id)
+        public async Task<IActionResult> DeleteSubTask(int id, [FromQuery, BindRequired] uint version)
         {
             int userId = GetCurrentUserId();
-            await _subTaskService.DeleteSubTaskAsync(id, userId);
+            await _subTaskService.DeleteSubTaskAsync(id, userId, version);
             return NoContent();
+        }
+
+        [HttpPut("/api/todos/{todoId:int}/subtasks/order")]
+        public async Task<IActionResult> ReorderSubTasks(int todoId, [FromBody] SubTaskOrderRequestDto request)
+        {
+            var result = await _subTaskService.ReorderSubTasksAsync(todoId, request, GetCurrentUserId());
+            return Ok(result);
         }
     }
 }

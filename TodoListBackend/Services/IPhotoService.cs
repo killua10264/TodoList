@@ -5,6 +5,7 @@ namespace TodoListBackend.Services
 {
     public interface IPhotoService
     {
-        Task<string> UploadPhotoAsync(IFormFile file);
+        Task<PhotoUploadResult> UploadPhotoAsync(IFormFile file);
+        Task<bool> DeletePhotoAsync(string publicId);
     }
 }

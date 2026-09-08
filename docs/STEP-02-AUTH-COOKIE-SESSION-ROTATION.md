@@ -144,11 +144,14 @@ Migration sẽ làm mất hash refresh-token đang tồn tại và tất cả us
 - Kiểm tra DNS/TCP với hostname PostgreSQL hiện tại đã thành công: hostname phân giải tới IP `134.209.153.206` và cổng `23362` trả về `TcpTestSucceeded = True`. Điều này xác nhận đường mạng tới Aiven hoạt động, nhưng tự nó chưa xác nhận username/password.
 - Lần chạy `dotnet ef migrations list` đầu tiên đã kết nối tới host nhưng bị PostgreSQL từ chối xác thực với lỗi `28P01` (`password authentication failed for user "avnadmin"`). Nguyên nhân là password trong `dotnet user-secrets` đã cũ hoặc không khớp với credential hiện tại của Aiven.
 - Sau khi cập nhật lại connection string trong `dotnet user-secrets` từ Aiven, `dotnet ef migrations list --no-build` đã kết nối thành công và đọc được bảng `__EFMigrationsHistory`. Lệnh trả về ba migration trong source: `20260718072752_InitialPostgres`, `20260720044133_AddIsHiddenToTodo` và `20260907114157_AddRefreshTokenSessions`.
-- Chưa chạy `dotnet ef database update`; vì vậy việc kết nối thành công chưa được coi là xác nhận migration mới đã được apply. Cần backup/xác nhận đúng database đích trước khi cập nhật schema.
+- Người dùng đã xác nhận database đích được cập nhật bằng `dotnet ef database update` và automatic backup trên Aiven ở trạng thái OK trước khi triển khai.
+- Người dùng đã xác nhận backend trên Render deploy thành công sau khi cập nhật cấu hình database.
+- Kiểm tra sau triển khai: backend test **6/6 đạt**; frontend test **2/2 đạt** khi chạy bằng `npm.cmd run test:ci`; production build thành công. Lần gọi `npm run test:ci` đầu tiên gặp lỗi launcher npm của môi trường (`npm-cli.js` không tìm thấy), không phải lỗi test ứng dụng; chạy lại bằng `npm.cmd` đã thành công.
+- Production build vẫn phát cảnh báo bundle ban đầu `539.15 kB`, vượt budget `500 kB` khoảng `39.15 kB`. Đây là hạng mục tối ưu hiệu suất còn lại, không chặn deploy.
 
 ## Ngoài phạm vi bước 2 và điều kiện triển khai
 
-- Chưa chạy migration lên database production hoặc database của bạn. Đã xác thực được kết nối và credential hiện tại, nhưng vẫn phải backup/xác nhận đúng database đích trước khi chạy migration.
+- Migration database và deploy production đã hoàn tất theo xác nhận của người dùng. Chưa thực hiện tối ưu bundle frontend hoặc dọn các artifact legacy trong bước này.
 - Chưa có màn hình quản lý và revoke từng thiết bị; bảng session đã lưu đủ metadata để làm ở bước sau.
 - Chưa xóa cột legacy và `TokenDto`; chỉ xóa sau khi client cũ đã được nâng cấp.
 - Chưa tối ưu bundle frontend và chưa self-host Google Fonts.

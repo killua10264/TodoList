@@ -55,20 +55,23 @@ export class TodoService {
         return this.http.put<TodoResponse>(`${this.apiUrl}/${id}`, data);
     }
 
-    delete(id: number) {
-        return this.http.delete(`${this.apiUrl}/${id}`).pipe(
+    delete(id: number, version: number) {
+        const url = `${this.apiUrl}/${id}?version=${version}`;
+        return this.http.delete(url).pipe(
             tap(() => this.notifyChanged())
         );
     }
 
-    restore(id: number) {
-        return this.http.post(`${this.apiUrl}/${id}/restore`, {}).pipe(
+    restore(id: number, version: number) {
+        const url = `${this.apiUrl}/${id}/restore?version=${version}`;
+        return this.http.post(url, {}).pipe(
             tap(() => this.notifyChanged())
         );
     }
 
-    hardDelete(id: number) {
-        return this.http.delete(`${this.apiUrl}/${id}/hard`).pipe(
+    hardDelete(id: number, version: number) {
+        const url = `${this.apiUrl}/${id}/hard?version=${version}`;
+        return this.http.delete(url).pipe(
             tap(() => this.notifyChanged())
         );
     }

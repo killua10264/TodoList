@@ -162,7 +162,13 @@ export class TodoListComponent implements OnInit {
   }
 
   onRestoreTodo(id: number) {
-    this.todoService.restore(id).subscribe({
+    const todo = this.todos().find(item => item.id === id);
+    if (!todo) {
+      this.loadTodos();
+      return;
+    }
+
+    this.todoService.restore(id, todo.version).subscribe({
       next: () => {
         this.toast.show('Đã khôi phục công việc thành công! ♻️', 'success');
         this.loadTodos();
@@ -175,7 +181,13 @@ export class TodoListComponent implements OnInit {
 
   onHardDeleteTodo(id: number) {
     if (confirm('Bạn có chắc chắn muốn xóa VĨNH VIỄN công việc này? Thao tác này không thể hoàn tác!')) {
-      this.todoService.hardDelete(id).subscribe({
+      const todo = this.todos().find(item => item.id === id);
+      if (!todo) {
+        this.loadTodos();
+        return;
+      }
+
+      this.todoService.hardDelete(id, todo.version).subscribe({
         next: () => {
           this.toast.show('Đã xóa vĩnh viễn công việc.', 'info');
           this.loadTodos();
@@ -212,18 +224,22 @@ export class TodoListComponent implements OnInit {
       priority: todo.priority,
       dueDate: todo.dueDate,
       categoryId: todo.categoryId,
-      isCompleted: newCompleted
+      isCompleted: newCompleted,
+      version: todo.version
     };
 
     this.todoService.updateSilent(todo.id, updateReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (updated) => {
         this.todoService.todoUpdated$.next(updated);
       },
-      error: () => {
+      error: (err) => {
         // Rollback on error
         this.todos.update(list =>
           list.map(t => t.id === todo.id ? { ...t, isCompleted: !newCompleted } : t)
         );
+        if (err.status === 409) {
+          this.loadTodos();
+        }
         this.toast.show('Cập nhật trạng thái thất bại.', 'error');
       }
     });
@@ -266,7 +282,15 @@ export class TodoListComponent implements OnInit {
       this.todos.update(list => list.filter(t => t.id !== idToDelete));
       this.totalCount.update(c => Math.max(0, c - 1));
 
-      this.todoService.delete(idToDelete).subscribe({
+      const todo = previousTodos.find(item => item.id === idToDelete);
+      if (!todo) {
+        this.todos.set(previousTodos);
+        this.totalCount.set(previousTotal);
+        this.loadTodos();
+        return;
+      }
+
+      this.todoService.delete(idToDelete, todo.version).subscribe({
         next: () => {
           this.toast.show('Xóa công việc thành công!', 'success');
           if (previousTodos.length === 1 && this.currentPage() > 1) {
@@ -290,4 +314,3 @@ export class TodoListComponent implements OnInit {
     this.loadTodos();
   }
 } 
-   

@@ -30,8 +30,8 @@ export class TodoFormDialogComponent implements OnInit {
 
   todoForm = new FormGroup({
     title: new FormControl('', [Validators.required, Validators.maxLength(200)]),
-    description: new FormControl(''),
-    priority: new FormControl(1, [Validators.required]),
+    description: new FormControl('', [Validators.maxLength(1000)]),
+    priority: new FormControl(1, [Validators.required, Validators.min(1), Validators.max(5)]),
     dueDate: new FormControl('', [Validators.required]),
     categoryId: new FormControl<number>(3, [Validators.required, Validators.min(1)]),
     isCompleted: new FormControl(false)
@@ -53,7 +53,8 @@ export class TodoFormDialogComponent implements OnInit {
         isCompleted: t.isCompleted
       });
     } else {
-      const today = new Date().toISOString().substring(0, 10);
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       let defaultCatId = this.initialCategoryId() || 3;
       if (!this.initialCategoryId() && this.categories().length > 0) {
         const otherCat = this.categories().find(c => c.name.toLowerCase().includes('khác'));
@@ -79,7 +80,10 @@ export class TodoFormDialogComponent implements OnInit {
     };
 
     if (this.isEditMode) {
-      this.todoService.update(this.todo()!.id, formValue as any).subscribe({
+      this.todoService.update(this.todo()!.id, {
+        ...formValue,
+        version: this.todo()!.version
+      } as any).subscribe({
         next: () => { this.toast.show('Cập nhật thành công!', 'success'); this.saved.emit(); },
         error: (err) => { this.isLoading = false; this.toast.show(this.extractError(err) || 'Cập nhật thất bại.', 'error'); }
       });

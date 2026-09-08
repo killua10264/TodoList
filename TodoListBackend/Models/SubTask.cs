@@ -8,6 +8,7 @@ namespace TodoListBackend.Models
         public int SortOrder { get; set; }
         public int LeafShape { get; set; } // 0-4: các hình dạng lá khác nhau
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public uint Version { get; set; }
         public int TodoId { get; set; }
         public Todo Todo { get; set; } = null!;
     }

@@ -17,7 +17,8 @@ namespace TodoListBackend.Mappings
                 SortOrder = subTaskModel.SortOrder,
                 LeafShape = subTaskModel.LeafShape,
                 CreatedAt = subTaskModel.CreatedAt,
-                TodoId = subTaskModel.TodoId
+                TodoId = subTaskModel.TodoId,
+                Version = subTaskModel.Version
             };
         }
     }

@@ -38,13 +38,19 @@ export class SubTaskService {
     return this.http.put<SubTaskResponse>(`${this.apiUrl}/${id}`, data);
   }
 
-  delete(id: number) {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+  delete(id: number, version: number) {
+    const url = `${this.apiUrl}/${id}?version=${version}`;
+    return this.http.delete<void>(url).pipe(
       tap(() => this.notifyChanged())
     );
   }
 
-  deleteSilent(id: number) {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  deleteSilent(id: number, version: number) {
+    const url = `${this.apiUrl}/${id}?version=${version}`;
+    return this.http.delete<void>(url);
+  }
+
+  reorder(todoId: number, items: { subTaskId: number; sortOrder: number }[]) {
+    return this.http.put<SubTaskResponse[]>(`${environment.apiUrl}/api/todos/${todoId}/subtasks/order`, { items });
   }
 }

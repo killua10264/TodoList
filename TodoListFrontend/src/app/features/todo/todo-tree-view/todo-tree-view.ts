@@ -77,6 +77,12 @@ export class TodoTreeViewComponent implements OnInit {
       }
     });
   }
+
+  formatDueDate(date: string): string {
+    const [year, month, day] = date.substring(0, 10).split('-');
+    return year && month && day ? `${day}/${month}/${year}` : date;
+  }
+
   onAddLeaf() {
     const title = this.newLeafTitle().trim();
     const currentTodo = this.todo();
@@ -92,7 +98,8 @@ export class TodoTreeViewComponent implements OnInit {
       sortOrder: this.subTasks().length,
       leafShape: Math.floor(Math.random() * 5),
       createdAt: new Date().toISOString(),
-      todoId: currentTodo.id
+      todoId: currentTodo.id,
+      version: 0
     };
     this.subTasks.update(list => [...list, tempLeaf]);
     this.newLeafTitle.set('');
@@ -126,7 +133,7 @@ export class TodoTreeViewComponent implements OnInit {
     this.subTaskService.updateSilent(leaf.id, {
       title: leaf.title,
       isCompleted: newCompleted,
-      sortOrder: leaf.sortOrder
+      version: leaf.version
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => {
         // Rollback on error
@@ -150,7 +157,7 @@ export class TodoTreeViewComponent implements OnInit {
     this.subTaskService.updateSilent(leaf.id, {
       title: newTitle,
       isCompleted: leaf.isCompleted,
-      sortOrder: leaf.sortOrder
+      version: leaf.version
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => {
         // Rollback on error
@@ -179,14 +186,24 @@ export class TodoTreeViewComponent implements OnInit {
       const previousSubTasks = this.subTasks();
       this.subTasks.update(list => list.filter(s => s.id !== id));
 
-      this.subTaskService.deleteSilent(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      const target = previousSubTasks.find(item => item.id === id);
+      if (!target) {
+        this.subTasks.set(previousSubTasks);
+        this.loadSubTasks(this.todo()!.id);
+        return;
+      }
+
+      this.subTaskService.deleteSilent(id, target.version).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         error: () => {
           // Rollback on error
           this.subTasks.set(previousSubTasks);
         }
       });
     } else if (type === 'todo') {
-      this.todoService.delete(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      const currentTodo = this.todo();
+      if (!currentTodo) return;
+
+      this.todoService.delete(id, currentTodo.version).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.router.navigate(['/todos']);
         }
@@ -209,11 +226,15 @@ export class TodoTreeViewComponent implements OnInit {
       priority: current.priority,
       dueDate: current.dueDate,
       isCompleted: newCompleted,
-      categoryId: current.categoryId
+      categoryId: current.categoryId,
+      version: current.version
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       error: () => {
         // Rollback on error
         this.todo.set({ ...current, isCompleted: !newCompleted });
+        if (current) {
+          this.loadTreeData(current.id);
+        }
       }
     });
   }

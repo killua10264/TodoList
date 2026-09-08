@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TodoListBackend.Models;
 using TodoListBackend.DTOs.SubTask;
 using TodoListBackend.Repositories;
@@ -21,6 +22,7 @@ namespace TodoListBackend.Services
             {
                 throw new NotFoundException($"Không tìm thấy công việc con với ID {id}");
             }
+
             return subTask.ToResponseDto()!;
         }
 
@@ -60,7 +62,7 @@ namespace TodoListBackend.Services
             };
 
             await _unitOfWork.SubTasks.AddAsync(subTask);
-            await _unitOfWork.SaveChangesAsync();
+            await SaveWithConcurrencyHandlingAsync();
 
             return subTask.ToResponseDto()!;
         }
@@ -73,15 +75,16 @@ namespace TodoListBackend.Services
                 throw new NotFoundException($"Không tìm thấy công việc con với ID {id}");
             }
 
+            EnsureVersion(subTask.Version, dto.Version);
+
             subTask.Title = dto.Title;
             subTask.IsCompleted = dto.IsCompleted;
-            subTask.SortOrder = dto.SortOrder;
-            await _unitOfWork.SaveChangesAsync();
+            await SaveWithConcurrencyHandlingAsync();
 
             return subTask.ToResponseDto()!;
         }
 
-        public async Task DeleteSubTaskAsync(int id, int userId)
+        public async Task DeleteSubTaskAsync(int id, int userId, uint expectedVersion)
         {
             var subTask = await _unitOfWork.SubTasks.GetByIdAsync(id, userId, trackChanges: true);
             if (subTask == null)
@@ -89,8 +92,79 @@ namespace TodoListBackend.Services
                 throw new NotFoundException($"Không tìm thấy công việc con với ID {id}");
             }
 
+            EnsureVersion(subTask.Version, expectedVersion);
+
             await _unitOfWork.SubTasks.DeleteAsync(subTask);
-            await _unitOfWork.SaveChangesAsync();
+            await SaveWithConcurrencyHandlingAsync();
+        }
+
+        public async Task<IEnumerable<SubTaskResponseDto>> ReorderSubTasksAsync(
+            int todoId,
+            SubTaskOrderRequestDto request,
+            int userId)
+        {
+            var todo = await _unitOfWork.Todos.GetByIdAsync(todoId, userId, trackChanges: false);
+            if (todo is null)
+            {
+                throw new NotFoundException($"Không tìm thấy công việc với ID {todoId}");
+            }
+
+            var subTasks = (await _unitOfWork.SubTasks.GetByTodoIdAsync(todoId, userId, trackChanges: true)).ToList();
+            if (request.Items.Count != subTasks.Count)
+            {
+                throw new BusinessException(
+                    "Danh sách sắp xếp phải chứa đúng toàn bộ công việc con của công việc cha.",
+                    StatusCodes.Status400BadRequest,
+                    "invalid_subtask_order");
+            }
+
+            var requestedIds = request.Items.Select(item => item.SubTaskId).ToHashSet();
+            var actualIds = subTasks.Select(item => item.Id).ToHashSet();
+            var requestedOrders = request.Items.Select(item => item.SortOrder).ToHashSet();
+            var expectedOrders = Enumerable.Range(1, subTasks.Count).ToHashSet();
+
+            if (!requestedIds.SetEquals(actualIds) || !requestedOrders.SetEquals(expectedOrders))
+            {
+                throw new BusinessException(
+                    "Danh sách sắp xếp phải chứa đúng ID và thứ tự liên tục của các công việc con.",
+                    StatusCodes.Status400BadRequest,
+                    "invalid_subtask_order");
+            }
+
+            var orderById = request.Items.ToDictionary(item => item.SubTaskId, item => item.SortOrder);
+            foreach (var subTask in subTasks)
+            {
+                subTask.SortOrder = orderById[subTask.Id];
+            }
+
+            await SaveWithConcurrencyHandlingAsync();
+            return subTasks.OrderBy(item => item.SortOrder).Select(item => item.ToResponseDto()!);
+        }
+
+        private static void EnsureVersion(uint currentVersion, uint? expectedVersion)
+        {
+            if (expectedVersion.HasValue && expectedVersion.Value != currentVersion)
+            {
+                throw new BusinessException(
+                    "Công việc con đã được thay đổi bởi một phiên khác. Vui lòng tải lại dữ liệu.",
+                    StatusCodes.Status409Conflict,
+                    "concurrency_conflict");
+            }
+        }
+
+        private async Task SaveWithConcurrencyHandlingAsync()
+        {
+            try
+            {
+                await _unitOfWork.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new BusinessException(
+                    "Công việc con đã được thay đổi bởi một phiên khác. Vui lòng tải lại dữ liệu.",
+                    StatusCodes.Status409Conflict,
+                    "concurrency_conflict");
+            }
         }
     }
 }

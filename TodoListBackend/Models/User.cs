@@ -16,6 +16,7 @@ namespace TodoListBackend.Models
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
         public string? AvatarUrl { get; set; }
+        public string? AvatarPublicId { get; set; }
         public string? DisplayName { get; set; }
         public string? Bio { get; set; }
 

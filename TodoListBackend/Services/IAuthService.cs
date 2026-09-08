@@ -8,5 +8,6 @@ namespace TodoListBackend.Services
         Task<AuthTokenResult> LoginAsync(LoginDto dto, AuthSessionContext sessionContext);
         Task<AuthTokenResult> RefreshTokenAsync(string? refreshToken, AuthSessionContext sessionContext);
         Task LogoutAsync(string? refreshToken, int? userId);
+        Task LogoutAllAsync(int userId);
     }
 }

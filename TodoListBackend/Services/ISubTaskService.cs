@@ -9,6 +9,7 @@ namespace TodoListBackend.Services
         Task<IEnumerable<SubTaskResponseDto>> GetSubTasksByTodoIdAsync(int todoId, int userId);
         Task<SubTaskResponseDto> CreateSubTaskAsync(SubTaskCreateDto dto, int userId);
         Task<SubTaskResponseDto> UpdateSubTaskAsync(int id, SubTaskUpdateDto dto, int userId);
-        Task DeleteSubTaskAsync(int id, int userId);
+        Task DeleteSubTaskAsync(int id, int userId, uint expectedVersion);
+        Task<IEnumerable<SubTaskResponseDto>> ReorderSubTasksAsync(int todoId, SubTaskOrderRequestDto request, int userId);
     }
 }

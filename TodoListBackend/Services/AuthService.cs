@@ -5,7 +5,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using TodoListBackend.Data;
 using TodoListBackend.DTOs.Auth;
+using TodoListBackend.DTOs.User;
 using TodoListBackend.Models;
 using TodoListBackend.Options;
 using TodoListBackend.Repositories;
@@ -16,15 +18,18 @@ namespace TodoListBackend.Services
     public class AuthService : IAuthService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly AppDbContext _dbContext;
         private readonly JwtSettings _jwtSettings;
         private readonly RefreshTokenSettings _refreshTokenSettings;
 
         public AuthService(
             IUnitOfWork unitOfWork,
             IOptions<JwtSettings> jwtOptions,
-            IOptions<RefreshTokenSettings> refreshTokenOptions)
+            IOptions<RefreshTokenSettings> refreshTokenOptions,
+            AppDbContext dbContext)
         {
             _unitOfWork = unitOfWork;
+            _dbContext = dbContext;
             _jwtSettings = jwtOptions.Value;
             _refreshTokenSettings = refreshTokenOptions.Value;
         }
@@ -101,7 +106,7 @@ namespace TodoListBackend.Services
 
             if (session.RevokedAt is not null)
             {
-                await RevokeActiveSessionsAsync(session.UserId);
+                await RevokeActiveSessionsAsync(session.UserId, "refresh_replay");
                 throw new UnauthorizedAccessException();
             }
 
@@ -111,17 +116,23 @@ namespace TodoListBackend.Services
                 tokenResult.RefreshToken,
                 sessionContext);
 
-            session.RevokedAt = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
+            session.LastUsedAt = now;
+            session.RevokedAt = now;
+            session.RevocationReason = "rotated";
             session.ReplacedBySessionId = replacementSession.Id;
             session.ConcurrencyToken = Guid.NewGuid();
             await _unitOfWork.RefreshTokenSessions.AddAsync(replacementSession);
 
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
             try
             {
                 await _unitOfWork.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
+                await transaction.RollbackAsync();
                 throw new UnauthorizedAccessException();
             }
 
@@ -141,6 +152,7 @@ namespace TodoListBackend.Services
                 if (userId is null || session.UserId == userId)
                 {
                     session.RevokedAt ??= DateTime.UtcNow;
+                    session.RevocationReason ??= "logout";
                     await _unitOfWork.SaveChangesAsync();
                 }
 
@@ -156,6 +168,32 @@ namespace TodoListBackend.Services
                 legacyUser.RefreshTokenExpiryTime = null;
                 await _unitOfWork.SaveChangesAsync();
             }
+        }
+
+        public async Task LogoutAllAsync(int userId)
+        {
+            var user = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true);
+            if (user is null)
+            {
+                throw new UnauthorizedAccessException();
+            }
+
+            var activeSessions = await _unitOfWork.RefreshTokenSessions.GetActiveByUserIdAsync(userId);
+            var now = DateTime.UtcNow;
+
+            foreach (var session in activeSessions)
+            {
+                session.RevokedAt = now;
+                session.RevocationReason = "logout_all";
+                session.ConcurrencyToken = Guid.NewGuid();
+            }
+
+            // Remove the transitional legacy token as well. This prevents an old
+            // client from creating a new session after logout-all.
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+
+            await _unitOfWork.SaveChangesAsync();
         }
 
         private async Task<AuthTokenResult> RefreshLegacyTokenAsync(
@@ -204,10 +242,15 @@ namespace TodoListBackend.Services
 
         private AuthTokenResult CreateTokenResult(User user)
         {
-            return new AuthTokenResult(CreateJwtToken(user), GenerateRefreshToken());
+            var expiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenMinutes);
+            return new AuthTokenResult(
+                CreateJwtToken(user, expiresAt),
+                GenerateRefreshToken(),
+                expiresAt,
+                ToResponseDto(user));
         }
 
-        private async Task RevokeActiveSessionsAsync(int userId)
+        private async Task RevokeActiveSessionsAsync(int userId, string reason)
         {
             var sessions = await _unitOfWork.RefreshTokenSessions.GetActiveByUserIdAsync(userId);
             var now = DateTime.UtcNow;
@@ -215,6 +258,7 @@ namespace TodoListBackend.Services
             foreach (var activeSession in sessions)
             {
                 activeSession.RevokedAt = now;
+                activeSession.RevocationReason = reason;
                 activeSession.ConcurrencyToken = Guid.NewGuid();
             }
 
@@ -224,7 +268,7 @@ namespace TodoListBackend.Services
             }
         }
 
-        private string CreateJwtToken(User user)
+        private string CreateJwtToken(User user, DateTime expiresAt)
         {
             var claims = new[]
             {
@@ -241,11 +285,26 @@ namespace TodoListBackend.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenMinutes),
+                expires: expiresAt,
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        private static UserResponseDto ToResponseDto(User user) => new()
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            AvatarUrl = user.AvatarUrl,
+            DisplayName = user.DisplayName,
+            Bio = user.Bio,
+            Timezone = user.Timezone ?? "Asia/Ho_Chi_Minh",
+            Theme = user.Theme ?? "light",
+            Language = user.Language ?? "vi",
+            FirstDayOfWeek = user.FirstDayOfWeek ?? "Monday",
+            CreatedAt = user.CreatedAt
+        };
 
         private static string GenerateRefreshToken()
         {

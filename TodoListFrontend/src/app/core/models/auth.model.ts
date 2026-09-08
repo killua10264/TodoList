@@ -11,6 +11,10 @@ export interface RegisterRequest {
   password: string;
 }
 
+import { UserResponse } from './user.model';
+
 export interface AuthResponse {
   accessToken: string;
+  expiresAt: string;
+  user?: UserResponse;
 }

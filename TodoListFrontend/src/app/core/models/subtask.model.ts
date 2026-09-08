@@ -6,6 +6,7 @@ export interface SubTaskResponse {
   leafShape: number; // 0-4: 5 kiểu dáng lá khác nhau
   createdAt: string;
   todoId: number;
+  version: number;
 }
 
 export interface SubTaskCreateDto {
@@ -16,5 +17,5 @@ export interface SubTaskCreateDto {
 export interface SubTaskUpdateDto {
   title: string;
   isCompleted: boolean;
-  sortOrder: number;
+  version: number;
 }

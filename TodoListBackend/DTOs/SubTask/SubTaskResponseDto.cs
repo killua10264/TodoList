@@ -9,5 +9,6 @@ namespace TodoListBackend.DTOs.SubTask
         public int LeafShape { get; set; }
         public DateTime CreatedAt { get; set; }
         public int TodoId { get; set; }
+        public uint Version { get; set; }
     }
 }

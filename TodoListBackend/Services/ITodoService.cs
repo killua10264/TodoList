@@ -4,12 +4,12 @@ namespace TodoListBackend.Services
 {
     public interface ITodoService
     {
-        Task<DTOs.PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, int page = 1, int pageSize = 20, string? filter = null, int? categoryId = null, string? status = null, string? sortBy = null, bool? isHidden = false, string? search = null, bool? isDeleted = false);
+        Task<DTOs.PaginatedResponse<TodoResponseDto>> GetAllTodosAsync(int userId, TodoQueryDto query);
         Task<TodoResponseDto?> GetTodoByIdAsync(int id, int userId);
         Task<TodoResponseDto> CreateTodoAsync(TodoCreateDto dto, int userId);
-        Task DeleteTodoAsync(int id, int userId);
-        Task RestoreTodoAsync(int id, int userId);
-        Task HardDeleteTodoAsync(int id, int userId);
+        Task DeleteTodoAsync(int id, int userId, uint expectedVersion);
+        Task RestoreTodoAsync(int id, int userId, uint expectedVersion);
+        Task HardDeleteTodoAsync(int id, int userId, uint expectedVersion);
         Task<TodoResponseDto> UpdateTodoAsync(int id, TodoUpdateDto dto, int userId);
     }
 }

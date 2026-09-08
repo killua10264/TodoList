@@ -4,6 +4,7 @@ import {
   ReactiveFormsModule, AbstractControl, ValidationErrors
 } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
 
@@ -15,6 +16,7 @@ import { checkPasswordStatus, passwordRequirementsValidator } from '../../../cor
 })
 export class ChangePasswordComponent {
   private userService = inject(UserService);
+  private authService = inject(AuthService);
   private toast = inject(ToastService);
   // trigger recompile for CSS cache issue
 
@@ -68,6 +70,7 @@ export class ChangePasswordComponent {
         this.isLoading = false;
         this.toast.show('Đổi mật khẩu thành công!', 'success');
         this.passwordForm.reset();
+        this.authService.logout().subscribe();
       },
       error: (err) => {
         this.isLoading = false;

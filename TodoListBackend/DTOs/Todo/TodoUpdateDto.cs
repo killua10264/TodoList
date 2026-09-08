@@ -7,7 +7,8 @@ namespace TodoListBackend.DTOs.Todo
         public bool? IsCompleted { get; set; }
         public bool? IsHidden { get; set; }
         public int? Priority { get; set; }
-        public DateTime? DueDate { get; set; }
+        public DateOnly? DueDate { get; set; }
         public int? CategoryId { get; set; }
+        public uint? Version { get; set; }
     }
 }

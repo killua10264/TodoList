@@ -10,6 +10,9 @@ namespace TodoListBackend.Validators
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Tiêu đề công việc con không được để trống.")
                 .MaximumLength(200).WithMessage("Tiêu đề không được vượt quá 200 ký tự.");
+
+            RuleFor(x => x.Version)
+                .NotNull().WithMessage("Phiên bản công việc con là bắt buộc khi cập nhật.");
         }
     }
 }

@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using TodoListBackend.Controllers;
 using TodoListBackend.DTOs.Auth;
+using TodoListBackend.Exceptions;
 using TodoListBackend.Options;
 using TodoListBackend.Services;
 using Xunit;
@@ -39,7 +41,7 @@ public class AuthControllerTests
     }
 
     [Fact]
-    public async Task RefreshToken_ReadsCookie_AndDoesNotRequireRequestBody()
+    public async Task RefreshToken_ReadsCookie_AndRequiresCsrfHeader()
     {
         var authService = new StubAuthService
         {
@@ -47,9 +49,10 @@ public class AuthControllerTests
         };
         var context = CreateContext();
         context.Request.Headers.Cookie = $"{CookieName}=cookie-refresh-token";
+        context.Request.Headers["X-CSRF-Protection"] = "1";
         var controller = CreateController(authService, context);
 
-        var result = await controller.RefreshToken(null);
+        var result = await controller.RefreshToken();
 
         Assert.IsType<OkObjectResult>(result);
         Assert.Equal("cookie-refresh-token", authService.ReceivedRefreshToken);
@@ -61,12 +64,42 @@ public class AuthControllerTests
         var authService = new StubAuthService();
         var context = CreateContext();
         context.Request.Headers.Cookie = $"{CookieName}=refresh-token";
+        context.Request.Headers["X-CSRF-Protection"] = "1";
         var controller = CreateController(authService, context);
 
         var result = await controller.Logout();
 
         Assert.IsType<NoContentResult>(result);
         Assert.Equal("refresh-token", authService.ReceivedRefreshToken);
+        Assert.Contains(CookieName, GetSetCookie(context), StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task RefreshToken_WithoutCsrfHeader_IsRejected()
+    {
+        var controller = CreateController(new StubAuthService(), CreateContext());
+
+        var exception = await Assert.ThrowsAsync<BusinessException>(() => controller.RefreshToken());
+
+        Assert.Equal(StatusCodes.Status403Forbidden, exception.StatusCode);
+        Assert.Equal("csrf_header_required", exception.Code);
+    }
+
+    [Fact]
+    public async Task LogoutAll_RequiresAuthenticatedUser_AndDeletesCookie()
+    {
+        var authService = new StubAuthService();
+        var context = CreateContext();
+        context.Request.Headers["X-CSRF-Protection"] = "1";
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            new[] { new Claim(ClaimTypes.NameIdentifier, "42") },
+            authenticationType: "test"));
+        var controller = CreateController(authService, context);
+
+        var result = await controller.LogoutAll();
+
+        Assert.IsType<NoContentResult>(result);
+        Assert.Equal(42, authService.ReceivedLogoutAllUserId);
         Assert.Contains(CookieName, GetSetCookie(context), StringComparison.Ordinal);
     }
 
@@ -106,6 +139,7 @@ public class AuthControllerTests
     {
         public AuthTokenResult Result { get; set; } = new("access-token", "refresh-token");
         public string? ReceivedRefreshToken { get; private set; }
+        public int? ReceivedLogoutAllUserId { get; private set; }
 
         public Task<AuthTokenResult> RegisterAsync(RegisterDto dto, AuthSessionContext sessionContext) =>
             Task.FromResult(Result);
@@ -124,6 +158,12 @@ public class AuthControllerTests
         public Task LogoutAsync(string? refreshToken, int? userId)
         {
             ReceivedRefreshToken = refreshToken;
+            return Task.CompletedTask;
+        }
+
+        public Task LogoutAllAsync(int userId)
+        {
+            ReceivedLogoutAllUserId = userId;
             return Task.CompletedTask;
         }
     }

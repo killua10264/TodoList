@@ -42,70 +42,60 @@ namespace TodoListBackend.Services
             return MapToResponseDto(user);
         }
 
-        public async Task<UserResponseDto> UpdateUserAsync(int userId, UserUpdateDto dto)
+        public async Task<UserResponseDto> UpdateProfileAsync(int userId, ProfileUpdateDto dto)
         {
             var existingUser = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true);
             if (existingUser == null)
             {
                 throw new NotFoundException("Tài khoản không tồn tại.");
             }
-            if (!string.IsNullOrWhiteSpace(dto.Email))
+            var newUsername = dto.Username.Trim();
+            if (!string.Equals(existingUser.Username, newUsername, StringComparison.OrdinalIgnoreCase))
             {
-                var newEmail = dto.Email.Trim();
-                if (!string.Equals(existingUser.Email, newEmail, StringComparison.OrdinalIgnoreCase))
+                if (await _unitOfWork.Users.ExistsByUsernameAsync(newUsername, userId))
                 {
-                    if (await _unitOfWork.Users.ExistsByEmailAsync(newEmail, userId))
-                    {
-                        throw new BusinessException("Email này đã được sử dụng bởi một tài khoản khác.");
-                    }
-                    existingUser.Email = newEmail;
+                    throw new BusinessException("Tên đăng nhập (Username) này đã được sử dụng bởi một tài khoản khác.");
                 }
+                existingUser.Username = newUsername;
             }
 
-            if (!string.IsNullOrWhiteSpace(dto.Username))
-            {
-                var newUsername = dto.Username.Trim();
-                if (!string.Equals(existingUser.Username, newUsername, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (await _unitOfWork.Users.ExistsByUsernameAsync(newUsername, userId))
-                    {
-                        throw new BusinessException("Tên đăng nhập (Username) này đã được sử dụng bởi một tài khoản khác.");
-                    }
-                    existingUser.Username = newUsername;
-                }
-            }
-
-            if (dto.AvatarUrl != null)
-            {
-                existingUser.AvatarUrl = dto.AvatarUrl;
-            }
-            if (dto.DisplayName != null)
-            {
-                existingUser.DisplayName = dto.DisplayName.Trim();
-            }
-            if (dto.Bio != null)
-            {
-                existingUser.Bio = dto.Bio.Trim();
-            }
-            if (!string.IsNullOrWhiteSpace(dto.Timezone))
-            {
-                existingUser.Timezone = dto.Timezone.Trim();
-            }
-            if (!string.IsNullOrWhiteSpace(dto.Theme))
-            {
-                existingUser.Theme = dto.Theme.Trim();
-            }
-            if (!string.IsNullOrWhiteSpace(dto.Language))
-            {
-                existingUser.Language = dto.Language.Trim();
-            }
-            if (!string.IsNullOrWhiteSpace(dto.FirstDayOfWeek))
-            {
-                existingUser.FirstDayOfWeek = dto.FirstDayOfWeek.Trim();
-            }
+            existingUser.Bio = dto.Bio?.Trim();
+            existingUser.Timezone = dto.Timezone.Trim();
+            existingUser.Theme = dto.Theme.Trim().ToLowerInvariant();
+            existingUser.Language = dto.Language.Trim().ToLowerInvariant();
+            existingUser.FirstDayOfWeek = dto.FirstDayOfWeek.Trim();
             await _unitOfWork.SaveChangesAsync();
 
             return MapToResponseDto(existingUser);
+        }
+
+        public async Task<AvatarUpdateResult> UpdateAvatarAsync(
+            int userId,
+            string avatarUrl,
+            string avatarPublicId)
+        {
+            var existingUser = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true)
+                ?? throw new NotFoundException("Tài khoản không tồn tại.");
+
+            var previousPublicId = existingUser.AvatarPublicId;
+            existingUser.AvatarUrl = avatarUrl;
+            existingUser.AvatarPublicId = avatarPublicId;
+            await _unitOfWork.SaveChangesAsync();
+
+            return new AvatarUpdateResult(MapToResponseDto(existingUser), previousPublicId);
+        }
+
+        public async Task<AvatarUpdateResult> ClearAvatarAsync(int userId)
+        {
+            var existingUser = await _unitOfWork.Users.GetByIdAsync(userId, trackChanges: true)
+                ?? throw new NotFoundException("Tài khoản không tồn tại.");
+
+            var previousPublicId = existingUser.AvatarPublicId;
+            existingUser.AvatarUrl = null;
+            existingUser.AvatarPublicId = null;
+            await _unitOfWork.SaveChangesAsync();
+
+            return new AvatarUpdateResult(MapToResponseDto(existingUser), previousPublicId);
         }
 
         public async Task ChangePasswordAsync(int userId, ChangePassWordDto dto)
@@ -132,6 +122,22 @@ namespace TodoListBackend.Services
             }
 
             user.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+            // A password change invalidates every long-lived session, including
+            // the transitional legacy token, so a stolen refresh token cannot
+            // silently create a new access token after the password changed.
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+
+            var activeSessions = await _unitOfWork.RefreshTokenSessions.GetActiveByUserIdAsync(userId);
+            var revokedAt = DateTime.UtcNow;
+            foreach (var session in activeSessions)
+            {
+                session.RevokedAt = revokedAt;
+                session.RevocationReason = "password_changed";
+                session.ConcurrencyToken = Guid.NewGuid();
+            }
+
             await _unitOfWork.SaveChangesAsync();
         }
     }

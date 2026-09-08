@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TodoListBackend.DTOs.Todo;
 using TodoListBackend.Services;
 
@@ -15,10 +16,10 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllTodos([FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] string? filter = null, [FromQuery] int? categoryId = null, [FromQuery] string? status = null, [FromQuery] string? sortBy = null, [FromQuery] bool? isHidden = false, [FromQuery] string? search = null, [FromQuery] bool? isDeleted = false)
+        public async Task<IActionResult> GetAllTodos([FromQuery] TodoQueryDto query)
         {
             int userId = GetCurrentUserId();
-            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, page, pageSize, filter, categoryId, status, sortBy, isHidden, search, isDeleted);
+            var paginatedTodos = await _todoService.GetAllTodosAsync(userId, query);
 
             return Ok(paginatedTodos);
         }
@@ -54,28 +55,28 @@ namespace TodoListBackend.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTodo(int id)
+        public async Task<IActionResult> DeleteTodo(int id, [FromQuery, BindRequired] uint version)
         {
             int userId = GetCurrentUserId();
 
-            await _todoService.DeleteTodoAsync(id, userId);
+            await _todoService.DeleteTodoAsync(id, userId, version);
 
             return NoContent();
         }
 
         [HttpPost("{id}/restore")]
-        public async Task<IActionResult> RestoreTodo(int id)
+        public async Task<IActionResult> RestoreTodo(int id, [FromQuery, BindRequired] uint version)
         {
             int userId = GetCurrentUserId();
-            await _todoService.RestoreTodoAsync(id, userId);
+            await _todoService.RestoreTodoAsync(id, userId, version);
             return Ok(new { message = "Khôi phục công việc thành công." });
         }
 
         [HttpDelete("{id}/hard")]
-        public async Task<IActionResult> HardDeleteTodo(int id)
+        public async Task<IActionResult> HardDeleteTodo(int id, [FromQuery, BindRequired] uint version)
         {
             int userId = GetCurrentUserId();
-            await _todoService.HardDeleteTodoAsync(id, userId);
+            await _todoService.HardDeleteTodoAsync(id, userId, version);
             return NoContent();
         }
     }

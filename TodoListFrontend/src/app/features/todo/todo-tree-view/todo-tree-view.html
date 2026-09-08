@@ -16,7 +16,7 @@
         @if (todo()?.description || todo()?.dueDate) {
         <div class="zen-parent-meta">
           @if (todo()?.dueDate) {
-          <span>{{ langService.translate('tree.due_date') }}{{ todo()?.dueDate | date:'dd/MM/yyyy' }}</span>
+          <span>{{ langService.translate('tree.due_date') }}{{ formatDueDate(todo()!.dueDate) }}</span>
           }
           @if (todo()?.description) {
           <span>• {{ todo()?.description }}</span>

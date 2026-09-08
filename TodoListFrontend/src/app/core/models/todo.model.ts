@@ -10,6 +10,7 @@ export interface TodoResponse {
   categoryColor: string;
   isHidden?: boolean;
   isDeleted?: boolean;
+  version: number;
 }
 
 export interface TodoCreateRequest {
@@ -28,6 +29,7 @@ export interface TodoUpdateRequest {
   categoryId?: number;
   isCompleted?: boolean;
   isHidden?: boolean;
+  version: number;
 }
 
 export interface PaginatedResponse<T> {

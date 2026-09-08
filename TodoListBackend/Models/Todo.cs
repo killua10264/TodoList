@@ -9,9 +9,10 @@ namespace TodoListBackend.Models
         public bool IsHidden { get; set; }
         public bool IsDeleted { get; set; }
         public int Priority { get; set; }
-        public DateTime DueDate { get; set; }
+        public DateOnly DueDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public uint Version { get; set; }
         public int UserId { get; set; }
         public User User { get; set; } = null!;
         public int CategoryId { get; set; }

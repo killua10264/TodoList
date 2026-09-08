@@ -9,9 +9,10 @@ namespace TodoListBackend.DTOs.Todo
         public bool IsHidden { get; set; }
         public bool IsDeleted { get; set; }
         public int Priority { get; set; }
-        public DateTime DueDate { get; set; }
+        public DateOnly DueDate { get; set; }
         public int CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public string CategoryColor { get; set; } = string.Empty;
+        public uint Version { get; set; }
     }
 }

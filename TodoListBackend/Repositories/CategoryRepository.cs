@@ -55,6 +55,7 @@ namespace TodoListBackend.Repositories
             }
 
             return await query
+                .IgnoreQueryFilters()
                 .Include(p => p.Todos)
                 .FirstOrDefaultAsync(p => p.Id == id && p.UserId == userId);
         }

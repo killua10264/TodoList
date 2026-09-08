@@ -116,6 +116,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   selectedFile: File | null = null;
+  removeAvatar = false;
 
     onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -126,6 +127,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         return;
       }
       this.selectedFile = file;
+      this.removeAvatar = false;
       const reader = new FileReader();
       reader.onload = (e) => {
         this.avatarUrl = e.target?.result as string;
@@ -139,6 +141,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     useDefaultAvatar() {
     this.avatarUrl = null;
     this.selectedFile = null;
+    this.removeAvatar = true;
     this.cdr.detectChanges();
   }
 
@@ -162,11 +165,25 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         next: (uploadRes) => {
           this.avatarUrl = uploadRes.avatarUrl;
           this.selectedFile = null;
+          this.removeAvatar = false;
           this.sendUpdateProfileRequest();
         },
         error: (err) => {
           this.isLoading = false;
           this.errorMessage = err.error?.message || 'Lỗi tải ảnh lên Cloudinary. Vui lòng thử lại!';
+          this.toast.show(this.errorMessage, 'error');
+          this.cdr.detectChanges();
+        }
+      });
+    } else if (this.removeAvatar) {
+      this.userService.deleteAvatar().subscribe({
+        next: () => {
+          this.removeAvatar = false;
+          this.sendUpdateProfileRequest();
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = err.error?.message || 'Không thể xóa ảnh đại diện.';
           this.toast.show(this.errorMessage, 'error');
           this.cdr.detectChanges();
         }
@@ -179,14 +196,12 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private sendUpdateProfileRequest() {
     const rawValue = this.profileForm.getRawValue();
     const payload = {
-      username: rawValue.username || undefined,
-      email: rawValue.email || undefined,
-      bio: rawValue.bio || undefined,
-      avatarUrl: this.avatarUrl || undefined,
-      timezone: rawValue.timezone || undefined,
-      theme: rawValue.theme || undefined,
-      language: rawValue.language || undefined,
-      firstDayOfWeek: rawValue.firstDayOfWeek || undefined
+      username: rawValue.username || '',
+      bio: rawValue.bio || '',
+      timezone: rawValue.timezone || 'Asia/Ho_Chi_Minh',
+      theme: rawValue.theme || 'light',
+      language: rawValue.language || 'vi',
+      firstDayOfWeek: rawValue.firstDayOfWeek || 'Monday'
     };
 
     this.userService.updateProfile(payload).subscribe({
