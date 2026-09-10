@@ -1,6 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
@@ -12,10 +11,11 @@ export class SubTaskService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/subtasks`;
 
-  refresh$ = new Subject<void>();
+  private readonly refreshVersionState = signal(0);
+  readonly refreshVersion = this.refreshVersionState.asReadonly();
 
   notifyChanged() {
-    this.refresh$.next();
+    this.refreshVersionState.update(version => version + 1);
   }
 
   getByTodoId(todoId: number) {

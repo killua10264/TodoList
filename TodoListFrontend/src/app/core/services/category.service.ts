@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs';
+import { signal } from '@angular/core';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
@@ -12,10 +12,11 @@ export class CategoryService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/api/categories`;
 
-    refresh$ = new Subject<void>();
+    private readonly refreshVersionState = signal(0);
+    readonly refreshVersion = this.refreshVersionState.asReadonly();
 
     notifyChanged() {
-        this.refresh$.next();
+        this.refreshVersionState.update(version => version + 1);
     }
 
     getAll() {

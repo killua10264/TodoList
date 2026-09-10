@@ -4,7 +4,7 @@ import {
   ReactiveFormsModule, AbstractControl, ValidationErrors
 } from '@angular/forms';
 import { UserService } from '../../../core/services/user.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthFacade } from '../../../core/services/auth.facade';
 import { ToastService } from '../../../core/services/toast.service';
 import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
 
@@ -16,7 +16,7 @@ import { checkPasswordStatus, passwordRequirementsValidator } from '../../../cor
 })
 export class ChangePasswordComponent {
   private userService = inject(UserService);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
   private toast = inject(ToastService);
   // trigger recompile for CSS cache issue
 
@@ -29,9 +29,9 @@ export class ChangePasswordComponent {
   }
 
   passwordForm = new FormGroup({
-    oldPassword: new FormControl('', Validators.required),
-    newPassword: new FormControl('', [Validators.required, passwordRequirementsValidator()]),
-    confirmNewPassword: new FormControl('', Validators.required)
+    oldPassword: new FormControl('', { nonNullable: true, validators: Validators.required }),
+    newPassword: new FormControl('', { nonNullable: true, validators: [Validators.required, passwordRequirementsValidator()] }),
+    confirmNewPassword: new FormControl('', { nonNullable: true, validators: Validators.required })
   }, {
     validators: this.passwordMatchValidator
   });
@@ -63,14 +63,14 @@ export class ChangePasswordComponent {
     }
 
     this.isLoading = true;
-    const data = this.passwordForm.value as any;
+    const data = this.passwordForm.getRawValue();
 
     this.userService.changePassword(data).subscribe({
       next: () => {
         this.isLoading = false;
         this.toast.show('Đổi mật khẩu thành công!', 'success');
         this.passwordForm.reset();
-        this.authService.logout().subscribe();
+        this.authFacade.logout().subscribe();
       },
       error: (err) => {
         this.isLoading = false;

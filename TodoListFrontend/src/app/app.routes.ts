@@ -1,48 +1,66 @@
 import { Routes } from '@angular/router';
 
-import { LandingLayoutComponent } from './layouts/landing-layout/landing-layout';
-import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout';
-import { MainLayoutComponent } from './layouts/main-layout/main-layout';
-
 import { authGuard } from './core/guards/auth.guard';
-
-import { HomeComponent } from './features/home/home';
-import { LoginComponent } from './features/auth/login/login';
-import { RegisterComponent } from './features/auth/register/register';
-import { TodoListComponent } from './features/todo/todo-list/todo-list';
-import { TodoTreeViewComponent } from './features/todo/todo-tree-view/todo-tree-view';
-import { CategoryDashboardComponent } from './features/category/category-dashboard/category-dashboard';
-import { UserProfileComponent } from './features/user/user-profile/user-profile';
-import { ChangePasswordComponent } from './features/user/change-password/change-password';
 
 export const routes: Routes = [
   {
     path: '',
-    component: LandingLayoutComponent,
+    loadComponent: () => import('./layouts/landing-layout/landing-layout')
+      .then(m => m.LandingLayoutComponent),
     children: [
-      { path: '', component: HomeComponent }
+      {
+        path: '',
+        loadComponent: () => import('./features/home/home').then(m => m.HomeComponent)
+      }
     ]
   },
 
   {
     path: '',
-    component: AuthLayoutComponent,
+    loadComponent: () => import('./layouts/auth-layout/auth-layout')
+      .then(m => m.AuthLayoutComponent),
     children: [
-      { path: 'login', component: LoginComponent },
-      { path: 'register', component: RegisterComponent }
+      {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent)
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register/register').then(m => m.RegisterComponent)
+      }
     ]
   },
 
   {
     path: '',
-    component: MainLayoutComponent,
+    loadComponent: () => import('./layouts/main-layout/main-layout')
+      .then(m => m.MainLayoutComponent),
     canActivate: [authGuard],
     children: [
-      { path: 'todos', component: TodoListComponent },
-      { path: 'todos/:id/tree', component: TodoTreeViewComponent },
-      { path: 'categories', component: CategoryDashboardComponent },
-      { path: 'profile', component: UserProfileComponent },
-      { path: 'change-password', component: ChangePasswordComponent }
+      {
+        path: 'todos',
+        loadComponent: () => import('./features/todo/todo-list/todo-list').then(m => m.TodoListComponent)
+      },
+      {
+        path: 'todos/:id/tree',
+        loadComponent: () => import('./features/todo/todo-tree-view/todo-tree-view')
+          .then(m => m.TodoTreeViewComponent)
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./features/category/category-dashboard/category-dashboard')
+          .then(m => m.CategoryDashboardComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/user/user-profile/user-profile')
+          .then(m => m.UserProfileComponent)
+      },
+      {
+        path: 'change-password',
+        loadComponent: () => import('./features/user/change-password/change-password')
+          .then(m => m.ChangePasswordComponent)
+      }
     ]
   },
 

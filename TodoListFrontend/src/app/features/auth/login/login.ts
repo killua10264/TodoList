@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthFacade } from '../../../core/services/auth.facade';
 import { ToastService } from '../../../core/services/toast.service';
 import { finalize } from 'rxjs/operators';
 
@@ -15,7 +15,7 @@ import { LanguageService } from '../../../core/services/language.service';
 })
 export class LoginComponent {
   langService = inject(LanguageService);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
     private router = inject(Router);
     private toast = inject(ToastService);
 
@@ -40,7 +40,7 @@ export class LoginComponent {
 
         const { usernameOrEmail, password } = this.loginForm.value;
 
-        this.authService.login({ usernameOrEmail: usernameOrEmail!, password: password! })
+        this.authFacade.login({ usernameOrEmail: usernameOrEmail!, password: password! })
             .pipe(finalize(() => {
                 this.isLoading = false;
             }))
@@ -50,7 +50,6 @@ export class LoginComponent {
                     this.router.navigate(['/todos']);
                 },
                 error: (err) => {
-                    console.log('Chi tiết lỗi API:', err);
                     let message = 'Tên đăng nhập/Email hoặc mật khẩu không đúng.';
                     if (err.status === 0) {
                         message = 'Không thể kết nối đến máy chủ Backend. Vui lòng thử lại sau.';

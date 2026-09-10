@@ -236,7 +236,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// TestServer does not provide an HTTPS endpoint. Keeping the redirect disabled in
+// the test environment makes integration tests exercise the actual API pipeline
+// without weakening production HTTPS enforcement.
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseCors("AllowFE");
 
@@ -253,3 +259,5 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+public partial class Program { }

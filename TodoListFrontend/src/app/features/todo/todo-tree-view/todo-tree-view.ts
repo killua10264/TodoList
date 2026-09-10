@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
+import { Component, inject, signal, OnInit, DestroyRef, Injector, effect, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -26,6 +26,7 @@ export class TodoTreeViewComponent implements OnInit {
   private todoService = inject(TodoService);
   private subTaskService = inject(SubTaskService);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
 
   todo = signal<TodoResponse | null>(null);
   subTasks = signal<SubTaskResponse[]>([]);
@@ -44,12 +45,20 @@ export class TodoTreeViewComponent implements OnInit {
       }
     });
 
-    this.subTaskService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      const currentTodo = this.todo();
-      if (currentTodo) {
-        this.loadSubTasks(currentTodo.id);
+    let firstRefresh = true;
+    effect(() => {
+      this.subTaskService.refreshVersion();
+      if (firstRefresh) {
+        firstRefresh = false;
+        return;
       }
-    });
+      untracked(() => {
+        const currentTodo = this.todo();
+        if (currentTodo) {
+          this.loadSubTasks(currentTodo.id);
+        }
+      });
+    }, { injector: this.injector });
   }
 
   loadTreeData(todoId: number) {

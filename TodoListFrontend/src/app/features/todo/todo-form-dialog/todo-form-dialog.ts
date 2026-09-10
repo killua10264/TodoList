@@ -29,12 +29,12 @@ export class TodoFormDialogComponent implements OnInit {
   isLoading = false;
 
   todoForm = new FormGroup({
-    title: new FormControl('', [Validators.required, Validators.maxLength(200)]),
-    description: new FormControl('', [Validators.maxLength(1000)]),
-    priority: new FormControl(1, [Validators.required, Validators.min(1), Validators.max(5)]),
-    dueDate: new FormControl('', [Validators.required]),
-    categoryId: new FormControl<number>(3, [Validators.required, Validators.min(1)]),
-    isCompleted: new FormControl(false)
+    title: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(200)] }),
+    description: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(1000)] }),
+    priority: new FormControl(1, { nonNullable: true, validators: [Validators.required, Validators.min(1), Validators.max(5)] }),
+    dueDate: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    categoryId: new FormControl(3, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
+    isCompleted: new FormControl(false, { nonNullable: true })
   });
 
   get isEditMode(): boolean {
@@ -73,34 +73,50 @@ export class TodoFormDialogComponent implements OnInit {
     if (this.todoForm.invalid) return;
 
     this.isLoading = true;
-    const formValue = {
-      ...this.todoForm.value,
-      priority: +(this.todoForm.value.priority || 1),
-      categoryId: +(this.todoForm.value.categoryId || 1)
+    const formValue = this.todoForm.getRawValue();
+    const todoData = {
+      title: formValue.title,
+      description: formValue.description,
+      priority: formValue.priority,
+      dueDate: formValue.dueDate,
+      categoryId: formValue.categoryId
     };
 
     if (this.isEditMode) {
       this.todoService.update(this.todo()!.id, {
-        ...formValue,
+        ...todoData,
+        isCompleted: formValue.isCompleted,
         version: this.todo()!.version
-      } as any).subscribe({
+      }).subscribe({
         next: () => { this.toast.show('Cập nhật thành công!', 'success'); this.saved.emit(); },
         error: (err) => { this.isLoading = false; this.toast.show(this.extractError(err) || 'Cập nhật thất bại.', 'error'); }
       });
     } else {
-      this.todoService.create(formValue as any).subscribe({
+      this.todoService.create(todoData).subscribe({
         next: () => { this.toast.show('Tạo mới thành công!', 'success'); this.saved.emit(); },
         error: (err) => { this.isLoading = false; this.toast.show(this.extractError(err) || 'Tạo mới thất bại.', 'error'); }
       });
     }
   }
 
-  private extractError(err: any): string {
-    if (err.error?.errors) {
-      const firstKey = Object.keys(err.error.errors)[0];
-      return err.error.errors[firstKey][0];
+  private extractError(err: unknown): string {
+    if (!err || typeof err !== 'object') return '';
+
+    const response = err as { error?: unknown };
+    const body = response.error;
+    if (body && typeof body === 'object' && 'errors' in body) {
+      const errors = (body as { errors?: Record<string, unknown> }).errors;
+      const firstKey = errors ? Object.keys(errors)[0] : undefined;
+      const messages = firstKey ? errors?.[firstKey] : undefined;
+      if (Array.isArray(messages) && messages.length > 0) {
+        return String(messages[0]);
+      }
     }
-    return err.error?.message || err.error || '';
+
+    if (body && typeof body === 'object' && 'message' in body) {
+      return String((body as { message?: unknown }).message ?? '');
+    }
+    return typeof body === 'string' ? body : '';
   }
 
   onDelete() {

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, DestroyRef, Injector, effect, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TodoService } from '../../../core/services/todo.service';
 import { CategoryService } from '../../../core/services/category.service';
@@ -33,6 +33,7 @@ export class CategoryDashboardComponent implements OnInit {
   private todoService = inject(TodoService);
   private toast = inject(ToastService);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
   categories = signal<CategoryViewMode[]>([]);
   isLoading = signal<boolean>(true);
 
@@ -60,13 +61,16 @@ export class CategoryDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCategories();
-    this.categoryService.refresh$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadCategories(true));
-
-    this.todoService.refresh$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.loadCategories(true));
+    let firstRefresh = true;
+    effect(() => {
+      this.categoryService.refreshVersion();
+      this.todoService.refreshVersion();
+      if (firstRefresh) {
+        firstRefresh = false;
+        return;
+      }
+      untracked(() => this.loadCategories(true));
+    }, { injector: this.injector });
   }
 
   loadCategories(silent = false): void {

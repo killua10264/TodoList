@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ThemeService } from '../../core/services/theme.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthFacade } from '../../core/services/auth.facade';
 import { TodoService } from '../../core/services/todo.service';
 import { ToastService } from '../../core/services/toast.service';
 
@@ -19,7 +19,7 @@ interface TemplateCard {
 export class HomeComponent {
   themeService = inject(ThemeService);
   private router = inject(Router);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
   private todoService = inject(TodoService);
   private toast = inject(ToastService);
 
@@ -68,7 +68,7 @@ export class HomeComponent {
     const input = event.target as HTMLInputElement;
     const title = input.value.trim();
 
-    if (!this.authService.isLoggedIn()) {
+    if (!this.authFacade.isAuthenticated()) {
       this.router.navigate(['/register']);
       return;
     }

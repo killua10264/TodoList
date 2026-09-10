@@ -2,9 +2,9 @@
 
 ## Trạng thái
 
-Đã hoàn tất phần code Giai đoạn 3 trong repository và đã build/test cục bộ. Có hai migration mới nhưng chưa chạy trên Aiven. Backup Aiven đã được xác nhận ở bước trước; migration mới vẫn cần kiểm tra dữ liệu đích và triển khai có kiểm soát.
+Đã hoàn tất Giai đoạn 3: code đã build/test, dữ liệu đích đã được kiểm tra, hai migration đã áp dụng trên Aiven, BE/FE đã deploy lên Render và smoke test production đã hoàn tất theo xác nhận của người dùng ngày 2026-09-08.
 
-Các việc vận hành còn lại là kiểm tra dữ liệu production, chạy migration trên DB đã backup, deploy BE/FE mới và smoke test production. Integration test ownership bằng PostgreSQL riêng/Testcontainers cũng cần được bổ sung như acceptance gate; không dùng Aiven production làm test database.
+Integration test ownership bằng PostgreSQL riêng/Testcontainers vẫn là việc tăng cường test còn lại trước khi đóng hoàn toàn technical debt; không dùng Aiven production làm test database.
 
 ## Đã làm gì và tại sao
 
@@ -123,7 +123,7 @@ Nếu kết quả không phải 0, dừng lại để review dữ liệu. Sau kh
     cd D:\ToDoList\TodoListBackend
     dotnet ef database update --configuration Release
 
-Lệnh phải dùng ConnectionStrings__DefaultConnection hoặc dotnet user-secrets đúng DB đích. Lượt này tôi chưa chạy migration trên Aiven.
+Lệnh phải dùng ConnectionStrings__DefaultConnection hoặc dotnet user-secrets đúng DB đích. Theo xác nhận sau đó, hai migration đã được áp dụng thành công trên Aiven.
 
 ## File đã sửa
 
@@ -172,7 +172,7 @@ Nếu giữ file cũ, contract dễ bị dùng nhầm: refresh token có thể q
 
 - ToDo.md: plan gốc do người dùng sở hữu.
 - dotnet user-secrets, connection string, JWT key và Cloudinary secret: không đọc/ghi secret thật và không đưa vào commit.
-- Aiven database: chưa chạy migration trực tiếp.
+- Aiven database: đã áp dụng hai migration; không đưa credential vào repository.
 - docs/STEP-01-FOUNDATION-TEST-CI-ERROR-CONFIG.md: giữ lịch sử Bước 1.
 
 ## Kiểm thử đã chạy
@@ -201,10 +201,8 @@ Production bundle còn warning khoảng 20.75 kB trên budget 500 kB; đây là 
 
 ## Bước vận hành tiếp theo
 
-1. Chạy hai câu SQL preflight trên DB đích.
-2. Nếu dữ liệu hợp lệ, chạy dotnet ef database update --configuration Release với connection string/user-secrets đúng DB đích.
-3. Deploy BE/FE mới lên Render.
-4. Smoke test auth, refresh, logout-all, đổi password, avatar, Todo trash/restore/hard-delete, SubTask reorder và 409.
-5. Tạo PostgreSQL test instance riêng và thêm integration test hai user trước khi chuyển sang Giai đoạn 4.
+1. Đã smoke test auth, refresh, logout-all, đổi password, avatar, Todo trash/restore/hard-delete, SubTask reorder và 409 trên production.
+2. Đã xác nhận migration history sau deploy; migration cuối là 20260907134859_UseDateOnlyForTodoDueDate.
+3. Việc tùy chọn còn lại: tạo PostgreSQL test instance riêng và thêm integration test hai user để tăng coverage trước hoặc song song với Giai đoạn 4.
 
 Không đưa password, JWT key, Cloudinary secret hoặc connection string thật vào Markdown/git.

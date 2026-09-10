@@ -3,12 +3,14 @@ import { inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, shareReplay, switchMap, take, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { AuthFacade } from '../services/auth.facade';
 import { isPlatformBrowser } from '@angular/common';
 
 let refreshInFlight$: Observable<string> | null = null;
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
+    const authFacade = inject(AuthFacade);
     const router = inject(Router);
     const platformId = inject(PLATFORM_ID);
     if (!isPlatformBrowser(platformId)) {
@@ -20,7 +22,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             if (error.status === 401) {
 
                 if (isAuthEndpoint(req.url)) {
-                    authService.clearTokens();
+                    authFacade.markAnonymous();
                     router.navigate(['/login']);
                     return throwError(() => error);
                 }
@@ -42,7 +44,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                         setHeaders: { Authorization: `Bearer ${token}` }
                     }))),
                     catchError(refreshError => {
-                        authService.clearTokens();
+                        authFacade.markAnonymous();
                         router.navigate(['/login']);
                         return throwError(() => refreshError);
                     })

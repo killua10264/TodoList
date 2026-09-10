@@ -1,6 +1,6 @@
-import { Component, inject, signal, computed, OnInit, HostListener, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, HostListener, DestroyRef, effect } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthFacade } from '../../core/services/auth.facade';
 import { UserService } from '../../core/services/user.service';
 import { CategoryService } from '../../core/services/category.service';
 import { TodoService } from '../../core/services/todo.service';
@@ -21,7 +21,7 @@ import { LanguageService } from '../../core/services/language.service';
   styleUrl: './main-layout.css'
 })
 export class MainLayoutComponent implements OnInit {
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
   private userService = inject(UserService);
   private categoryService = inject(CategoryService);
   private todoService = inject(TodoService);
@@ -54,19 +54,23 @@ export class MainLayoutComponent implements OnInit {
       this.updatePageTitle(this.router.url);
       this.loadCategories();
     });
+
+    let firstRefresh = true;
+    effect(() => {
+      this.categoryService.refreshVersion();
+      this.todoService.refreshVersion();
+      if (firstRefresh) {
+        firstRefresh = false;
+        return;
+      }
+      this.loadCategories();
+    });
   }
 
   ngOnInit() {
     this.userService.getProfile().subscribe();
     this.loadCategories();
     this.updatePageTitle(this.router.url);
-
-    this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.loadCategories();
-    });
-    this.todoService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.loadCategories();
-    });
   }
 
   loadCategories() {
@@ -216,7 +220,7 @@ export class MainLayoutComponent implements OnInit {
   }
 
   onLogout() {
-    this.authService.logout().subscribe();
+    this.authFacade.logout().subscribe();
   }
 }
 

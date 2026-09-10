@@ -37,6 +37,15 @@ namespace TodoListBackend.Data
                 entity.HasIndex(t => new { t.UserId, t.IsDeleted })
                       .HasDatabaseName("IX_Todos_UserId_IsDeleted");
 
+                entity.HasIndex(t => new { t.UserId, t.IsDeleted, t.IsHidden, t.DueDate, t.Id })
+                      .HasDatabaseName("IX_Todos_UserId_IsDeleted_IsHidden_DueDate_Id");
+
+                entity.HasIndex(t => new { t.UserId, t.CategoryId, t.IsDeleted })
+                      .HasDatabaseName("IX_Todos_UserId_CategoryId_IsDeleted");
+
+                entity.HasIndex(t => new { t.UserId, t.IsDeleted, t.IsCompleted })
+                      .HasDatabaseName("IX_Todos_UserId_IsDeleted_IsCompleted");
+
                 entity.HasOne(t => t.Category)
                     .WithMany(c => c.Todos)
                     .HasForeignKey(t => t.CategoryId)
@@ -122,7 +131,10 @@ namespace TodoListBackend.Data
                     .IsUnique()
                     .HasDatabaseName("IX_RefreshTokenSessions_TokenHash");
                 entity.HasIndex(session => new { session.UserId, session.RevokedAt })
-                    .HasDatabaseName("IX_RefreshTokenSessions_UserId_RevokedAt");
+                      .HasDatabaseName("IX_RefreshTokenSessions_UserId_RevokedAt");
+
+                entity.HasIndex(session => new { session.UserId, session.RevokedAt, session.ExpiresAt })
+                      .HasDatabaseName("IX_RefreshTokenSessions_UserId_RevokedAt_ExpiresAt");
 
                 entity.HasOne(session => session.User)
                     .WithMany(user => user.RefreshTokenSessions)

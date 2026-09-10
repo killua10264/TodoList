@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthFacade } from '../../../core/services/auth.facade';
 import { ToastService } from '../../../core/services/toast.service';
 import { usernameValidator, getUsernameErrorMessage } from '../../../core/validators/username.validator';
 import { checkPasswordStatus, passwordRequirementsValidator } from '../../../core/validators/password.validator';
@@ -17,7 +17,7 @@ import { LanguageService } from '../../../core/services/language.service';
 })
 export class RegisterComponent {
   langService = inject(LanguageService);
-  private authService = inject(AuthService);
+  private authFacade = inject(AuthFacade);
     private router = inject(Router);
     private toast = inject(ToastService);
 
@@ -49,7 +49,7 @@ export class RegisterComponent {
         this.isLoading = true;
         const { username, email, password } = this.registerForm.value;
 
-        this.authService.register({
+        this.authFacade.register({
             username: username!,
             email: email!,
             password: password!

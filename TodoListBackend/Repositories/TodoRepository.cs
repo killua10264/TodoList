@@ -58,10 +58,14 @@ namespace TodoListBackend.Repositories
             // Tìm kiếm theo từ khóa trong Title và Description
             if (!string.IsNullOrWhiteSpace(queryOptions.Search))
             {
-                var searchLower = queryOptions.Search.Trim().ToLower();
+                var searchTerm = queryOptions.Search.Trim()
+                    .Replace("\\", "\\\\")
+                    .Replace("%", "\\%")
+                    .Replace("_", "\\_");
+                var searchPattern = $"%{searchTerm}%";
                 query = query.Where(t =>
-                    t.Title.ToLower().Contains(searchLower) ||
-                    t.Description.ToLower().Contains(searchLower)
+                    EF.Functions.ILike(t.Title, searchPattern, "\\") ||
+                    EF.Functions.ILike(t.Description, searchPattern, "\\")
                 );
             }
 

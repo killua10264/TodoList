@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 describe('App', () => {
   beforeAll(() => {

@@ -1,10 +1,10 @@
-import { Injectable, signal, PLATFORM_ID, inject } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 @Injectable({ providedIn: 'root' })
-export class ThemeService {
+export class ThemeService implements OnDestroy {
   private platformId = inject(PLATFORM_ID);
   private mediaQueryList: MediaQueryList | null = null;
   
@@ -17,17 +17,19 @@ export class ThemeService {
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
       this.mediaQueryList = window.matchMedia('(prefers-color-scheme: dark)');
-      this.mediaQueryList.addEventListener('change', (e) => this.handleSystemThemeChange(e));
+      this.mediaQueryList.addEventListener('change', this.handleSystemThemeChange);
     }
   }
 
-  // Khởi tạo từ bộ nhớ tạm (Cache) để chống FOUC
-  initTheme(cachedTheme: string) {
-    if (cachedTheme === 'dark') {
-      this.setTheme('dark', false);
-    } else {
-      this.setTheme('light', false);
-    }
+  // Khởi tạo từ bộ nhớ tạm (Cache) để chống FOUC.
+  initTheme() {
+    if (!isPlatformBrowser(this.platformId)) return;
+
+    const cachedTheme = localStorage.getItem('user_theme');
+    const theme: ThemeMode = cachedTheme === 'dark' || cachedTheme === 'system'
+      ? cachedTheme
+      : 'light';
+    this.setTheme(theme, false);
   }
 
   setTheme(theme: ThemeMode, saveToStorage = true) {
@@ -38,11 +40,11 @@ export class ThemeService {
     this.applyTheme();
   }
 
-  private handleSystemThemeChange(e: MediaQueryListEvent) {
+  private handleSystemThemeChange = (_event: MediaQueryListEvent): void => {
     if (this.currentTheme() === 'system') {
       this.applyTheme();
     }
-  }
+  };
 
   private applyTheme() {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -52,6 +54,8 @@ export class ThemeService {
 
     if (theme === 'dark') {
       modeToApply = 'dark';
+    } else if (theme === 'system') {
+      modeToApply = this.mediaQueryList?.matches ? 'dark' : 'light';
     } else {
       modeToApply = 'light';
     }
@@ -63,5 +67,9 @@ export class ThemeService {
     } else {
       document.documentElement.removeAttribute('data-theme');
     }
+  }
+
+  ngOnDestroy(): void {
+    this.mediaQueryList?.removeEventListener('change', this.handleSystemThemeChange);
   }
 }

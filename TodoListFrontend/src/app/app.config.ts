@@ -4,11 +4,11 @@ import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/
 import { routes } from './app.routes';
 import { tokenInterceptor } from './core/interceptors/token.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
-import { AuthService } from './core/services/auth.service';
+import { AuthFacade } from './core/services/auth.facade';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideAppInitializer(() => inject(AuthService).restoreSession()),
+    provideAppInitializer(() => inject(AuthFacade).initialize()),
     provideRouter(routes),
     provideHttpClient(
       withInterceptors([

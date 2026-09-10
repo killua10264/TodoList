@@ -1,6 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
@@ -12,11 +11,17 @@ export class TodoService {
     private http = inject(HttpClient);
     private apiUrl = `${environment.apiUrl}/api/todos`;
 
-    refresh$ = new Subject<void>();
-    todoUpdated$ = new Subject<TodoResponse>();
+    private readonly refreshVersionState = signal(0);
+    private readonly updatedTodoState = signal<TodoResponse | null>(null);
+    readonly refreshVersion = this.refreshVersionState.asReadonly();
+    readonly updatedTodo = this.updatedTodoState.asReadonly();
 
     notifyChanged() {
-        this.refresh$.next();
+        this.refreshVersionState.update(version => version + 1);
+    }
+
+    publishUpdated(todo: TodoResponse) {
+        this.updatedTodoState.set(todo);
     }
 
     getAll(page: number = 1, pageSize: number = 20, filter?: string | null, categoryId?: number | null, status?: string | null, sortBy?: string | null, isHidden?: boolean | null, search?: string | null, isDeleted?: boolean | null) {

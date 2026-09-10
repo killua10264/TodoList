@@ -1,10 +1,10 @@
-import { Component, inject, OnInit, signal, PLATFORM_ID, DestroyRef } from '@angular/core';
+import { Component, inject, OnInit, signal, PLATFORM_ID, DestroyRef, Injector, effect, untracked } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { EMPTY, Subject } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, finalize, switchMap } from 'rxjs/operators';
 import { TodoService } from '../../../core/services/todo.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
@@ -37,6 +37,7 @@ export class TodoListComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
   private route = inject(ActivatedRoute);
   private destroyRef = inject(DestroyRef);
+  private injector = inject(Injector);
   langService = inject(LanguageService);
 
   todos = signal<TodoResponse[]>([]);
@@ -56,6 +57,7 @@ export class TodoListComponent implements OnInit {
   showForm = false;
   editingTodo: TodoResponse | null = null;
   showCategoryForm = false;
+  private readonly pendingTodoMutations = new Set<number>();
 
   showDeleteConfirm = false;
   deletingTodoId: number | null = null;
@@ -76,30 +78,49 @@ export class TodoListComponent implements OnInit {
       this.searchSubject.pipe(
         debounceTime(400),
         distinctUntilChanged(),
+        switchMap(text => {
+          this.searchText.set(text);
+          this.currentPage.set(1);
+          return this.getTodosRequest().pipe(
+            catchError(() => {
+              this.isLoading.set(false);
+              this.toast.show('Không thể tải danh sách công việc.', 'error');
+              return EMPTY;
+            })
+          );
+        }),
         takeUntilDestroyed(this.destroyRef)
-      ).subscribe(text => {
-        this.searchText.set(text);
-        this.currentPage.set(1);
-        this.loadTodos();
-      });
+      ).subscribe(res => this.applyTodosResponse(res));
 
-      this.todoService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.loadTodos(true);
-      });
-      this.categoryService.refresh$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-        this.loadCategories();
-      });
-      this.todoService.todoUpdated$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((updated) => {
-        this.todos.update(list => {
-          const exists = list.some(t => t.id === updated.id);
-          if (updated.isHidden) {
-             return list.filter(t => t.id !== updated.id);
-          } else if (!exists) {
-             return [updated, ...list];
-          }
-          return list.map(t => t.id === updated.id ? updated : t);
+      let firstRefresh = true;
+      effect(() => {
+        this.todoService.refreshVersion();
+        this.categoryService.refreshVersion();
+        if (firstRefresh) {
+          firstRefresh = false;
+          return;
+        }
+        untracked(() => {
+          this.loadTodos(true);
+          this.loadCategories();
         });
-      });
+      }, { injector: this.injector });
+
+      effect(() => {
+        const updated = this.todoService.updatedTodo();
+        if (!updated) return;
+        untracked(() => {
+          this.todos.update(list => {
+            const exists = list.some(t => t.id === updated.id);
+            if (updated.isHidden) {
+              return list.filter(t => t.id !== updated.id);
+            } else if (!exists) {
+              return [updated, ...list];
+            }
+            return list.map(t => t.id === updated.id ? updated : t);
+          });
+        });
+      }, { injector: this.injector });
     }
   }
 
@@ -121,6 +142,16 @@ export class TodoListComponent implements OnInit {
       this.isLoading.set(true);
     }
 
+    this.getTodosRequest().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (res: PaginatedResponse<TodoResponse>) => this.applyTodosResponse(res),
+      error: () => {
+        this.toast.show('Không thể tải danh sách công việc.', 'error');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private getTodosRequest() {
     const search = this.searchText().trim() || null;
     const currentStatus = this.selectedStatus();
     
@@ -138,7 +169,7 @@ export class TodoListComponent implements OnInit {
       apiStatusParam = 'all';
     }
 
-    this.todoService.getAll(
+    return this.todoService.getAll(
       this.currentPage(),
       this.pageSize,
       this.urlFilter(),
@@ -148,17 +179,13 @@ export class TodoListComponent implements OnInit {
       isHiddenParam,
       search,
       isDeletedParam
-    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (res: PaginatedResponse<TodoResponse>) => {
-        this.todos.set(res.items);
-        this.totalCount.set(res.totalCount);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.toast.show('Không thể tải danh sách công việc.', 'error');
-        this.isLoading.set(false);
-      }
-    });
+    );
+  }
+
+  private applyTodosResponse(res: PaginatedResponse<TodoResponse>): void {
+    this.todos.set(res.items);
+    this.totalCount.set(res.totalCount);
+    this.isLoading.set(false);
   }
 
   onRestoreTodo(id: number) {
@@ -211,6 +238,8 @@ export class TodoListComponent implements OnInit {
   }
 
   onTodoToggled(todo: TodoResponse) {
+    if (this.pendingTodoMutations.has(todo.id)) return;
+    this.pendingTodoMutations.add(todo.id);
     const newCompleted = !todo.isCompleted;
 
     // Optimistic: update UI immediately
@@ -228,9 +257,12 @@ export class TodoListComponent implements OnInit {
       version: todo.version
     };
 
-    this.todoService.updateSilent(todo.id, updateReq).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    this.todoService.updateSilent(todo.id, updateReq).pipe(
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => this.pendingTodoMutations.delete(todo.id))
+    ).subscribe({
       next: (updated) => {
-        this.todoService.todoUpdated$.next(updated);
+        this.todoService.publishUpdated(updated);
       },
       error: (err) => {
         // Rollback on error
@@ -240,7 +272,9 @@ export class TodoListComponent implements OnInit {
         if (err.status === 409) {
           this.loadTodos();
         }
-        this.toast.show('Cập nhật trạng thái thất bại.', 'error');
+        this.toast.show(err.status === 409
+          ? 'Công việc đã thay đổi ở nơi khác. Danh sách đã được tải lại.'
+          : 'Cập nhật trạng thái thất bại.', 'error');
       }
     });
   }
