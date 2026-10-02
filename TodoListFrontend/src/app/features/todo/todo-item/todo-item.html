@@ -1,48 +1,132 @@
-<div class="todo-card" [class.completed]="todo().isCompleted" (click)="onCardClick($event)" [title]="langService.translate('todo.click_view_tree')">
+<!--
+  Todo card — chuyển từ div sang button để hỗ trợ keyboard navigation.
+  • Toàn card là button dẫn vào tree view.
+  • Các action button bên trong ngăn propagation.
+  • Mọi icon button có aria-label mô tả.
+  • SVG trang trí dùng aria-hidden="true".
+  • Không dùng emoji làm icon chức năng.
+-->
+<button
+  class="todo-card"
+  [class.completed]="todo().isCompleted"
+  type="button"
+  (click)="onCardClick($event)"
+  [attr.aria-label]="langService.translate('todo.click_view_tree') + ': ' + todo().title"
+>
   @if (todo().isCompleted) {
-    <img src="assets/images/flower.svg" alt="completed" class="flower-badge" />
+    <img
+      src="assets/images/flower.svg"
+      alt=""
+      aria-hidden="true"
+      class="flower-badge"
+    />
   }
 
   <div class="card-content">
-    <span class="todo-title" [class.completed-title]="todo().isCompleted">{{ todo().title }}</span>
+    <span class="todo-title" [class.completed-title]="todo().isCompleted">
+      {{ todo().title }}
+    </span>
     @if (todo().categoryName) {
       <div class="todo-category-badge" [class.completed-badge]="todo().isCompleted">
-        <span class="cat-mini-dot" [style.backgroundColor]="todo().categoryColor || '#8a8570'"></span>
+        <span
+          class="cat-mini-dot"
+          [style.backgroundColor]="todo().categoryColor || '#8a8570'"
+          aria-hidden="true"
+        ></span>
         <span class="cat-badge-text">{{ todo().categoryName }}</span>
       </div>
     }
   </div>
 
-  <div class="card-actions">
+  <div class="card-actions" (click)="$event.stopPropagation()">
     @if (todo().isDeleted) {
-      <button type="button" class="btn-card-edit" (click)="onRestore($event)" [title]="langService.translate('todo.restore')">
-        ♻️
+      <!-- Restore button -->
+      <button
+        type="button"
+        class="btn-card-action"
+        (click)="onRestore($event)"
+        [attr.aria-label]="langService.translate('todo.restore') + ': ' + todo().title"
+      >
+        <!-- Restore icon -->
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+        </svg>
       </button>
 
-      <button type="button" class="btn-card-delete" (click)="onHardDelete($event)" [title]="langService.translate('todo.hard_delete')">
-        🔥
+      <!-- Hard delete button -->
+      <button
+        type="button"
+        class="btn-card-action btn-card-danger"
+        (click)="onHardDelete($event)"
+        [attr.aria-label]="langService.translate('todo.hard_delete') + ': ' + todo().title"
+      >
+        <!-- Permanent delete icon -->
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          <line x1="10" y1="11" x2="10" y2="17"/>
+          <line x1="14" y1="11" x2="14" y2="17"/>
+        </svg>
       </button>
     } @else {
-      <button type="button" class="btn-card-edit" (click)="onEdit($event)" [title]="langService.translate('todo.edit')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="1"></circle>
-          <circle cx="19" cy="12" r="1"></circle>
-          <circle cx="5" cy="12" r="1"></circle>
+      <!-- Edit button -->
+      <button
+        type="button"
+        class="btn-card-action"
+        (click)="onEdit($event)"
+        [attr.aria-label]="langService.translate('todo.edit') + ': ' + todo().title"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
         </svg>
       </button>
 
-      <button type="button" class="btn-card-delete" (click)="onDelete($event)" [title]="langService.translate('todo.delete')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="3 6 5 6 21 6"></polyline>
-          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+      <!-- Delete button -->
+      <button
+        type="button"
+        class="btn-card-action btn-card-danger"
+        (click)="onDelete($event)"
+        [attr.aria-label]="langService.translate('todo.delete') + ': ' + todo().title"
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
 
-      <div class="card-checkbox" (click)="onToggle($event)" [title]="langService.translate('todo.mark_complete')">
+      <!-- Toggle complete button — dùng role="checkbox" thay div -->
+      <button
+        type="button"
+        class="card-checkbox"
+        role="checkbox"
+        [attr.aria-checked]="todo().isCompleted"
+        [attr.aria-label]="langService.translate('todo.mark_complete') + ': ' + todo().title"
+        (click)="onToggle($event)"
+      >
         @if (todo().isCompleted) {
-          <span class="check-mark">✓</span>
+          <!-- Checkmark SVG thay vì ✓ text -->
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="3"
+               stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
         }
-      </div>
+      </button>
     }
   </div>
-</div>
+</button>

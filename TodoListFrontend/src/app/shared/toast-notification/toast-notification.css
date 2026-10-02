@@ -1,28 +1,115 @@
 .toast-container {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: var(--space-4, 1rem);
+  right: var(--space-4, 1rem);
   z-index: 2000;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2, 0.5rem);
+  max-width: min(380px, calc(100vw - 2rem));
+  pointer-events: none; /* container không chặn click */
+}
+
+.toast-region {
+  display: contents; /* region không thêm box */
 }
 
 .toast {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  min-width: 280px;
-  animation: slideIn 0.3s ease;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border-radius: var(--radius-md, 10px);
+  min-width: 260px;
+  pointer-events: auto;
+  box-shadow: 0 4px 16px var(--color-shadow-md, rgba(0,0,0,0.2));
+
+  /* Entry animation */
+  animation: toast-in var(--transition-normal, 0.25s) ease;
 }
 
-.toast-success { background: #d4edda; color: #155724; }
-.toast-error   { background: #f8d7da; color: #721c24; }
-.toast-info    { background: #d1ecf1; color: #0c5460; }
-
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
+@keyframes toast-in {
+  from { transform: translateX(110%); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* Màu theo loại — sử dụng design tokens */
+.toast-success {
+  background: var(--color-success-bg, hsl(134, 50%, 93%));
+  color:      var(--color-success,    hsl(134, 43%, 35%));
+  border-left: 4px solid var(--color-success, hsl(134, 43%, 35%));
+}
+
+.toast-error {
+  background: var(--color-error-bg, hsl(9, 80%, 95%));
+  color:      var(--color-error,    hsl(9, 62%, 52%));
+  border-left: 4px solid var(--color-error, hsl(9, 62%, 52%));
+}
+
+.toast-info {
+  background: var(--color-info-bg, hsl(200, 60%, 93%));
+  color:      var(--color-info,    hsl(200, 68%, 38%));
+  border-left: 4px solid var(--color-info, hsl(200, 68%, 38%));
+}
+
+.toast-warning {
+  background: var(--color-warning-bg, hsl(38, 90%, 93%));
+  color:      var(--color-warning,    hsl(38, 85%, 45%));
+  border-left: 4px solid var(--color-warning, hsl(38, 85%, 45%));
+}
+
+/* Icon */
+.toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* Text */
+.toast-text {
+  flex: 1;
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-normal, 1.5);
+}
+
+/* Nút đóng — touch target 44×44 */
+.toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  /* Padding ảo để đạt touch target 44px */
+  padding: 8px;
+  margin: -8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-sm, 6px);
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast, 0.15s) ease;
+}
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* Dark mode */
+[data-theme="dark"] .toast-success {
+  background: var(--color-success-bg);
+  color:      var(--color-success);
+}
+[data-theme="dark"] .toast-error {
+  background: var(--color-error-bg);
+  color:      var(--color-error);
+}
+[data-theme="dark"] .toast-info {
+  background: var(--color-info-bg);
+  color:      var(--color-info);
+}
+[data-theme="dark"] .toast-warning {
+  background: var(--color-warning-bg);
+  color:      var(--color-warning);
 }

@@ -1,55 +1,282 @@
+/* ============================================================
+   DESIGN TOKENS — Zen Garden TodoList
+   Tập trung toàn bộ màu, spacing, radius, typography, shadow,
+   focus ring và breakpoint. Không hard-code giá trị rải rác.
+   ============================================================ */
+
+/* --- Font preload (self-hosted fallback sẽ nằm trong index.html) --- */
 @import url('styles/form.css');
+
+/* Google Fonts — preconnect đã khai báo trong index.html */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&display=swap');
 
+/* ── Light theme (default) ── */
 :root {
-  --bg-body: #f6f3ed;
-  --bg-surface: #ffffff;
-  --bg-surface-hover: #ede9df;
-  --bg-input: #ffffff;
-  --text-main: #233420;
-  --text-muted: #647560;
-  --accent-primary: #446340;
-  --accent-primary-hover: #364f33;
-  --accent-secondary: #687743;
-  --border-color: #dfdec;
-  --border-color: #dfe6d6;
-  --shadow-color: rgba(45, 62, 41, 0.08);
-  --error-color: #d34e36;
-  --footer-bg: #21311f;
-  --footer-text: #c4c8b6;
-  --footer-title: #ffffff;
-  --footer-link: #a4a894;
+  /* Màu nền */
+  --color-bg-body:          hsl(43, 30%, 94%);
+  --color-bg-surface:       hsl(0, 0%, 100%);
+  --color-bg-surface-hover: hsl(43, 22%, 89%);
+  --color-bg-input:         hsl(0, 0%, 100%);
+
+  /* Màu chữ */
+  --color-text-primary:     hsl(120, 20%, 17%);
+  --color-text-muted:       hsl(115, 10%, 43%);
+  --color-text-on-accent:   hsl(0, 0%, 100%);
+
+  /* Màu nhấn */
+  --color-accent-primary:       hsl(120, 21%, 32%);
+  --color-accent-primary-hover: hsl(120, 21%, 25%);
+  --color-accent-secondary:     hsl(84, 28%, 36%);
+
+  /* Màu viền */
+  --color-border:               hsl(105, 18%, 86%);
+  --color-border-focus:         hsl(120, 21%, 45%);
+
+  /* Màu ngữ nghĩa */
+  --color-error:                hsl(9, 62%, 52%);
+  --color-error-bg:             hsl(9, 80%, 95%);
+  --color-success:              hsl(134, 43%, 35%);
+  --color-success-bg:           hsl(134, 50%, 93%);
+  --color-info:                 hsl(200, 68%, 38%);
+  --color-info-bg:              hsl(200, 60%, 93%);
+  --color-warning:              hsl(38, 85%, 45%);
+  --color-warning-bg:           hsl(38, 90%, 93%);
+
+  /* Bóng */
+  --color-shadow:               hsla(120, 15%, 20%, 0.08);
+  --color-shadow-md:            hsla(120, 15%, 20%, 0.14);
+
+  /* Footer */
+  --color-footer-bg:            hsl(120, 20%, 16%);
+  --color-footer-text:          hsl(105, 12%, 75%);
+  --color-footer-title:         hsl(0, 0%, 100%);
+  --color-footer-link:          hsl(90, 10%, 62%);
+
+  /* ── Spacing scale ── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* ── Border radius ── */
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+  --radius-full: 9999px;
+
+  /* ── Typography ── */
+  --font-sans:  'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Lora', 'Playfair Display', Georgia, serif;
+
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+
+  --font-weight-normal:    400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+
+  --line-height-tight:  1.2;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* ── Focus ring ── */
+  --focus-ring-width:  3px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color:  hsl(120, 40%, 50%);
+
+  /* ── Transition ── */
+  --transition-fast:   0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow:   0.4s ease;
+
+  /* ── Touch target ── */
+  --touch-target-min: 44px;
+
+  /* Alias backwards-compat (dùng cho component chưa refactor) */
+  --bg-body:              var(--color-bg-body);
+  --bg-surface:           var(--color-bg-surface);
+  --bg-surface-hover:     var(--color-bg-surface-hover);
+  --bg-input:             var(--color-bg-input);
+  --text-main:            var(--color-text-primary);
+  --text-muted:           var(--color-text-muted);
+  --accent-primary:       var(--color-accent-primary);
+  --accent-primary-hover: var(--color-accent-primary-hover);
+  --accent-secondary:     var(--color-accent-secondary);
+  --border-color:         var(--color-border);
+  --shadow-color:         var(--color-shadow);
+  --error-color:          var(--color-error);
+  --footer-bg:            var(--color-footer-bg);
+  --footer-text:          var(--color-footer-text);
+  --footer-title:         var(--color-footer-title);
+  --footer-link:          var(--color-footer-link);
 }
 
+/* ── Dark theme ── */
 [data-theme="dark"] {
-  --bg-body: #131712;
-  --bg-surface: #1c231a;
-  --bg-surface-hover: #263023;
-  --bg-input: #21291e;
-  --text-main: #e2e9dc;
-  --text-muted: #95a88e;
-  --accent-primary: #6da064;
-  --accent-primary-hover: #83b979;
-  --accent-secondary: #90a463;
-  --border-color: #2e3b2b;
-  --shadow-color: rgba(0, 0, 0, 0.5);
-  --error-color: #e57373;
-  --footer-bg: #161b15;
-  --footer-text: #92a28e;
-  --footer-title: #e2e9dc;
-  --footer-link: #92a28e;
+  --color-bg-body:          hsl(120, 15%, 8%);
+  --color-bg-surface:       hsl(120, 12%, 13%);
+  --color-bg-surface-hover: hsl(120, 11%, 18%);
+  --color-bg-input:         hsl(120, 10%, 15%);
+
+  --color-text-primary:     hsl(110, 18%, 90%);
+  --color-text-muted:       hsl(110, 12%, 60%);
+
+  --color-accent-primary:       hsl(120, 28%, 53%);
+  --color-accent-primary-hover: hsl(120, 30%, 62%);
+  --color-accent-secondary:     hsl(84, 28%, 56%);
+
+  --color-border:               hsl(120, 10%, 24%);
+  --color-border-focus:         hsl(120, 30%, 55%);
+
+  --color-error:                hsl(0, 60%, 67%);
+  --color-error-bg:             hsl(0, 30%, 18%);
+  --color-success:              hsl(134, 40%, 55%);
+  --color-success-bg:           hsl(134, 20%, 16%);
+  --color-info:                 hsl(200, 60%, 60%);
+  --color-info-bg:              hsl(200, 20%, 16%);
+
+  --color-shadow:               hsla(0, 0%, 0%, 0.5);
+  --color-shadow-md:            hsla(0, 0%, 0%, 0.7);
+
+  --color-footer-bg:            hsl(120, 18%, 9%);
+  --color-footer-text:          hsl(110, 12%, 58%);
+  --color-footer-title:         hsl(110, 18%, 90%);
+  --color-footer-link:          hsl(110, 10%, 58%);
+
+  /* Update backwards-compat aliases */
+  --bg-body:              var(--color-bg-body);
+  --bg-surface:           var(--color-bg-surface);
+  --bg-surface-hover:     var(--color-bg-surface-hover);
+  --bg-input:             var(--color-bg-input);
+  --text-main:            var(--color-text-primary);
+  --text-muted:           var(--color-text-muted);
+  --accent-primary:       var(--color-accent-primary);
+  --accent-primary-hover: var(--color-accent-primary-hover);
+  --accent-secondary:     var(--color-accent-secondary);
+  --border-color:         var(--color-border);
+  --shadow-color:         var(--color-shadow);
+  --error-color:          var(--color-error);
+  --footer-bg:            var(--color-footer-bg);
+  --footer-text:          var(--color-footer-text);
+  --footer-title:         var(--color-footer-title);
+  --footer-link:          var(--color-footer-link);
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  /* Tránh layout shift khi scrollbar xuất hiện */
+  scrollbar-gutter: stable;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: var(--bg-body);
-    color: var(--text-main);
-    min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--line-height-normal);
+  background-color: var(--color-bg-body);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  /* Giữ antialiasing nhất quán */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Focus ring toàn cục — WCAG 2.1 AA ── */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Ẩn outline khi chỉ dùng chuột */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Touch targets ── */
+button,
+[role="button"],
+[role="checkbox"],
+a,
+input[type="checkbox"],
+input[type="radio"],
+select {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+/* Override cho những element inline nhỏ — dùng padding ảo */
+.btn-icon-sm {
+  position: relative;
+}
+.btn-icon-sm::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+/* ── Visually hidden (screen reader only) ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Skip link ── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: var(--space-4);
+  z-index: 9999;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-accent-primary);
+  color: var(--color-text-on-accent);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  transition: top var(--transition-fast);
+}
+.skip-link:focus {
+  top: var(--space-4);
 }

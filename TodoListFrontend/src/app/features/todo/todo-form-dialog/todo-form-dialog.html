@@ -1,81 +1,153 @@
-<div class="overlay" (click)="cancelled.emit()">
-  <div class="dialog" (click)="$event.stopPropagation()">
-    <div class="dialog-header">
-      <h3 class="dialog-title">{{ isEditMode ? langService.translate('todo.edit_title') : langService.translate('todo.create_title') }}</h3>
-      <button type="button" class="btn-close" (click)="cancelled.emit()" [title]="langService.translate('btn.close')">✕</button>
-    </div>
+<!--
+  Form dialog tạo/sửa Todo
+  • role="dialog" + aria-modal="true" + aria-labelledby
+  • Overlay tách riêng để focus trap hoạt động
+  • Escape và click overlay gọi close()
+  • Tất cả lỗi validation dùng langService (không hard-code tiếng Việt)
+-->
 
-    <form [formGroup]="todoForm" (ngSubmit)="onSubmit()" class="dialog-form">
-      <div class="form-group">
-        <label for="title">{{ langService.translate('todo.label_title') }}</label>
-        <input id="title" formControlName="title" [placeholder]="langService.translate('todo.placeholder_title')" class="form-input" />
-        @if (todoForm.get('title')?.touched && todoForm.get('title')?.invalid) {
-        <span class="error">
+<!-- Overlay -->
+<div class="overlay" (click)="close()" aria-hidden="true"></div>
+
+<!-- Dialog -->
+<div
+  class="dialog"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="form-dialog-title"
+  (click)="$event.stopPropagation()"
+>
+  <div class="dialog-header">
+    <h2 class="dialog-title" id="form-dialog-title">
+      {{ isEditMode ? langService.translate('todo.edit_title') : langService.translate('todo.create_title') }}
+    </h2>
+    <button
+      type="button"
+      class="btn-close"
+      (click)="close()"
+      [attr.aria-label]="langService.translate('btn.close')"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <form [formGroup]="todoForm" (ngSubmit)="onSubmit()" class="dialog-form" novalidate>
+
+    <!-- Tiêu đề -->
+    <div class="form-group">
+      <label for="todo-title">{{ langService.translate('todo.label_title') }}</label>
+      <input
+        id="todo-title"
+        formControlName="title"
+        [placeholder]="langService.translate('todo.placeholder_title')"
+        class="form-input"
+        autocomplete="off"
+        [attr.aria-invalid]="todoForm.get('title')?.touched && todoForm.get('title')?.invalid ? 'true' : null"
+        aria-describedby="todo-title-error"
+      />
+      @if (todoForm.get('title')?.touched && todoForm.get('title')?.invalid) {
+        <span id="todo-title-error" class="field-error" role="alert">
           @if (todoForm.get('title')?.hasError('required')) {
-          ⚠️ Vui lòng nhập tiêu đề hạt giống (công việc).
+            {{ langService.translate('todo.error_title_required') }}
           } @else if (todoForm.get('title')?.hasError('maxlength')) {
-          ⚠️ Tiêu đề không được vượt quá 200 ký tự.
+            {{ langService.translate('todo.error_title_maxlength') }}
           }
         </span>
+      }
+    </div>
+
+    <!-- Mô tả -->
+    <div class="form-group">
+      <label for="todo-description">{{ langService.translate('todo.label_desc') }}</label>
+      <textarea
+        id="todo-description"
+        formControlName="description"
+        rows="3"
+        [placeholder]="langService.translate('todo.placeholder_desc')"
+        class="form-textarea"
+      ></textarea>
+    </div>
+
+    <!-- Priority, Category, DueDate -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="todo-priority">{{ langService.translate('todo.label_priority') }}</label>
+        <select id="todo-priority" formControlName="priority" class="form-select"
+                [attr.aria-invalid]="todoForm.get('priority')?.touched && todoForm.get('priority')?.invalid ? 'true' : null">
+          <option [ngValue]="1">{{ langService.translate('todo.priority_low') }}</option>
+          <option [ngValue]="2">{{ langService.translate('todo.priority_medium') }}</option>
+          <option [ngValue]="3">{{ langService.translate('todo.priority_high') }}</option>
+        </select>
+        @if (todoForm.get('priority')?.touched && todoForm.get('priority')?.invalid) {
+          <span class="field-error" role="alert">{{ langService.translate('todo.error_priority_required') }}</span>
         }
       </div>
 
       <div class="form-group">
-        <label for="description">{{ langService.translate('todo.label_desc') }}</label>
-        <textarea id="description" formControlName="description" rows="3" [placeholder]="langService.translate('todo.placeholder_desc')" class="form-textarea"></textarea>
+        <label for="todo-category">{{ langService.translate('todo.label_category') }}</label>
+        <select id="todo-category" formControlName="categoryId" class="form-select">
+          @for (cat of categories(); track cat.id) {
+            <option [ngValue]="cat.id">{{ cat.name }}</option>
+          }
+        </select>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="priority">{{ langService.translate('todo.label_priority') }}</label>
-          <select id="priority" formControlName="priority" class="form-select">
-            <option [ngValue]="1">{{ langService.translate('todo.priority_low') }}</option>
-            <option [ngValue]="2">{{ langService.translate('todo.priority_medium') }}</option>
-            <option [ngValue]="3">{{ langService.translate('todo.priority_high') }}</option>
-          </select>
-          @if (todoForm.get('priority')?.touched && todoForm.get('priority')?.invalid) {
-          <span class="error">⚠️ Vui lòng chọn độ ưu tiên.</span>
-          }
-        </div>
-
-        <div class="form-group">
-          <label for="categoryId">{{ langService.translate('todo.label_category') }}</label>
-          <select id="categoryId" formControlName="categoryId" class="form-select">
-            @for (cat of categories(); track cat.id) {
-            <option [ngValue]="cat.id">📁 {{ cat.name }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="dueDate">{{ langService.translate('todo.label_due_date') }}</label>
-          <input id="dueDate" type="date" formControlName="dueDate" class="form-input" />
-          @if (todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid) {
-          <span class="error">⚠️ Vui lòng chọn hạn chót.</span>
-          }
-        </div>
+      <div class="form-group">
+        <label for="todo-due-date">{{ langService.translate('todo.label_due_date') }}</label>
+        <input
+          id="todo-due-date"
+          type="date"
+          formControlName="dueDate"
+          class="form-input"
+          [attr.aria-invalid]="todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid ? 'true' : null"
+          aria-describedby="todo-due-error"
+        />
+        @if (todoForm.get('dueDate')?.touched && todoForm.get('dueDate')?.invalid) {
+          <span id="todo-due-error" class="field-error" role="alert">{{ langService.translate('todo.error_due_required') }}</span>
+        }
       </div>
+    </div>
 
-      @if (isEditMode) {
+    <!-- Trạng thái hoàn thành (chỉ edit mode) -->
+    @if (isEditMode) {
       <div class="form-group checkbox-group">
-        <input id="isCompleted" type="checkbox" formControlName="isCompleted" class="form-checkbox" />
-        <label for="isCompleted">{{ langService.translate('todo.is_completed_label') }}</label>
+        <input id="todo-completed" type="checkbox" formControlName="isCompleted" class="form-checkbox" />
+        <label for="todo-completed">{{ langService.translate('todo.is_completed_label') }}</label>
       </div>
-      }
+    }
 
-      <div class="dialog-actions">
-        @if (isEditMode) {
-        <button type="button" class="btn-delete" (click)="onDelete()" [title]="langService.translate('todo.delete')">
+    <!-- Actions -->
+    <div class="dialog-actions">
+      @if (isEditMode) {
+        <button
+          type="button"
+          class="btn-delete"
+          (click)="onDelete()"
+          [attr.aria-label]="langService.translate('todo.delete')"
+        >
           {{ langService.translate('todo.btn_pluck') }}
         </button>
-        }
-        <div class="right-actions">
-          <button type="button" class="btn-cancel" (click)="cancelled.emit()">{{ langService.translate('todo.btn_cancel') }}</button>
-          <button type="submit" class="btn-submit" [disabled]="isLoading">
-            <span>{{ isEditMode ? langService.translate('todo.btn_save_changes') : langService.translate('todo.btn_plant') }}</span>
-          </button>
-        </div>
+      }
+      <div class="right-actions">
+        <button type="button" class="btn-cancel" (click)="close()">
+          {{ langService.translate('todo.btn_cancel') }}
+        </button>
+        <button type="submit" class="btn-submit" [disabled]="isLoading" [attr.aria-busy]="isLoading">
+          @if (isLoading) {
+            <span class="sr-only">Đang xử lý...</span>
+            <span aria-hidden="true">...</span>
+          } @else {
+            {{ isEditMode ? langService.translate('todo.btn_save_changes') : langService.translate('todo.btn_plant') }}
+          }
+        </button>
       </div>
-    </form>
-  </div>
+    </div>
+
+  </form>
 </div>

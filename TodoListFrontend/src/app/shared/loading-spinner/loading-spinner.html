@@ -1,3 +1,19 @@
-<div [class.spinner-overlay]="overlay()" class="spinner-wrapper">
-    <div class="spinner"></div>
+<!--
+  Spinner tải dữ liệu — WCAG:
+  • role="status" + aria-label → screen reader đọc ngay
+  • Khi overlay=true, bao gồm vùng tải cụ thể (không phải toàn màn hình)
+  • Khi overlay=false, inline spinner trong vùng nội dung đang tải
+-->
+<div
+  class="spinner-wrapper"
+  [class.spinner-overlay]="overlay()"
+  role="status"
+  [attr.aria-label]="label()"
+  [attr.aria-busy]="true"
+>
+  <div class="spinner" aria-hidden="true"></div>
+  <!-- Label hiển thị dưới spinner (tuỳ chọn) -->
+  @if (showLabel()) {
+    <p class="spinner-label">{{ label() }}</p>
+  }
 </div>

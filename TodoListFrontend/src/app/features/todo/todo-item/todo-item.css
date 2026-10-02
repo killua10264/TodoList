@@ -1,26 +1,43 @@
+/* ── Todo Card — chuyển sang button, đảm bảo focus và touch target ── */
 .todo-card {
   position: relative;
-  border-radius: 14px;
+  border-radius: var(--radius-lg, 14px);
   padding: 0.9rem 1.2rem;
-  min-height: 72px;
+  min-height: var(--touch-target-min, 44px);
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #e8ece0;
+  background: hsl(80, 22%, 90%);
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.02);
+  transition: transform var(--transition-normal, 0.25s) ease,
+              box-shadow var(--transition-normal, 0.25s) ease;
+  box-shadow: 0 3px 12px var(--color-shadow, rgba(0,0,0,0.06));
+
+  /* Reset button styles */
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  color: var(--color-text-primary, #233420);
 }
 
 .todo-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(74, 90, 58, 0.08);
+  box-shadow: 0 6px 18px var(--color-shadow-md, rgba(74,90,58,0.12));
+}
+
+/* Focus ring rõ ràng (WCAG 2.4.7) */
+.todo-card:focus-visible {
+  outline: var(--focus-ring-width, 3px) solid var(--focus-ring-color, hsl(120,40%,50%));
+  outline-offset: var(--focus-ring-offset, 2px);
 }
 
 .todo-card.completed {
-  background: #6a7c64;
+  background: hsl(110, 16%, 44%);
 }
 
+/* Flower badge trang trí */
 .flower-badge {
   position: absolute;
   top: -10px;
@@ -32,162 +49,222 @@
   z-index: 10;
 }
 
+/* Nội dung text */
 .card-content {
   flex: 1;
   padding-right: 0.8rem;
 }
 
 .todo-title {
-  font-family: 'Lora', serif;
-  font-size: 1.1rem;
-  color: var(--text-main);
-  font-weight: 500;
-  line-height: 1.35;
+  font-family: var(--font-serif, 'Lora', serif);
+  font-size: var(--text-lg, 1.1rem);
+  color: var(--color-text-primary, #233420);
+  font-weight: var(--font-weight-medium, 500);
+  line-height: var(--line-height-tight, 1.35);
   display: block;
 }
 
 .completed-title {
-  color: var(--text-main);
+  color: hsl(110, 10%, 95%);
 }
 
+/* Badge danh mục */
 .todo-category-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   margin-top: 0.35rem;
   padding: 0.15rem 0.6rem;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid #d8dec8;
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--text-main);
-  font-family: 'Inter', sans-serif;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-full, 9999px);
+  background: hsla(0, 0%, 100%, 0.65);
+  border: 1px solid hsl(105, 18%, 82%);
+  font-size: var(--text-xs, 0.76rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary, #233420);
+  font-family: var(--font-sans, 'Inter', sans-serif);
 }
 
 .completed-badge {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(255, 255, 255, 0.5);
-  color: var(--text-main);
+  background: hsla(0, 0%, 100%, 0.3);
+  border-color: hsla(0, 0%, 100%, 0.45);
+  color: hsl(110, 10%, 95%);
 }
 
 .cat-mini-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-full, 9999px);
+  flex-shrink: 0;
 }
 
-.cat-badge-text {
-  line-height: 1.2;
-}
-
+/* ── Action buttons ── */
 .card-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   position: relative;
   z-index: 15;
 }
 
-.btn-card-edit,
-.btn-card-delete {
+/* Nút hành động chung — touch target 44×44 với padding ảo */
+.btn-card-action {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
+  border-radius: var(--radius-md, 10px);
   border: none;
-  background: rgba(138, 133, 112, 0.15);
-  color: #6b6655;
+  background: hsla(80, 20%, 55%, 0.18);
+  color: hsl(100, 12%, 40%);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   opacity: 0;
-  transition: all 0.25s ease;
+  transition: background var(--transition-fast, 0.15s) ease,
+              color     var(--transition-fast, 0.15s) ease,
+              opacity   var(--transition-fast, 0.15s) ease,
+              transform var(--transition-fast, 0.15s) ease;
   padding: 0;
+  /* Touch target ảo */
+  position: relative;
 }
 
-.todo-card:hover .btn-card-edit,
-.todo-card:hover .btn-card-delete {
+.btn-card-action::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+/* Hiện nút khi hover card hoặc focus-within */
+.todo-card:hover .btn-card-action,
+.card-actions:focus-within .btn-card-action {
   opacity: 1;
 }
 
-.btn-card-edit:hover {
-  background: #54664c;
-  color: var(--bg-surface);
-  transform: scale(1.12);
+.btn-card-action:hover {
+  background: var(--color-accent-primary, hsl(120,21%,32%));
+  color: #fff;
+  transform: scale(1.1);
 }
 
-.btn-card-delete:hover {
-  background: #c94a4a;
-  color: var(--bg-surface);
-  transform: scale(1.12);
+.btn-card-action:focus-visible {
+  opacity: 1;
+  outline: var(--focus-ring-width, 3px) solid var(--focus-ring-color, hsl(120,40%,50%));
+  outline-offset: 2px;
 }
 
-.todo-card.completed .btn-card-edit,
-.todo-card.completed .btn-card-delete {
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
+/* Danger variant */
+.btn-card-danger:hover {
+  background: var(--color-error, hsl(9,62%,52%));
+  color: #fff;
+}
+
+/* Completed card buttons */
+.todo-card.completed .btn-card-action {
+  border: 1.5px solid hsla(0, 0%, 100%, 0.8);
   background: transparent;
-  color: var(--bg-surface);
+  color: hsl(110, 10%, 90%);
+}
+.todo-card.completed .btn-card-action:hover {
+  background: hsla(0, 0%, 100%, 0.2);
+}
+.todo-card.completed .btn-card-danger:hover {
+  background: var(--color-error, hsl(9,62%,52%));
+  border-color: var(--color-error, hsl(9,62%,52%));
 }
 
-.todo-card.completed .btn-card-edit:hover {
-  background: #54664c;
-  border-color: #54664c;
-  color: var(--bg-surface);
-  transform: scale(1.12);
-}
-
-.todo-card.completed .btn-card-delete:hover {
-  background: #c94a4a;
-  border-color: #c94a4a;
-  color: var(--bg-surface);
-  transform: scale(1.12);
-}
-
+/* ── Checkbox toggle ── */
 .card-checkbox {
   width: 22px;
   height: 22px;
-  border: 2px solid #a8b545;
-  border-radius: 5px;
+  border: 2px solid hsl(84, 38%, 47%);
+  border-radius: var(--radius-sm, 6px);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  cursor: pointer;
   background: transparent;
+  opacity: 0;
+  transition: background var(--transition-fast, 0.15s) ease,
+              border-color var(--transition-fast, 0.15s) ease,
+              opacity      var(--transition-fast, 0.15s) ease,
+              transform    var(--transition-fast, 0.15s) ease;
+  /* Touch target ảo */
+  position: relative;
+}
+
+.card-checkbox::before {
+  content: '';
+  position: absolute;
+  inset: -11px;
+}
+
+.todo-card:hover .card-checkbox,
+.card-actions:focus-within .card-checkbox {
+  opacity: 1;
 }
 
 .card-checkbox:hover {
   transform: scale(1.1);
-  border-color: #7b8832;
+  border-color: hsl(84, 40%, 35%);
+}
+
+.card-checkbox:focus-visible {
+  opacity: 1;
+  outline: var(--focus-ring-width, 3px) solid var(--focus-ring-color, hsl(120,40%,50%));
+  outline-offset: 2px;
 }
 
 .todo-card.completed .card-checkbox {
-  background: #9dae4a;
-  border-color: #9dae4a;
+  opacity: 1;
+  background: hsl(84, 38%, 47%);
+  border-color: hsl(84, 38%, 47%);
 }
 
-.check-mark {
-  color: var(--text-main);
-  font-weight: 800;
-  font-size: 0.95rem;
+.todo-card.completed .card-checkbox svg {
+  color: #fff;
 }
 
-/* Dark Mode Overrides */
-:host-context([data-theme="dark"]) .todo-card { background: var(--bg-surface); }
-:host-context([data-theme="dark"]) .todo-card:hover { box-shadow: 0 6px 18px var(--shadow-color); }
-:host-context([data-theme="dark"]) .todo-card.completed { background: var(--bg-surface-hover); }
-:host-context([data-theme="dark"]) .todo-card.completed .completed-title { color: var(--text-muted); text-decoration: line-through; }
-:host-context([data-theme="dark"]) .todo-category-badge { background: var(--bg-surface-hover); border: 1px solid var(--border-color); }
-:host-context([data-theme="dark"]) .completed-badge { background: transparent; border-color: var(--border-color); }
-:host-context([data-theme="dark"]) .btn-card-edit, :host-context([data-theme="dark"]) .btn-card-delete { background: transparent; color: var(--text-main); }
-:host-context([data-theme="dark"]) .btn-card-edit:hover { background: var(--accent-primary); }
-:host-context([data-theme="dark"]) .btn-card-delete:hover { background: var(--error-color); }
-:host-context([data-theme="dark"]) .todo-card.completed .btn-card-edit, :host-context([data-theme="dark"]) .todo-card.completed .btn-card-delete { border: 1.5px solid var(--border-color); }
-:host-context([data-theme="dark"]) .todo-card.completed .btn-card-edit:hover { border-color: var(--accent-primary); }
-:host-context([data-theme="dark"]) .todo-card.completed .btn-card-delete:hover { border-color: var(--error-color); }
-:host-context([data-theme="dark"]) .card-checkbox { border: 2px solid var(--accent-primary); }
-:host-context([data-theme="dark"]) .card-checkbox:hover { border-color: var(--accent-primary-hover); }
-:host-context([data-theme="dark"]) .todo-card.completed .card-checkbox { background: var(--accent-primary); border-color: var(--accent-primary); }
+/* ── Dark Mode ── */
+[data-theme="dark"] .todo-card {
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+[data-theme="dark"] .todo-card:hover {
+  box-shadow: 0 6px 18px var(--color-shadow-md);
+}
+[data-theme="dark"] .todo-card.completed {
+  background: var(--color-bg-surface-hover);
+}
+[data-theme="dark"] .todo-card.completed .completed-title {
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+[data-theme="dark"] .todo-category-badge {
+  background: var(--color-bg-surface-hover);
+  border-color: var(--color-border);
+}
+[data-theme="dark"] .completed-badge {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+}
+[data-theme="dark"] .btn-card-action {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: none;
+}
+[data-theme="dark"] .btn-card-action:hover {
+  background: var(--color-accent-primary);
+  color: #fff;
+}
+[data-theme="dark"] .btn-card-danger:hover {
+  background: var(--color-error);
+}
+[data-theme="dark"] .card-checkbox {
+  border-color: var(--color-accent-primary);
+}
+[data-theme="dark"] .todo-card.completed .card-checkbox {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+}

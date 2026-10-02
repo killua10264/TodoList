@@ -1,25 +1,35 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
+
+export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 export interface ToastMessage {
-    id: number;
-    text: string;
-    type: 'success' | 'error' | 'info';
+  id:   number;
+  text: string;
+  type: ToastType;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
-    toasts = signal<ToastMessage[]>([]);
-    private nextId = 0;
+  toasts = signal<ToastMessage[]>([]);
+  private nextId = 0;
 
-    show(text: string, type: 'success' | 'error' | 'info' = 'info') {
-        const id = this.nextId++;
-        this.toasts.update(list => [...list, { id, text, type }]);
+  /** success và info → aria-live="polite" */
+  readonly politeToasts = computed(() =>
+    this.toasts().filter(t => t.type === 'success' || t.type === 'info')
+  );
 
-        setTimeout(() => this.remove(id), 3000);
-    }
+  /** error và warning → aria-live="assertive" */
+  readonly assertiveToasts = computed(() =>
+    this.toasts().filter(t => t.type === 'error' || t.type === 'warning')
+  );
 
-    remove(id: number) {
-        this.toasts.update(list => list.filter(t => t.id !== id));
-    }
+  show(text: string, type: ToastType = 'info', durationMs = 4000): void {
+    const id = this.nextId++;
+    this.toasts.update(list => [...list, { id, text, type }]);
+    setTimeout(() => this.remove(id), durationMs);
+  }
+
+  remove(id: number): void {
+    this.toasts.update(list => list.filter(t => t.id !== id));
+  }
 }
-

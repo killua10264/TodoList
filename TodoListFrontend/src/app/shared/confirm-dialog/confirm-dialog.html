@@ -1,12 +1,51 @@
 @if (visible()) {
-<div class="overlay" (click)="onCancel()">
-    <div class="dialog" (click)="$event.stopPropagation()">
-        <h3>{{ title() }}</h3>
-        <p>{{ message() }}</p>
-        <div class="dialog-actions">
-            <button class="btn-cancel" (click)="onCancel()">Hủy</button>
-            <button class="btn-confirm" (click)="onConfirm()">Xác nhận</button>
-        </div>
+  <!-- Overlay — click bên ngoài để hủy -->
+  <div
+    class="overlay"
+    (click)="onCancel()"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Dialog container — role, aria-modal, aria-labelledby -->
+  <div
+    class="dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirm-dialog-title"
+    aria-describedby="confirm-dialog-message"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Icon cảnh báo dạng SVG (không dùng emoji) -->
+    <div class="dialog-icon" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
     </div>
-</div>
+
+    <h2 class="dialog-title" id="confirm-dialog-title">{{ title() }}</h2>
+    <p class="dialog-message" id="confirm-dialog-message">{{ message() }}</p>
+
+    <div class="dialog-actions">
+      <button
+        id="dialog-cancel-btn"
+        type="button"
+        class="btn-cancel"
+        (click)="onCancel()"
+      >
+        Hủy
+      </button>
+      <button
+        id="dialog-confirm-btn"
+        type="button"
+        class="btn-confirm"
+        (click)="onConfirm()"
+      >
+        Xác nhận
+      </button>
+    </div>
+  </div>
 }

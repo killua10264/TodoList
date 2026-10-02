@@ -1,28 +1,51 @@
 .spinner-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-8, 2rem);
 }
 
+/* Overlay chỉ che vùng cha (position: relative) — không toàn màn hình */
 .spinner-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    z-index: 999;
+  position: absolute;
+  inset: 0;
+  background: hsla(0, 0%, 100%, 0.72);
+  z-index: 100;
+  border-radius: inherit;
 }
 
+[data-theme="dark"] .spinner-overlay {
+  background: hsla(120, 12%, 8%, 0.72);
+}
+
+/* Spinner vòng tròn — dùng CSS token cho màu */
 .spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #e0e0e0;
-    border-top-color: #3b82f6;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border, hsl(105, 18%, 86%));
+  border-top-color: var(--color-accent-primary, hsl(120, 21%, 32%));
+  border-radius: var(--radius-full, 9999px);
+  animation: spin 0.75s linear infinite;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to { transform: rotate(360deg); }
+}
+
+/* Label text */
+.spinner-label {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--color-text-muted, #647560);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Reduced motion: thay animation bằng pulse tĩnh */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-color: var(--color-accent-primary, hsl(120, 21%, 32%));
+    opacity: 0.5;
+  }
 }
